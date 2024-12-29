@@ -1,0 +1,43 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Env
+node_modules
+package-lock.json
+.npm
+dist
+dist-ssr
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.vscode-test
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.gulp
+Desktop.ini
+Thumbs.db
+ehthumbs.db
+.DS_Store
+Icon?
+.tmp.*
+.temp
+.cache
+.cache/
+
+# Personal
+.old/*
+assets/*
+build/*
+*.github.io

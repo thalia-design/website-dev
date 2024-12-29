@@ -1,0 +1,17 @@
+@use './import/styles/reset.scss';
+@use './import/styles/fonts.scss';
+@use './import/styles/noscript-error.scss';
+
+
+// DESIGN
+@use './import/styles/styles-system.scss';
+@use './import/styles/styles-outline.scss';
+
+
+// LIBRARIES
+//@use './import/dependencies/styles.scss';
+
+
+// CONTENT
+@use './import/styles/page-home.scss';
+@use './import/styles/page-projects.scss';
