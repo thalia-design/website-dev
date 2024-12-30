@@ -1,69 +1,39 @@
-.test-img {
-    display: flex;
-    flex-direction: row;
-    align-items: start;
-    justify-content: start;
-    max-width: 100vw;
 
+.section-home-head {
+    background-color: var(--thalia-c-bg2);
+    min-height: 30vh;
+}
 
-    img, video {
-        filter: drop-shadow(10px 10px 10px hotpink);
+.section-home-gallery {
+    background-color: var(--thalia-c-bg);
+
+    &::before {
+        content: "";
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translateY(-100%);
+        width: 100%;
+        height: 6em;
+        background: linear-gradient(to top, #404CFF, ease-out, transparent);
+        opacity: 0.2;
     }
 
-    .video {
-        position: relative;
-        width: 100%;
-
-        video {
-            size: 100%;
-        }
-
-        &::after {
-            content: "video";
-            position: absolute;
-            inset: 0;
-            font-size: 2em;
-            color: black;
-            pointer-events: none;
-        }
+    .gallery-grid {
+        min-height: 100vh;
     }
 }
 
 
-.test-gradients {
-    margin-top: 5em;
-    width: 100%;
 
-    > * {
-        width: 100%;
-        height: 3em;
-    }
 
-    .noease1 {
-        background: linear-gradient(to right, black, transparent);
-    }
-    .ease1 {
-        background: linear-gradient(to right, black, ease, transparent);
-    }
 
-    .noease2 {
-        background: linear-gradient(to right, blue, hotpink);
-    }
-    .ease2 {
-        background: linear-gradient(to right, blue, ease, hotpink);
-    }
 
-    .noease3 {
-        background: linear-gradient(to right, blue, yellow);
-    }
-    .ease3 {
-        background: linear-gradient(to right, blue, ease, yellow);
-    }
 
-    .noease4 {
-        background: linear-gradient(to right, blue, lime);
-    }
-    .ease4 {
-        background: linear-gradient(to right, blue, ease, lime);
-    }
-}
+
+
+
+
+
+

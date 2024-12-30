@@ -1,1 +1,23 @@
+:root {
+    --thalia-c-blue: #404CFF;
+    --thalia-c-orange: #FFC095;
+    --thalia-c-beige: #FDECFB;
+    --thalia-c-white: #FFFFFF;
 
+    --thalia-c-accent: var(--thalia-c-blue);
+    --thalia-c-bg: var(--thalia-c-white);
+    --thalia-c-bg2: var(--thalia-c-beige);
+}
+
+::selection {
+    background-color: var(--thalia-c-accent);
+    color: var(--thalia-c-white);
+}
+
+body {
+    font-family: "Parkinsans", sans-serif;
+    font-weight: 350;
+
+    background-color: var(--thalia-c-bg);
+    color: var(--thalia-c-accent);
+}

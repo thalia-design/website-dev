@@ -34,6 +34,11 @@ wrapper {
     height: auto;
 }
 
+main > * {
+    z-index: 0;
+    position: relative;
+}
+
 *::before,
 *::after {
     z-index: 1;
@@ -53,6 +58,7 @@ svg {
     width: 100%;
     max-width: 100%;
     height: auto;
+    user-select: none;
 }
 .video-container video,
 .img-container img {

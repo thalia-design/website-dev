@@ -1,19 +1,44 @@
-::placeholder {
-    color: gray;
-}
 
-body {
-    font-family: "Parkinsans", sans-serif;
-    margin: 3em;
-    padding: _ 10em;
-    color: pink;
-}
+.section-footer {
+    padding: 2.5rem 1rem;
 
-body {
-    a {
-        font-weight: 650;
-        background-image: url("assets/placeholder.png");
-        background-size: cover;
-        background-repeat: repeat;
+    color: var(--thalia-c-beige);
+    background-color: var(--thalia-c-blue);
+    overflow: hidden;
+
+    &, .bottom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+
+        text-align: center;
+        font-weight: 320;
+        letter-spacing: 0.35px;
+    }
+
+    .logo-thalia {
+        margin: 10rem _;
+        size: 8rem;
+
+        svg {
+            stroke: none;
+            fill: var(--thalia-c-beige);
+        }
+    }
+
+    .blob-light-footer {
+        position: absolute;
+        top: 0;
+        transform: translateY(-80%);
+        width: 100%;
+        height: 25rem;
+        border-radius: 50%;
+        background-color: var(--thalia-c-orange);
+        filter: blur(80px);
+        pointer-events: none;
+        user-select: none;
     }
 }
