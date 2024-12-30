@@ -37,7 +37,7 @@ Icon?
 .cache/
 
 # Personal
-.old/*
-assets/*
-build/*
+.old/
+assets/
+build/
 *.github.io
