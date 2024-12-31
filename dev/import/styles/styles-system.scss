@@ -1,12 +1,22 @@
 :root {
-    --thalia-c-blue: #404CFF;
-    --thalia-c-orange: #FFC095;
-    --thalia-c-beige: #FDECFB;
-    --thalia-c-white: #FFFFFF;
+    --thalia-rgb-blue: 64, 76, 255;
+    --thalia-rgb-orange: 255, 192, 149;
+    --thalia-rgb-beige: 253, 236, 251;
+    --thalia-rgb-white: 255, 255, 255;
 
-    --thalia-c-accent: var(--thalia-c-blue);
-    --thalia-c-bg: var(--thalia-c-white);
-    --thalia-c-bg2: var(--thalia-c-beige);
+    --thalia-rgb-accent: var(--thalia-rgb-blue);
+    --thalia-rgb-bg: var(--thalia-rgb-white);
+    --thalia-rgb-bg2: var(--thalia-rgb-beige);
+
+
+    --thalia-c-blue: rgb(var(--thalia-rgb-blue));
+    --thalia-c-orange: rgb(var(--thalia-rgb-orange));
+    --thalia-c-beige: rgb(var(--thalia-rgb-beige));
+    --thalia-c-white: rgb(var(--thalia-rgb-white));
+
+    --thalia-c-accent: rgb(var(--thalia-rgb-accent));
+    --thalia-c-bg: rgb(var(--thalia-rgb-bg));
+    --thalia-c-bg2: rgb(var(--thalia-rgb-bg2));
 }
 
 ::selection {
@@ -16,7 +26,7 @@
 
 body {
     font-family: "Parkinsans", sans-serif;
-    font-weight: 350;
+    font-weight: 375;
 
     background-color: var(--thalia-c-bg);
     color: var(--thalia-c-accent);

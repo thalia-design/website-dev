@@ -1,10 +1,77 @@
+@use 'utils' as *;
 
 .section-home-head {
     background-color: var(--thalia-c-bg2);
-    min-height: 30vh;
+
+    > wrapper {
+        display: grid;
+        grid-template-columns: 60% 1fr;
+    }
+
+    .titles {
+        @include dflex;
+        padding-top: 5rem;
+
+        > wrapper {
+            display: flex;
+            flex-direction: column;
+            width: auto;
+            gap: 1em;
+            font-size: 2rem;
+            transform: translateY(3vw);
+        }
+
+        h1 {
+            font-size: 22vw;
+            line-height: 0.7;
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-variation-settings:
+                "wdth" 100,
+                "wght" 400,
+                "opsz" 96;
+            letter-spacing: -3%;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        h2 {
+            font-size: 1em;
+        }
+    }
+
+    .decorations {
+        @include dflex($j: flex-end);
+
+        .socials {
+            @include dflex($d: row);
+            gap: 3em;
+            width: auto;
+
+            .social-btn {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                font-size: 1em;
+                user-select: none;
+
+                &:not(:first-child):not(:last-child) {
+                    margin-bottom: 1em;
+                }
+
+                > div:first-child {
+                    size: 3em;
+                    margin-bottom: 0.5em;
+                    @include usn;
+                }
+            }
+        }
+    }
 }
 
+
 .section-home-gallery {
+    padding-top: 1em;
     background-color: var(--thalia-c-bg);
 
     &::before {
@@ -18,6 +85,7 @@
         height: 6em;
         background: linear-gradient(to top, #404CFF, ease-out, transparent);
         opacity: 0.2;
+        @include usn;
     }
 
     .gallery-grid {
@@ -25,7 +93,92 @@
     }
 }
 
+.sticky-filters {
+    position: sticky;
+    top: 0;
+    margin: 0 auto;
+    width: fit-content;
+    padding-top: 0.75em;
 
+    > wrapper {
+        @include dflex($d: row);
+        width: auto;
+
+        padding: 0.75em 1em;
+        border-radius: 99em;
+        background-color: rgba(var(--thalia-rgb-accent), 1);
+        backdrop-filter: blur(15px);
+
+        transition: background-color 0.4s ease;
+
+        html[data-sticky-filters="true"] & {
+            background-color: rgba(var(--thalia-rgb-accent), 0.8);
+        }
+
+        > *:not(:first-child) {
+            margin-left: 1em;
+        }
+    }
+
+    .btn-filter {
+        padding: 0.5em 1em;
+        border-radius: 99em;
+        border: 2px solid rgba(var(--thalia-rgb-bg), 0.15);
+        color: var(--thalia-c-beige);
+        cursor: pointer;
+        user-select: none;
+
+        > span {
+            line-height: 1;
+        }
+
+        &:hover {
+            background-color: rgba(var(--thalia-rgb-bg), 0.05);
+        }
+        &.active {
+            color: var(--thalia-c-accent);
+            background-color: var(--thalia-c-bg);
+            font-weight: 500;
+
+            &:hover {
+                background-color: rgba(var(--thalia-rgb-bg), 0.8);
+            }
+        }
+    }
+
+    > wrapper .btn-filter-clear {
+        @include dflex;
+        width: auto;
+        height: 0;
+        margin: _ 0;
+
+        transition: margin 0.4s ease;
+
+        svg {
+            box-sizing: content-box;
+            size: 0;
+            padding: 0;
+            fill: none;
+            stroke: var(--thalia-c-beige);
+            stroke-width: 8px;
+            stroke-linecap: round;
+
+            opacity: 0;
+            transition: 0.4s ease;
+            transition-property: width, height, padding, opacity;
+        }
+    }
+    > wrapper .btn-filter.active ~ .btn-filter-clear {
+        margin-left: 1em;
+        margin-right: 0.5em;
+
+        svg {
+            padding: 0.5em;
+            size: 1em;
+            opacity: 1;
+        }
+    }
+}
 
 
 
