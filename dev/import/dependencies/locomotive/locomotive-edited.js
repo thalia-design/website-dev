@@ -1,3 +1,8 @@
+/* Locomotive Scroll - 5.0-beta.21
+ * yolan.design edit
+ * - horizontal scroll : [data-scroll-direction="horizontal"]
+ * - clamp the element scroll parallax from its origin position : [data-scroll-clamp_origin="min|max"]
+ */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -378,7 +383,7 @@
             }
             this.translateValue = _progress * wSize * this.attributes.scrollSpeed * -1;
           }
-          this.$el.style.transform = this.scrollOrientation === 'vertical'
+          this.$el.style.transform = (this.scrollOrientation === 'vertical')
             ? "translate3d("+ ((this.$el.dataset['scrollDirection'] == "horizontal") ? this.translateValue + "px, 0, 0)" : "0, " + this.translateValue + "px, 0)")
             : "translate3d(" + this.translateValue + "px, 0, 0)";
         }
