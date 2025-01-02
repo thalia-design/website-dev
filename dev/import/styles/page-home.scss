@@ -3,20 +3,15 @@
 .section-home-head {
     background-color: var(--thalia-c-bg2);
 
-    > wrapper {
-        display: grid;
-        grid-template-columns: 60% 1fr;
-    }
-
     .titles {
         @include dflex;
-        padding-top: 5rem;
+        padding-top: 4rem;
 
         > wrapper {
             display: flex;
             flex-direction: column;
             width: auto;
-            gap: 1em;
+            gap: 1.5em;
             font-size: 2rem;
             transform: translateY(3vw);
         }
@@ -35,7 +30,7 @@
         }
 
         h2 {
-            font-size: 1em;
+            font-size: 1.25em;
         }
     }
 
@@ -44,8 +39,9 @@
 
         .socials {
             @include dflex($d: row);
-            gap: 3em;
+            gap: 2.4em;
             width: auto;
+            margin-bottom: 1.5em;
 
             .social-btn {
                 display: flex;
@@ -53,18 +49,115 @@
                 justify-content: center;
                 align-items: center;
                 font-size: 1em;
+                font-weight: 475;
                 user-select: none;
 
                 &:not(:first-child):not(:last-child) {
-                    margin-bottom: 1em;
+                    margin-bottom: 1.2em;
                 }
 
                 > div:first-child {
-                    size: 3em;
+                    size: 2.75em;
                     margin-bottom: 0.5em;
                     @include usn;
                 }
             }
+        }
+    }
+}
+.section-home-head > wrapper,
+.chara-thalia--hands > div {
+    display: grid;
+    grid-template-columns: 60% 1fr;
+    height: auto;
+}
+
+:root {
+    --thalia-chara-width: 23vw;
+    --thalia-chara-hand-width: 5vw;
+    --thalia-chara-hands-spacing: 9vw;
+    --thalia-chara-stroke-width: 5;
+
+    --thalia-chara-mouse-follow-offset-x: 0px;
+    --thalia-chara-mouse-follow-offset-y: 0px;
+    --thalia-chara-mouse-follow-offset-x2: calc(var(--thalia-chara-mouse-follow-offset-x) / 2.5);
+    --thalia-chara-mouse-follow-offset-y2: calc(var(--thalia-chara-mouse-follow-offset-y) / 2.5);
+}
+svg.thalia-chara {
+    .tc- {
+        &f, &fs {
+            fill: var(--thalia-c-bg2);
+        }
+        &ff, &ffs {
+            fill: var(--thalia-c-accent);
+        }
+        &s, &fs, &ffs {
+            stroke: var(--thalia-c-accent);
+            stroke-width: var(--thalia-chara-stroke-width);
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-miterlimit: 10;
+        }
+        &f, &ff {
+            stroke: none;
+        }
+        &s {
+            fill: none;
+        }
+    }
+
+    g[data-name="blush"] {
+        fill: var(--thalia-c-orange);
+        mix-blend-mode: darken;
+    }
+
+    *[class*="state--"] {
+        opacity: 0;
+
+        &.active {
+            opacity: 1;
+        }
+    }
+
+    .eye-follow {
+        transform: rotateX(0.01deg) translate(var(--thalia-chara-mouse-follow-offset-x), var(--thalia-chara-mouse-follow-offset-y))
+    }
+    .face-follow {
+        transform: rotateX(0.01deg) translate(var(--thalia-chara-mouse-follow-offset-x2), var(--thalia-chara-mouse-follow-offset-y2))
+    }
+}
+
+.interactive-chara-thalia {
+    width: 100%;
+    max-width: var(--thalia-chara-width);
+    @include usn;
+
+    svg g {
+        pointer-events: all !important;
+        cursor: grab;
+    }
+}
+.chara-thalia--hands {
+    z-index: 1000;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 0;
+    @include usn;
+
+    wrapper {
+        transform: translateY(-40%);
+        @include dflex($d: row);
+        gap: var(--thalia-chara-hands-spacing);
+    }
+
+    svg.thalia-chara {
+        --thalia-chara-stroke-width: 4;
+        width: var(--thalia-chara-hand-width);
+
+        g {
+            pointer-events: all !important;
+            cursor: pointer;
         }
     }
 }
@@ -82,9 +175,9 @@
         left: 0;
         transform: translateY(-100%);
         width: 100%;
-        height: 6em;
+        height: 5em;
         background: linear-gradient(to top, #404CFF, ease-out, transparent);
-        opacity: 0.2;
+        opacity: 0.25;
         @include usn;
     }
 
@@ -94,6 +187,7 @@
 }
 
 .sticky-filters {
+    z-index: 999;
     position: sticky;
     top: 0;
     margin: 0 auto;
@@ -125,8 +219,8 @@
         border-radius: 99em;
         border: 2px solid rgba(var(--thalia-rgb-bg), 0.15);
         color: var(--thalia-c-beige);
-        cursor: pointer;
         user-select: none;
+        cursor: pointer;
 
         > span {
             line-height: 1;
@@ -151,6 +245,7 @@
         width: auto;
         height: 0;
         margin: _ 0;
+        cursor: pointer;
 
         transition: margin 0.4s ease;
 
