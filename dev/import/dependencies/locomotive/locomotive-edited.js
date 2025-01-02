@@ -1,7 +1,10 @@
-/* Locomotive Scroll - 5.0-beta.21
- * yolan.design edit
+/** Locomotive Scroll xoxo - 5.0-beta.21
+ *
+ * yolan.design edits
  * - horizontal scroll : [data-scroll-direction="horizontal"]
- * - clamp the element scroll parallax from its origin position : [data-scroll-clamp_origin="min|max"]
+ * - clamp the element scroll parallax from its origin position : [data-scroll-clamp-origin="min|max"]
+ * - elements get class "is-scroll-hit" when progress reaches 1 : [data-scroll-progress-hit]
+ *   -> coupled with [data-scroll-position="end,start"] to get when the element hits the top of the screen
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -286,6 +289,7 @@
         scrollOffset: (_this$$el$dataset$scr2 = this.$el.dataset['scrollOffset']) != null ? _this$$el$dataset$scr2 : '0,0',
         scrollPosition: (_this$$el$dataset$scr3 = this.$el.dataset['scrollPosition']) != null ? _this$$el$dataset$scr3 : 'start,end',
         scrollModuleProgress: this.$el.dataset['scrollModuleProgress'] != null,
+        scrollProgressHit: this.$el.dataset['scrollProgressHit'] != null,
         scrollCssProgress: this.$el.dataset['scrollCssProgress'] != null,
         scrollEventProgress: (_this$$el$dataset$scr4 = this.$el.dataset['scrollEventProgress']) != null ? _this$$el$dataset$scr4 : null,
         scrollSpeed: this.$el.dataset['scrollSpeed'] != null ? parseFloat(this.$el.dataset['scrollSpeed']) : null,
@@ -372,7 +376,7 @@
             var progress = Math.max(0, this.progress);
             this.translateValue = progress * wSize * this.attributes.scrollSpeed * -1;
           } else {
-            var _this$$el$dataset$scr6 = this.$el.dataset['scrollClamp_origin'],
+            var _this$$el$dataset$scr6 = this.$el.dataset['scrollClampOrigin'] != null,
                 _progress;
             if (_this$$el$dataset$scr6 == null) {
               _progress = mapRange(0, 1, -1, 1, this.progress), 0;
@@ -569,6 +573,8 @@
       this.progress = progress;
       if (progress != this.lastProgress) {
         this.lastProgress = progress;
+        // Set a class when the element's progress is 1.
+        this.attributes.scrollProgressHit && this._setProgressHit(progress);
         // Set the element's progress to the css variable
         this.attributes.scrollCssProgress && this._setCssProgress(progress);
         // Set the element's progress to the custom event listeners
@@ -598,6 +604,23 @@
         currentProgress = 0;
       }
       this.$el.style.setProperty(PROGRESS_CSS_VAR, currentProgress.toString());
+    }
+    /**
+     * Set a class when the element's progress is 1.
+     *
+     * @private
+     *
+     * @param {number} [currentProgress] - Progress value.
+     */;
+    _proto._setProgressHit = function _setProgressHit(currentProgress) {
+      if (currentProgress === void 0) {
+        currentProgress = 0;
+      }
+      if (currentProgress === 1) {
+        this.$el.classList.add("is-scroll-hit");
+      } else {
+        this.$el.classList.remove("is-scroll-hit");
+      }
     }
     /**
      * Set the element's progress to the custom event listeners.
@@ -711,7 +734,7 @@
   }();
 
   /** Defined attributes that need a requestAnimationFrame */
-  var ATTRIBUTES_THAT_NEED_RAF = ['scrollOffset', 'scrollPosition', 'scrollModuleProgress', 'scrollCssProgress', 'scrollEventProgress', 'scrollSpeed'];
+  var ATTRIBUTES_THAT_NEED_RAF = ['scrollOffset', 'scrollPosition', 'scrollModuleProgress', 'scrollCssProgress', 'scrollProgressHit', 'scrollEventProgress', 'scrollSpeed'];
   /** Default root margins */
   var TRIGGER_ROOT_MARGIN = '-1px -1px -1px -1px';
   var RAF_ROOT_MARGIN = '100% 100% 100% 100%'; // Add 100vh top/bottom && 100vw left/right to use a biggest value with data-scroll-speed
