@@ -242,7 +242,7 @@ svg.thalia-chara {
     }
     html[thalia-chara-drag-strength="strong"]:not([thalia-chara-state="grabbing"]) & {
         [data-name="hair-front"] {
-            animation: thalia-chara-hair-front-bounce--strong 0.9s cubic-bezier(0.3, 0.3, 0, 0.9);
+            animation: thalia-chara-hair-front-bounce--strong 0.9s cubic-bezier(0.5, 0, 0, 0.9);
         }
     }
     html[thalia-chara-drag-strength="weak"]:not([thalia-chara-state="grabbing"]) & {
@@ -254,9 +254,8 @@ svg.thalia-chara {
 
 @keyframes thalia-chara-hair-front-bounce--strong {
     0% { transform: rotateZ(calc(0deg * var(--thalia-chara-drag-direction))); }
-    7% { transform: rotateZ(calc(-6deg * var(--thalia-chara-drag-direction))); }
-    25% { transform: rotateZ(calc(7deg * var(--thalia-chara-drag-direction))); }
-    45% { transform: rotateZ(calc(-3deg * var(--thalia-chara-drag-direction))); }
+    20% { transform: rotateZ(calc(-12deg * var(--thalia-chara-drag-direction))); }
+    50% { transform: rotateZ(calc(4deg * var(--thalia-chara-drag-direction))); }
     100% { transform: rotateZ(calc(0deg * var(--thalia-chara-drag-direction))); }
 }
 @keyframes thalia-chara-hair-front-bounce--weak {
