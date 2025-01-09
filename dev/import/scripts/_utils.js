@@ -7,6 +7,25 @@ const requestAnimationFrame = window.requestAnimationFrame
 const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 
+const getViewportSize = () => {
+    return {
+        x : window.innerWidth  || docHTML.clientWidth  || document.body.clientWidth,
+        y : window.innerHeight || docHTML.clientHeight || document.body.clientHeight
+    }
+}
+
+const isTouch = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+
+const isBrowser = {
+    firefox : navigator.userAgent.toLowerCase().indexOf('firefox') >= 0,
+    safari : /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+}
+
+function clearTextSelection() {
+    if (window.getSelection) { window.getSelection().removeAllRanges(); }
+    else if (document.selection) { document.selection.empty(); }
+}
+
 // call function at end of css transition of element (no propagation, option to do it only once)
 function eventAtTransitionEnd(elem, func, {property = false, once = true, debug = false}) {
     if (!property) { // will check for all css properties
