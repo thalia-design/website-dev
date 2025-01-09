@@ -89,7 +89,7 @@
     }
 }
 .section-home-head > wrapper,
-.chara-thalia--hands > div {
+.chara-thalia--hands .move {
     display: grid;
     grid-template-columns: 60% 1fr;
     padding: _ 5em;
@@ -296,7 +296,7 @@ html[thalia-chara-state="grabbing"] * {
 }
 
 .interactive-chara-thalia svg.thalia-chara,
-.chara-thalia--hands > div {
+.chara-thalia--hands .move {
     transform: translate3d(0, 0, 0);
 
     svg > g {
@@ -325,7 +325,14 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
     height: 0;
     @include usn;
 
-    > div {
+    > wrapper {
+        transform: translateY(-48%);
+        overflow: hidden;
+        padding: 8% _;
+        max-width: 100vw;
+    }
+
+    .move {
         transition: transform 0.65s cubic-bezier(0.4, 0.05, 0, 1);
 
         html[thalia-chara-state="grabbing"] & {
@@ -333,8 +340,7 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
         }
     }
 
-    wrapper {
-        transform: translateY(-40%);
+    .move > wrapper {
         @include dflex($d: row);
         gap: var(--thalia-chara-hands-spacing);
     }
@@ -411,7 +417,6 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
         }
     }
     &.is-scroll-hit {
-
         > wrapper {
             background-color: rgba(var(--thalia-rgb-accent), 0.8);
         }
