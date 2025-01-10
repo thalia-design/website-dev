@@ -17,6 +17,8 @@
     --thalia-c-accent: rgb(var(--thalia-rgb-accent));
     --thalia-c-bg: rgb(var(--thalia-rgb-bg));
     --thalia-c-bg2: rgb(var(--thalia-rgb-bg2));
+
+    --thalia-tr-jump: 0.35s cubic-bezier(0.3, 0, 0, 3.75);
 }
 
 ::selection {

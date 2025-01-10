@@ -1,8 +1,10 @@
 import "./main.scss";
-import "./import/scripts/postcss-vh-correction.js"
+import "./import/scripts/postcss-vh-correction.js";
 
 //- LIBRARIES
-import "./import/dependencies/locomotive/locomotive-edited.js"
+import "./import/dependencies/locomotive/locomotive-edited.js";
+import Muuri from 'muuri';
+// import anime from 'animejs/lib/anime.es.js';
 
 
 //- VARS
@@ -23,6 +25,11 @@ const _GET = {
             elRect.left + (elRect.width / 2),
             elRect.top + (elRect.height / 2)
         ]
+    },
+    scrollbarWidth : () => {
+        const sw = window.innerWidth - docHTML.clientWidth;
+        docHTML.style.setProperty('--scrollbar-width', ((sw > 0) ? sw : 0) + 'px');
+        return sw;
     }
 }
 
@@ -73,6 +80,7 @@ let THALIA_CHARA = {
         }
     },
     data : {
+        dragPos : [0, 0],
         look : {}
     },
     interactions : {},
@@ -203,8 +211,108 @@ if(THALIA_CHARA.elements.main && !THALIA_CHARA.data.activated) {
 
 
 
+// GALLERY GRID
+let GridMuuriGallery;
+const GridMuuri_options = {
+    target : '.grid-muuri',
+    gallery : {
+        items: ".grid-muuri--item",
+        sortData: null,
+
+        showDuration: 300,
+        showEasing: 'ease',
+        visibleStyles: {
+            opacity: '1',
+            transform: 'scale(1)'
+        },
+
+        hideDuration: 300,
+        hideEasing: 'ease',
+        hiddenStyles: {
+            opacity: '0',
+            transform: 'scale(0.5)'
+        },
+
+        layout: {
+            fillGaps: true,
+            horizontal: false,
+            alignRight: false,
+            alignBottom: false,
+            rounding: false
+        },
+        layoutOnInit: true,
+
+        layoutOnResize: 150,
+        layoutDuration: 400,
+        layoutEasing: 'cubic-bezier(0.3, 0, 0.1, 0.9)',
+
+        dragEnabled: false,
+    }
+}
+// GridGalleryMuuri.defaultOptions.showDuration = 400;
+
+
+let GALLERY_GRID = {
+    data : {
+        currentFilter : null
+    },
+    elements : {
+        filtersBar : docHTML.querySelectorAll(".sticky-filters"),
+        filtersBarBtns : docHTML.querySelectorAll(".sticky-filters .btn-filter"),
+        filtersClearBtn : docHTML.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
+        filtersBtns : docHTML.querySelectorAll("*[thalia-gallery-filter-btn-id]")
+    },
+    galleryFilter : (item, matchFilter) => {
+        const itemE = item.getElement();
+        if (itemE.hasAttribute('thalia-gallery-item-filters')) {
+            if (itemE.getAttribute('thalia-gallery-item-filters').match(matchFilter)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    onClickFilter : (el) => {
+        if (el.getAttribute("thalia-gallery-filter-btn-id") == GALLERY_GRID.data.currentFilter) {
+            GALLERY_GRID.onUnfilter();
+        } else {
+            GALLERY_GRID.onFilter(el);
+        }
+    },
+    onFilter : (el) => {
+        GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
+
+        GridMuuriGallery.filter((item) => { return GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter) });
+
+        GALLERY_GRID.elements.filtersBarBtns.forEach((fbBtn) => {
+            if (fbBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
+                fbBtn.classList.add("active");
+            } else {
+                fbBtn.classList.remove("active");
+            }
+        });
+    },
+    onUnfilter : () => {
+        GALLERY_GRID.data.currentFilter = null;
+        GridMuuriGallery.filter((item) => { return true });
+        GALLERY_GRID.elements.filtersBarBtns.forEach((fbBtn) => { fbBtn.classList.remove("active") });
+    }
+}
+
+if (GALLERY_GRID.elements.filtersBtns.length > 0) {
+    GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
+        fBtn.addEventListener("click", () => {GALLERY_GRID.onClickFilter(fBtn)});
+    });
+    GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
+        fcBtn.addEventListener("click", GALLERY_GRID.onUnfilter);
+    });
+}
+
+
+
 //- RUN
 setTimeout(() => {
+    _GET.scrollbarWidth();
     ScrollMain = new LocomotiveScroll(ScrollMain_options.scroll);
     //ScrollMain_onScroll({});
+    GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
 }, 50);

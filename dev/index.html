@@ -156,13 +156,13 @@
 
             <div class="sticky-filters" data-scroll data-scroll-progress-hit data-scroll-position="end,start">
                 <wrapper>
-                    <div class="btn-filter active"><span>illustration</span></div>
-                    <div class="btn-filter"><span>branding</span></div>
-                    <div class="btn-filter"><span>motion design</span></div>
-                    <div class="btn-filter"><span>print</span></div>
-                    <div class="btn-filter"><span>web design</span></div>
-                    <div class="btn-filter"><span>réseaux sociaux</span></div>
-                    <div class="btn-filter-clear">
+                    <div class="btn-filter" thalia-gallery-filter-btn-id="illustration"><span>illustration</span></div>
+                    <div class="btn-filter" thalia-gallery-filter-btn-id="branding"><span>branding</span></div>
+                    <div class="btn-filter" thalia-gallery-filter-btn-id="motion design"><span>motion design</span></div>
+                    <div class="btn-filter" thalia-gallery-filter-btn-id="print"><span>print</span></div>
+                    <div class="btn-filter" thalia-gallery-filter-btn-id="web design"><span>web design</span></div>
+                    <div class="btn-filter" thalia-gallery-filter-btn-id="réseaux sociaux"><span>réseaux sociaux</span></div>
+                    <div class="btn-filter-clear" thalia-gallery-filter-btn-clear>
                         <wrapper>
                             <svg viewBox="0 0 64 64"><line x1="0" y1="0" x2="64" y2="64" /><line x1="64" y1="0" x2="0" y2="64" /></svg>
                         </wrapper>
@@ -174,33 +174,151 @@
                 <wrapper>
                     <div class="move">
 
-                    <div hidden-user></div>
+                        <div hidden-user></div>
 
-                    <wrapper>
-                        <svg class="thalia-chara hand-right" viewBox="0 0 120 90">
-                            <g data-name="R" class="tc-fs">
-                              <path data-name="4" d="M48.21,74.54s-.18,7.99-7.2,8.19c-9.18.25-14.41-28.05-14.41-28.05l-14.81-26.86,9.81-12.46,59.77-4.62-2.74,60.19-30.42,3.61Z" />
-                              <path data-name="3" d="M69.15,67.13s1.52,17.15-10.78,18.98c-10.32,1.54-12.06-18.12-12.14-25.4-.02-1.72-.09-3.44-.21-5.15-.59-8.43-1.74-23.55-.62-27.99.48-1.9,1.12-4.9,1.12-4.9" />
-                              <path data-name="2-5" d="M66.01,18.27s3.03,7.6,3.84,12.43c.8,4.82-1.12,26.73-1.12,26.73,0,0-1.6,26.96,10.07,25.46,11.66-1.5,11.18-40.78,11.02-44.27-.16-3.49,2.52-13.01,3.67-16.27,2.13-5.99-1.22-18.86-13.42-18.53-8.2.22-6.98,3.9-12.57,4-6.66.11-5.74-3.66-12.14-3.55-6.39.11-5.22,3.89-9.48,4.55-4.96.78-5.43-2.89-10.54-2.55-5.11.34-5.94,3.68-9.69,4.55-3.75.87-3.62-3.22-11.13-1.22-3.54.94-6.31,6.49-7.83,10.65-1.7,4.66-3.35,9.49-1.86,12.76,2.76,6.06,12.17,32.81,19.2,31.48,7.03-1.33-.67-21.96-1.15-27.13-.48-5.16,2.67-15.76,2.67-15.76" />
-                              <path data-name="1" d="M113.51,19.23c2.03,2.12,3.17,4.65,1.25,10-1.25,3.47-4.23,9.55-5.59,10.19-6.79,3.16-12.63,7.89-19.74,5.42-12.23-4.24,10.12-26.13,12.95-27.84,2.83-1.71,7.22-1.85,11.13,2.23h0Z" />
-                            </g>
-                          </svg>
+                        <wrapper>
+                            <svg class="thalia-chara hand-right" viewBox="0 0 120 90">
+                                <g data-name="R" class="tc-fs">
+                                  <path data-name="4" d="M48.21,74.54s-.18,7.99-7.2,8.19c-9.18.25-14.41-28.05-14.41-28.05l-14.81-26.86,9.81-12.46,59.77-4.62-2.74,60.19-30.42,3.61Z" />
+                                  <path data-name="3" d="M69.15,67.13s1.52,17.15-10.78,18.98c-10.32,1.54-12.06-18.12-12.14-25.4-.02-1.72-.09-3.44-.21-5.15-.59-8.43-1.74-23.55-.62-27.99.48-1.9,1.12-4.9,1.12-4.9" />
+                                  <path data-name="2-5" d="M66.01,18.27s3.03,7.6,3.84,12.43c.8,4.82-1.12,26.73-1.12,26.73,0,0-1.6,26.96,10.07,25.46,11.66-1.5,11.18-40.78,11.02-44.27-.16-3.49,2.52-13.01,3.67-16.27,2.13-5.99-1.22-18.86-13.42-18.53-8.2.22-6.98,3.9-12.57,4-6.66.11-5.74-3.66-12.14-3.55-6.39.11-5.22,3.89-9.48,4.55-4.96.78-5.43-2.89-10.54-2.55-5.11.34-5.94,3.68-9.69,4.55-3.75.87-3.62-3.22-11.13-1.22-3.54.94-6.31,6.49-7.83,10.65-1.7,4.66-3.35,9.49-1.86,12.76,2.76,6.06,12.17,32.81,19.2,31.48,7.03-1.33-.67-21.96-1.15-27.13-.48-5.16,2.67-15.76,2.67-15.76" />
+                                  <path data-name="1" d="M113.51,19.23c2.03,2.12,3.17,4.65,1.25,10-1.25,3.47-4.23,9.55-5.59,10.19-6.79,3.16-12.63,7.89-19.74,5.42-12.23-4.24,10.12-26.13,12.95-27.84,2.83-1.71,7.22-1.85,11.13,2.23h0Z" />
+                                </g>
+                              </svg>
 
-                          <svg class="thalia-chara hand-left" viewBox="0 0 120 90">
-                            <g data-name="L" class="tc-fs">
-                              <path data-name="4" d="M41.37,70.94l-2.74-60.19,59.77,4.62,9.81,12.46-14.81,26.86s-5.22,28.3-14.41,28.05c-7.03-.2-7.2-8.19-7.2-8.19l-30.42-3.61Z" />
-                              <path data-name="3" d="M73.48,22.67s.64,3,1.12,4.9c1.12,4.43-.03,19.56-.62,27.99-.12,1.71-.19,3.43-.21,5.15-.09,7.28-1.82,26.94-12.14,25.4-12.3-1.83-10.78-18.98-10.78-18.98" />
-                              <path data-name="2-5" d="M94.45,21.6s3.15,10.6,2.67,15.76c-.48,5.16-8.17,25.8-1.15,27.12,7.03,1.33,16.44-25.41,19.2-31.48,1.49-3.28-.16-8.1-1.86-12.76-1.51-4.16-4.29-9.71-7.83-10.65-7.51-2-7.38,2.09-11.13,1.22-3.75-.87-4.58-4.21-9.69-4.55-5.11-.34-5.58,3.32-10.54,2.55-4.26-.66-3.08-4.44-9.48-4.55-6.39-.11-5.48,3.66-12.14,3.55-5.59-.1-4.37-3.77-12.57-4-12.2-.33-15.55,12.54-13.42,18.53,1.16,3.26,3.83,12.78,3.67,16.27-.16,3.49-.64,42.77,11.02,44.27,11.66,1.5,10.07-25.46,10.07-25.46,0,0-1.92-21.91-1.12-26.73.8-4.82,3.84-12.43,3.84-12.43" />
-                              <path data-name="1" d="M6.49,19.24c3.91-4.07,8.3-3.94,11.13-2.23,2.83,1.71,25.18,23.59,12.95,27.84-7.11,2.47-12.95-2.26-19.74-5.42-1.36-.64-4.34-6.72-5.59-10.19-1.93-5.35-.78-7.88,1.25-10h0Z" />
-                            </g>
-                          </svg>
-                    </wrapper>
+                              <svg class="thalia-chara hand-left" viewBox="0 0 120 90">
+                                <g data-name="L" class="tc-fs">
+                                  <path data-name="4" d="M41.37,70.94l-2.74-60.19,59.77,4.62,9.81,12.46-14.81,26.86s-5.22,28.3-14.41,28.05c-7.03-.2-7.2-8.19-7.2-8.19l-30.42-3.61Z" />
+                                  <path data-name="3" d="M73.48,22.67s.64,3,1.12,4.9c1.12,4.43-.03,19.56-.62,27.99-.12,1.71-.19,3.43-.21,5.15-.09,7.28-1.82,26.94-12.14,25.4-12.3-1.83-10.78-18.98-10.78-18.98" />
+                                  <path data-name="2-5" d="M94.45,21.6s3.15,10.6,2.67,15.76c-.48,5.16-8.17,25.8-1.15,27.12,7.03,1.33,16.44-25.41,19.2-31.48,1.49-3.28-.16-8.1-1.86-12.76-1.51-4.16-4.29-9.71-7.83-10.65-7.51-2-7.38,2.09-11.13,1.22-3.75-.87-4.58-4.21-9.69-4.55-5.11-.34-5.58,3.32-10.54,2.55-4.26-.66-3.08-4.44-9.48-4.55-6.39-.11-5.48,3.66-12.14,3.55-5.59-.1-4.37-3.77-12.57-4-12.2-.33-15.55,12.54-13.42,18.53,1.16,3.26,3.83,12.78,3.67,16.27-.16,3.49-.64,42.77,11.02,44.27,11.66,1.5,10.07-25.46,10.07-25.46,0,0-1.92-21.91-1.12-26.73.8-4.82,3.84-12.43,3.84-12.43" />
+                                  <path data-name="1" d="M6.49,19.24c3.91-4.07,8.3-3.94,11.13-2.23,2.83,1.71,25.18,23.59,12.95,27.84-7.11,2.47-12.95-2.26-19.74-5.42-1.36-.64-4.34-6.72-5.59-10.19-1.93-5.35-.78-7.88,1.25-10h0Z" />
+                                </g>
+                              </svg>
+                        </wrapper>
 
-                </div>
+                    </div>
                 </wrapper>
             </div>
 
             <div class="gallery-grid">
+
+                <div class="grid-muuri">
+
+                    <div class="grid-muuri--item" thalia-gallery-item-filters="branding;motion design">
+                        <div class="grid-muuri--item-inner">
+
+                            <div class="item-gallery" style="--ggrid-item-size-x: 2; --ggrid-item-size-y: 1;">
+                                <div class="thumbnail">
+                                    <img src="./assets/projects/les-nuits-botaniques/thumbnail.jpg">
+                                </div>
+                                <div class="filters">
+                                    <span thalia-gallery-filter-btn-id="illustration">branding</span>
+                                    <span thalia-gallery-filter-btn-id="motion design">motion design</span>
+                                </div>
+                                <div class="title">
+                                    <span>Les nuits botaniques</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="grid-muuri--item" thalia-gallery-item-filters="illustration;print">
+                        <div class="grid-muuri--item-inner">
+
+                            <div class="item-gallery" style="--ggrid-item-size-x: 1; --ggrid-item-size-y: 1;">
+                                <div class="thumbnail">
+                                    <img src="./assets/projects/les-nuits-botaniques/thumbnail.jpg">
+                                </div>
+                                <div class="filters">
+                                    <span thalia-gallery-filter-btn-id="illustration">illustration</span>
+                                    <span thalia-gallery-filter-btn-id="print">print</span>
+                                </div>
+                                <div class="title">
+                                    <span>Marriage</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="grid-muuri--item" thalia-gallery-item-filters="illustration;print">
+                        <div class="grid-muuri--item-inner">
+
+                            <div class="item-gallery" style="--ggrid-item-size-x: 1; --ggrid-item-size-y: 1;">
+                                <div class="thumbnail">
+                                    <img src="./assets/projects/les-nuits-botaniques/thumbnail.jpg">
+                                </div>
+                                <div class="filters">
+                                    <span thalia-gallery-filter-btn-id="illustration">illustration</span>
+                                    <span thalia-gallery-filter-btn-id="print">print</span>
+                                </div>
+                                <div class="title">
+                                    <span>Caves Notre Dame</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="grid-muuri--item" thalia-gallery-item-filters="branding;print">
+                        <div class="grid-muuri--item-inner">
+
+                            <div class="item-gallery" style="--ggrid-item-size-x: 1; --ggrid-item-size-y: 1;">
+                                <div class="thumbnail">
+                                    <img src="./assets/projects/les-nuits-botaniques/thumbnail.jpg">
+                                </div>
+                                <div class="filters">
+                                    <span thalia-gallery-filter-btn-id="branding">branding</span>
+                                    <span thalia-gallery-filter-btn-id="print">print</span>
+                                </div>
+                                <div class="title">
+                                    <span>Calentón</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="grid-muuri--item" thalia-gallery-item-filters="branding;print">
+                        <div class="grid-muuri--item-inner">
+
+                            <div class="item-gallery" style="--ggrid-item-size-x: 2; --ggrid-item-size-y: 2;">
+                                <div class="thumbnail">
+                                    <img src="./assets/projects/les-nuits-botaniques/thumbnail.jpg">
+                                </div>
+                                <div class="filters">
+                                    <span thalia-gallery-filter-btn-id="branding">branding</span>
+                                    <span thalia-gallery-filter-btn-id="print">print</span>
+                                </div>
+                                <div class="title">
+                                    <span>Pictogram du lapin</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="grid-muuri--item" thalia-gallery-item-filters="web design;réseaux sociaux">
+                        <div class="grid-muuri--item-inner">
+
+                            <div class="item-gallery" style="--ggrid-item-size-x: 1; --ggrid-item-size-y: 1;" >
+                                <div class="thumbnail">
+                                    <img src="">
+                                </div>
+                                <div class="filters">
+                                    <span thalia-gallery-filter-btn-id="web design">web design</span>
+                                    <span thalia-gallery-filter-btn-id="réseaux sociaux">réseaux sociaux</span>
+                                </div>
+                                <div class="title">
+                                    <span>Nom de projet</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
 
             </div>
 

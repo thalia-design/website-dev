@@ -1,0 +1,20 @@
+.grid-muuri { // can have transitions
+	display: block;
+	position: relative;
+
+	> .grid-muuri--item { // must not have transitions
+		z-index: 1;
+		display: block;
+		position: absolute;
+
+		> .grid-muuri--item-inner {
+			position: relative;
+			width: 100%;
+			height: 100%;
+		}
+	}
+
+	.item.muuri-item-dragging { z-index: 3; }
+	.item.muuri-item-releasing { z-index: 2; }
+	.item.muuri-item-hidden { z-index: 0; }
+}

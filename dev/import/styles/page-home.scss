@@ -62,26 +62,26 @@
                     margin-bottom: 0.5em;
                     @include usn;
 
-                    transition: 0.15s ease-out;
+                    transition: transform 0.15s ease-out;
                 }
 
                 transform: scale(1);
-                transition: 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+                transition: transform 0.3s cubic-bezier(0.3, 0, 0.2, 1);
 
                 &:hover {
                     transform: scale(1.05);
-                    transition: 0.2s cubic-bezier(0.3, 0, 0.1, 1);
+                    transition: transform 0.2s cubic-bezier(0.3, 0, 0.1, 1);
 
                     > div:first-child {
                         transform: translateY(-5%);
-                        transition: 0.3s cubic-bezier(0.3, 0, 0, 3.5);
+                        transition: transform var(--thalia-tr-jump);
                     }
                 }
 
                 &:active {
                     > div:first-child {
                         transform: translateY(2%);
-                        transition: 0.05s ease;
+                        transition: transform 0.05s ease;
                     }
                 }
             }
@@ -395,7 +395,7 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
     top: 0;
     margin: 0 auto;
     width: fit-content;
-    padding-top: 0.5em;
+    padding: 0.65em;
 
     > wrapper {
         @include dflex($d: row);
@@ -484,7 +484,93 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
 }
 
 
+.gallery-grid {
+    --ggrid-padding: 4em;
+    --ggrid-gap: 1.2em;
+    --ggrid-col-nb: 4;
+    --ggrid-col-size: calc(((100vw - var(--scrollbar-width) - 4px) - (var(--ggrid-padding) * 2)) / var(--ggrid-col-nb));
 
+    overflow: hidden;
+    padding: var(--ggrid-padding);
+    padding-bottom: 12em;
+
+    // shift
+    .grid-muuri--item {
+        box-sizing: border-box;
+        padding: var(--ggrid-gap);
+        //outline: 1px dotted red;
+
+        &:nth-child(2) {
+            margin-top: 8em;
+        }
+    }
+
+    .item-gallery {
+        --ggrid-item-size-x: 1;
+        --ggrid-item-size-y: 1;
+        font-size: 1em;
+        border-radius: 1em;
+        margin-bottom: 3em;
+        position: relative;
+        max-width: calc(var(--ggrid-col-size) * var(--ggrid-item-size-x) - (var(--ggrid-gap) * 2));
+
+        > * {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        user-select: none;
+        .thumbnail, .filters > span {
+            pointer-events: all !important;
+            cursor: pointer;
+        }
+
+        .thumbnail {
+            width: calc(var(--ggrid-col-size) * var(--ggrid-item-size-x));
+            height: calc(var(--ggrid-col-size) * var(--ggrid-item-size-y));
+            font-size: 1em;
+            border-radius: 1em;
+            overflow: hidden;
+
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0, 0.8);
+            &:hover {
+                transform: translateY(-0.25em);
+                transition: transform var(--thalia-tr-jump);
+            }
+
+            img {
+                size: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .filters {
+            @include dflex($d: row, $j: flex-start);
+            gap: 0.4em;
+            font-size: 0.8em;
+            font-weight: 500;
+            padding: 0.85em _ 0.5em;
+
+            span {
+                padding: 0.35em 0.75em;
+                border: 2px solid var(--thalia-c-accent);
+                border-radius: 9em;
+                text-wrap: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+        }
+
+        .title {
+            font-size: 1.2em;
+            font-weight: 600;
+            letter-spacing: 0.5%;
+            text-wrap: pretty;
+            transform: translateY(0);
+        }
+    }
+}
 
 
 
