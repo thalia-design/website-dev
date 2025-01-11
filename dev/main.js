@@ -44,27 +44,35 @@ window.addEventListener("resize", () => { THALIA_GLOBALS.vpSize = _GET.viewportS
 
 // SMOOTH SCROLL
 let ScrollMain;
-const ScrollMain_options = {
-    scroll: {
-        lenisOptions: {
-            smoothWheel: true,
-            smoothTouch: false,
-            wheelMultiplier: 0.9,
-            duration: 1,
-            easing: (x) => Math.min(1, 1.001 - Math.pow(5, -7 * x)), // https://www.desmos.com/calculator/brs54l4xou
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
+const SCROLL = {
+    options : {
+        scroll: {
+            lenisOptions: {
+                smoothWheel: true,
+                smoothTouch: false,
+                wheelMultiplier: 0.9,
+                duration: 1,
+                easing: (x) => Math.min(1, 1.001 - Math.pow(5, -7 * x)), // https://www.desmos.com/calculator/brs54l4xou
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+            },
+            triggerRootMargin: '-1px -1px -1px -1px', // inview elements
+            rafRootMargin: '100% 100% 100% 100%', // scroll elements
+            autoResize: true,
+            //scrollCallback: ScrollMain_onScroll,
         },
-        triggerRootMargin: '-1px -1px -1px -1px', // inview elements
-        rafRootMargin: '100% 100% 100% 100%', // scroll elements
-        autoResize: true,
-        //scrollCallback: ScrollMain_onScroll,
+        scrollTo: {
+            duration: 1.4,
+            lock: false,
+            easing: (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2),
+        },
     },
-    scrollTo: {
-        duration: 1.4,
-        lock: false,
-        easing: (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2),
-    }
+    resize : (instance) => {
+        setTimeout(() => {
+            console.log("resize scroll");
+            //instance.resize();
+        }, 200);
+    },
 }
 
 
@@ -257,10 +265,11 @@ let GALLERY_GRID = {
         currentFilter : null
     },
     elements : {
+        galleryItemsFiltersContainers : docHTML.querySelectorAll(".gallery-grid .item-gallery .filters"),
         filtersBar : docHTML.querySelectorAll(".sticky-filters"),
         filtersBarBtns : docHTML.querySelectorAll(".sticky-filters .btn-filter"),
         filtersClearBtn : docHTML.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
-        filtersBtns : docHTML.querySelectorAll("*[thalia-gallery-filter-btn-id]")
+        filtersBtns : null,
     },
     galleryFilter : (item, matchFilter) => {
         const itemE = item.getElement();
@@ -274,8 +283,10 @@ let GALLERY_GRID = {
     onClickFilter : (el) => {
         if (el.getAttribute("thalia-gallery-filter-btn-id") == GALLERY_GRID.data.currentFilter) {
             GALLERY_GRID.onUnfilter();
+            SCROLL.resize();
         } else {
             GALLERY_GRID.onFilter(el);
+            SCROLL.resize(ScrollMain);
         }
     },
     onFilter : (el) => {
@@ -295,24 +306,39 @@ let GALLERY_GRID = {
         GALLERY_GRID.data.currentFilter = null;
         GridMuuriGallery.filter((item) => { return true });
         GALLERY_GRID.elements.filtersBarBtns.forEach((fbBtn) => { fbBtn.classList.remove("active") });
+    },
+    createItemsFiltersBtns : () => {
+        GridMuuriGallery.getItems().forEach((item) => {
+            let filterElements = "";
+            item.getElement().getAttribute("thalia-gallery-item-filters").split(";").forEach((filterName) => {
+                filterElements += "<span thalia-gallery-filter-btn-id="+ filterName +">"+ filterName +"</span>";
+            });
+            item.getElement().querySelector(".filters").innerHTML = filterElements;
+        })
+    },
+    initFiltersBtns : () => {
+        GALLERY_GRID.elements.filtersBtns = docHTML.querySelectorAll("*[thalia-gallery-filter-btn-id]");
+        if (GALLERY_GRID.elements.filtersBtns.length > 0) {
+            GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
+                fBtn.addEventListener("click", () => {GALLERY_GRID.onClickFilter(fBtn)});
+            });
+            GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
+                fcBtn.addEventListener("click", GALLERY_GRID.onUnfilter);
+            });
+        }
     }
 }
 
-if (GALLERY_GRID.elements.filtersBtns.length > 0) {
-    GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
-        fBtn.addEventListener("click", () => {GALLERY_GRID.onClickFilter(fBtn)});
-    });
-    GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
-        fcBtn.addEventListener("click", GALLERY_GRID.onUnfilter);
-    });
-}
 
 
 
 //- RUN
 setTimeout(() => {
     _GET.scrollbarWidth();
-    ScrollMain = new LocomotiveScroll(ScrollMain_options.scroll);
+    ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     //ScrollMain_onScroll({});
     GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
+    GALLERY_GRID.createItemsFiltersBtns();
+    GALLERY_GRID.initFiltersBtns();
+    SCROLL.resize(ScrollMain);
 }, 50);
