@@ -65,8 +65,10 @@
                     transition: transform 0.15s ease-out;
                 }
 
-                transform: scale(1);
-                transition: transform 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+                & {
+                    transform: scale(1);
+                    transition: transform 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+                }
 
                 &:hover {
                     transform: scale(1.05);
@@ -146,10 +148,12 @@ svg.thalia-chara {
         }
     }
 
-    --pointer-follow-look-x: 0px;
-    --pointer-follow-look-y: 0px;
-    --pointer-follow-look-x2: calc(var(--pointer-follow-look-x) / 2.5);
-    --pointer-follow-look-y2: calc(var(--pointer-follow-look-y) / 2.5);
+    & {
+        --pointer-follow-look-x: 0px;
+        --pointer-follow-look-y: 0px;
+        --pointer-follow-look-x2: calc(var(--pointer-follow-look-x) / 2.5);
+        --pointer-follow-look-y2: calc(var(--pointer-follow-look-y) / 2.5);
+    }
 
     .eye-follow,
     .face-follow {
@@ -354,9 +358,11 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             cursor: pointer;
         }
 
-        transform-origin: center 7.5%;
-        transform: rotateX(0.01deg);
-        transition: 0.15s ease;
+        & {
+            transform-origin: center 7.5%;
+            transform: rotateX(0.01deg);
+            transition: 0.15s ease;
+        }
 
         &:active {
             transform: scaleX(0.98) scaleY(0.95);
@@ -407,11 +413,7 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
         position: relative;
         max-width: calc(var(--ggrid-col-size) * var(--ggrid-item-size-x) - (var(--ggrid-gap) * 2));
 
-        > * {
-            position: relative;
-            width: 100%;
-            max-width: 100%;
-        }
+        user-select: none;
 
         .thumbnail,
         .filters > span,
@@ -419,7 +421,12 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             pointer-events: all !important;
             cursor: pointer;
         }
-        user-select: none;
+
+        & > * {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+        }
 
         .thumbnail {
             width: calc(var(--ggrid-col-size) * var(--ggrid-item-size-x));
@@ -468,7 +475,9 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             width: auto;
         }
 
-        @include dflex($a: flex-start, $j: flex-start);
+        & {
+            @include dflex($a: flex-start, $j: flex-start);
+        }
         .title { order: 3; }
 
         .thumbnail > wrapper {
