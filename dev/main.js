@@ -67,11 +67,10 @@ const SCROLL = {
             easing: (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2),
         },
     },
-    resize : (instance) => {
+    resize : (instance, delay = 200) => {
         setTimeout(() => {
-            console.log("resize scroll");
-            //instance.resize();
-        }, 200);
+            instance.resize();
+        }, delay);
     },
 }
 
@@ -91,132 +90,135 @@ let THALIA_CHARA = {
         dragPos : [0, 0],
         look : {}
     },
-    interactions : {},
     elements : {
-        dragContainer : docHTML.querySelector("main"),
-        main : docHTML.querySelector(".interactive-chara-thalia svg.thalia-chara"),
-        mainEyes : docHTML.querySelector(".interactive-chara-thalia svg.thalia-chara g[data-name='eyes']"),
-        hands : docHTML.querySelectorAll(".chara-thalia--hands svg.thalia-chara"),
-        socialBtns : docHTML.querySelectorAll(".section-home-head .socials .social-btn")
-    }
+        dragContainer : document.querySelector("main"),
+        contentContainer : document.querySelector(".section-home-head"),
+        main : document.querySelector(".interactive-chara-thalia svg.thalia-chara"),
+        mainEyes : document.querySelector(".interactive-chara-thalia svg.thalia-chara g[data-name='eyes']"),
+        hands : document.querySelectorAll(".chara-thalia--hands svg.thalia-chara"),
+        socialBtns : document.querySelectorAll(".section-home-head .socials .social-btn")
+    },
+    interactions : {
+        init: () => {
+            if(THALIA_CHARA.elements.main && !THALIA_CHARA.data.activated) {
+                THALIA_CHARA.data.activated = true;
+                THALIA_CHARA.data.state = "resting";
+                docHTML.setAttribute("thalia-chara-state", "resting");
+
+                THALIA_CHARA.interactions.updateEyesPosition();
+                window.addEventListener("resize", THALIA_CHARA.interactions.updateEyesPosition);
+                THALIA_CHARA.elements.contentContainer.addEventListener("mouseenter", THALIA_CHARA.interactions.updateEyesPosition);
+
+                THALIA_CHARA.interactions.look();
+                THALIA_CHARA.elements.dragContainer.addEventListener("mouseenter", THALIA_CHARA.interactions.look);
+                THALIA_CHARA.elements.dragContainer.addEventListener("mouseleave", THALIA_CHARA.interactions.unlook);
+                THALIA_CHARA.elements.dragContainer.addEventListener("mouseleave", THALIA_CHARA.interactions.pointerStop);
+                THALIA_CHARA.elements.dragContainer.addEventListener("mouseup", THALIA_CHARA.interactions.pointerStop);
+
+                THALIA_CHARA.elements.main.addEventListener("mousedown", THALIA_CHARA.interactions.pointerActive);
+                THALIA_CHARA.elements.dragContainer.addEventListener("mousemove", THALIA_CHARA.interactions.following);
+
+                // social btns
+                if(THALIA_CHARA.elements.socialBtns.length > 0) {
+                    THALIA_CHARA.interactions.socialBtnHover = (e) => {
+                        docHTML.setAttribute("thalia-social-hover", "true");
+                    }
+                    THALIA_CHARA.interactions.socialBtnOut = (e) => {
+                        docHTML.setAttribute("thalia-social-hover", "false");
+                    }
+
+                    THALIA_CHARA.elements.socialBtns.forEach((sBtn) => {
+                        sBtn.addEventListener("mouseenter", THALIA_CHARA.interactions.socialBtnHover);
+                        sBtn.addEventListener("mouseleave", THALIA_CHARA.interactions.socialBtnOut);
+                    });
+                }
+            }
+        },
+
+        updateEyesPosition : (e) => {
+            SCROLL.resize(ScrollMain);
+            THALIA_CHARA.data.look.center = _GET.elementCenterPos(THALIA_CHARA.elements.mainEyes);
+        },
+        look : (e) => {
+            THALIA_CHARA.elements.main.classList.add("looking");
+        },
+        unlook : (e) => {
+            THALIA_CHARA.elements.main.classList.remove("looking");
+        },
+        pointerStop : (e) => {
+            const posX_abs = Math.abs(THALIA_CHARA.data.dragPos[0]);
+            docHTML.setAttribute("thalia-chara-drag-strength", ((posX_abs > THALIA_GLOBALS.vpSize[0] / 8) ? "strong" : ((posX_abs > 15) ? "weak" : "none")));
+            docHTML.style.setProperty("--thalia-chara-drag-direction", ((THALIA_CHARA.data.dragPos[0] > 0) ? 1 : -1));
+
+            THALIA_CHARA.data.state = "resting";
+            docHTML.setAttribute("thalia-chara-state", "resting");
+            THALIA_CHARA.elements.main.classList.remove("grabbing");
+        },
+        pointerActive : (e) => {
+            THALIA_CHARA.data.pointerPosStart = [e.clientX, e.clientY];
+
+            THALIA_CHARA.data.state = "grabbing";
+            THALIA_CHARA.interactions.following(e);
+            docHTML.setAttribute("thalia-chara-state", "grabbing");
+            THALIA_CHARA.elements.main.classList.add("grabbing");
+        },
+        following : (e) => {
+            THALIA_CHARA.data.pointerPos = [e.clientX, e.clientY];
+
+            if(THALIA_CHARA.data.state == "grabbing") {
+                THALIA_CHARA.data.dragPos = [
+                    lerp(0, THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.pointerPosStart[0], THALIA_CHARA.options.dragIntensity[0]),
+                    lerp(0, THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.pointerPosStart[1], THALIA_CHARA.options.dragIntensity[1])
+                ];
+
+                docHTML.style.setProperty("--thalia-chara-drag-x", THALIA_CHARA.data.dragPos[0] +"px");
+                docHTML.style.setProperty("--thalia-chara-drag-y", THALIA_CHARA.data.dragPos[1] +"px");
+                docHTML.style.setProperty("--thalia-chara-drag-rotate", THALIA_CHARA.data.dragPos[0] * THALIA_CHARA.options.angleDamping +"deg");
+
+                /*// precise angle
+                let angle = Math.atan2(
+                    (THALIA_CHARA.data.pointerPosStart[1] - THALIA_CHARA.data.pointerPos[1]),
+                    (THALIA_CHARA.data.pointerPosStart[0] - THALIA_CHARA.data.pointerPos[0])
+                ) + ((THALIA_CHARA.data.pointerPos[0] > 0) ? (Math.PI / 2) : (Math.PI / 2));
+                angle = (angle < 0) ? (angle + (2 * Math.PI)) : (angle);
+                docHTML.style.setProperty("--thalia-chara-drag-rotate",
+                    lerp(0,
+                        Math.max(Math.min(
+                            angle
+                        , Math.PI + 0.8), Math.PI - 0.8)
+                        - Math.PI
+                    , THALIA_CHARA.options.dragIntensity[2])
+                    +"rad");
+                */
+
+            } else {
+                THALIA_CHARA.data.look.posFromCenter = [
+                    (THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.look.center[0]) / THALIA_CHARA.options.look.damping[0],
+                    (THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.look.center[1]) / THALIA_CHARA.options.look.damping[1]
+                ];
+                THALIA_CHARA.data.look.distanceFactor = THALIA_CHARA.options.look.maxDistance / Math.sqrt(
+                    (THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.posFromCenter[0])
+                    + (THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.posFromCenter[1])
+                )
+
+                if (THALIA_CHARA.data.look.distanceFactor > 1) {
+                    THALIA_CHARA.data.look.posFromCenter = [
+                        THALIA_CHARA.data.look.posFromCenter[0],
+                        THALIA_CHARA.data.look.posFromCenter[1]
+                    ];
+                } else {
+                    THALIA_CHARA.data.look.posFromCenter = [
+                        THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.distanceFactor,
+                        THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.distanceFactor
+                    ];
+                }
+
+                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-x", THALIA_CHARA.data.look.posFromCenter[0] +"px");
+                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-y", THALIA_CHARA.data.look.posFromCenter[1] +"px");
+            }
+        },
+    },
 }
-
-THALIA_CHARA.interactions.updateEyesPosition = (e) => {
-    THALIA_CHARA.data.look.center = _GET.elementCenterPos(THALIA_CHARA.elements.mainEyes);
-}
-THALIA_CHARA.interactions.look = (e) => {
-    THALIA_CHARA.elements.main.classList.add("looking");
-}
-THALIA_CHARA.interactions.unlook = (e) => {
-    THALIA_CHARA.elements.main.classList.remove("looking");
-}
-THALIA_CHARA.interactions.pointerStop = (e) => {
-    const posX_abs = Math.abs(THALIA_CHARA.data.dragPos[0]);
-    docHTML.setAttribute("thalia-chara-drag-strength", ((posX_abs > THALIA_GLOBALS.vpSize[0] / 8) ? "strong" : ((posX_abs > 15) ? "weak" : "none")));
-    docHTML.style.setProperty("--thalia-chara-drag-direction", ((THALIA_CHARA.data.dragPos[0] > 0) ? 1 : -1));
-
-    THALIA_CHARA.data.state = "resting";
-    docHTML.setAttribute("thalia-chara-state", "resting");
-    THALIA_CHARA.elements.main.classList.remove("grabbing");
-}
-THALIA_CHARA.interactions.pointerActive = (e) => {
-    THALIA_CHARA.data.pointerPosStart = [e.clientX, e.clientY];
-
-    THALIA_CHARA.data.state = "grabbing";
-    THALIA_CHARA.interactions.following(e);
-    docHTML.setAttribute("thalia-chara-state", "grabbing");
-    THALIA_CHARA.elements.main.classList.add("grabbing");
-}
-
-THALIA_CHARA.interactions.following = (e) => {
-    THALIA_CHARA.data.pointerPos = [e.clientX, e.clientY];
-
-    if(THALIA_CHARA.data.state == "grabbing") {
-        THALIA_CHARA.data.dragPos = [
-            lerp(0, THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.pointerPosStart[0], THALIA_CHARA.options.dragIntensity[0]),
-            lerp(0, THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.pointerPosStart[1], THALIA_CHARA.options.dragIntensity[1])
-        ];
-
-        docHTML.style.setProperty("--thalia-chara-drag-x", THALIA_CHARA.data.dragPos[0] +"px");
-        docHTML.style.setProperty("--thalia-chara-drag-y", THALIA_CHARA.data.dragPos[1] +"px");
-        docHTML.style.setProperty("--thalia-chara-drag-rotate", THALIA_CHARA.data.dragPos[0] * THALIA_CHARA.options.angleDamping +"deg");
-
-        /*// precise angle
-        let angle = Math.atan2(
-            (THALIA_CHARA.data.pointerPosStart[1] - THALIA_CHARA.data.pointerPos[1]),
-            (THALIA_CHARA.data.pointerPosStart[0] - THALIA_CHARA.data.pointerPos[0])
-        ) + ((THALIA_CHARA.data.pointerPos[0] > 0) ? (Math.PI / 2) : (Math.PI / 2));
-        angle = (angle < 0) ? (angle + (2 * Math.PI)) : (angle);
-        docHTML.style.setProperty("--thalia-chara-drag-rotate",
-            lerp(0,
-                Math.max(Math.min(
-                    angle
-                , Math.PI + 0.8), Math.PI - 0.8)
-                - Math.PI
-            , THALIA_CHARA.options.dragIntensity[2])
-            +"rad");
-        */
-
-    } else {
-        THALIA_CHARA.data.look.posFromCenter = [
-            (THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.look.center[0]) / THALIA_CHARA.options.look.damping[0],
-            (THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.look.center[1]) / THALIA_CHARA.options.look.damping[1]
-        ];
-        THALIA_CHARA.data.look.distanceFactor = THALIA_CHARA.options.look.maxDistance / Math.sqrt(
-            (THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.posFromCenter[0])
-            + (THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.posFromCenter[1])
-        )
-
-        if (THALIA_CHARA.data.look.distanceFactor > 1) {
-            THALIA_CHARA.data.look.posFromCenter = [
-                THALIA_CHARA.data.look.posFromCenter[0],
-                THALIA_CHARA.data.look.posFromCenter[1]
-            ];
-        } else {
-            THALIA_CHARA.data.look.posFromCenter = [
-                THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.distanceFactor,
-                THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.distanceFactor
-            ];
-        }
-
-        THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-x", THALIA_CHARA.data.look.posFromCenter[0] +"px");
-        THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-y", THALIA_CHARA.data.look.posFromCenter[1] +"px");
-    }
-}
-
-if(THALIA_CHARA.elements.main && !THALIA_CHARA.data.activated) {
-    THALIA_CHARA.data.activated = true;
-    THALIA_CHARA.data.state = "resting";
-    docHTML.setAttribute("thalia-chara-state", "resting");
-
-    THALIA_CHARA.interactions.updateEyesPosition();
-    window.addEventListener("resize", THALIA_CHARA.interactions.updateEyesPosition);
-
-    THALIA_CHARA.interactions.look();
-    THALIA_CHARA.elements.dragContainer.addEventListener("mouseenter", THALIA_CHARA.interactions.look);
-    THALIA_CHARA.elements.dragContainer.addEventListener("mouseleave", THALIA_CHARA.interactions.unlook);
-    THALIA_CHARA.elements.dragContainer.addEventListener("mouseleave", THALIA_CHARA.interactions.pointerStop);
-    THALIA_CHARA.elements.dragContainer.addEventListener("mouseup", THALIA_CHARA.interactions.pointerStop);
-
-    THALIA_CHARA.elements.main.addEventListener("mousedown", THALIA_CHARA.interactions.pointerActive);
-    THALIA_CHARA.elements.dragContainer.addEventListener("mousemove", THALIA_CHARA.interactions.following);
-
-    // social btns
-    if(THALIA_CHARA.elements.socialBtns.length > 0) {
-        THALIA_CHARA.interactions.socialBtnHover = (e) => {
-            docHTML.setAttribute("thalia-social-hover", "true");
-        }
-        THALIA_CHARA.interactions.socialBtnOut = (e) => {
-            docHTML.setAttribute("thalia-social-hover", "false");
-        }
-
-        THALIA_CHARA.elements.socialBtns.forEach((sBtn) => {
-            sBtn.addEventListener("mouseenter", THALIA_CHARA.interactions.socialBtnHover);
-            sBtn.addEventListener("mouseleave", THALIA_CHARA.interactions.socialBtnOut);
-        });
-    }
-}
-
 
 
 // GALLERY GRID
@@ -227,18 +229,18 @@ const GridMuuri_options = {
         items: ".grid-muuri--item",
         sortData: null,
 
-        showDuration: 300,
-        showEasing: 'ease',
+        showDuration: 600,
+        showEasing: 'cubic-bezier(0.4, 0, 0, 1)',
         visibleStyles: {
             opacity: '1',
             transform: 'scale(1)'
         },
 
-        hideDuration: 300,
-        hideEasing: 'ease',
+        hideDuration: 400,
+        hideEasing: 'cubic-bezier(0.7, 0, 0.4, 1)',
         hiddenStyles: {
             opacity: '0',
-            transform: 'scale(0.5)'
+            transform: 'scale(0.6)'
         },
 
         layout: {
@@ -251,39 +253,40 @@ const GridMuuri_options = {
         layoutOnInit: true,
 
         layoutOnResize: 150,
-        layoutDuration: 400,
-        layoutEasing: 'cubic-bezier(0.3, 0, 0.1, 0.9)',
+        layoutDuration: 800,
+        layoutEasing: 'cubic-bezier(0.5, 0.05, 0, 1)',
 
         dragEnabled: false,
     }
 }
-// GridGalleryMuuri.defaultOptions.showDuration = 400;
 
 
 let GALLERY_GRID = {
+    itemsShiftValue : 140,
     data : {
-        currentFilter : null
+        currentFilter : null,
     },
     elements : {
-        galleryItemsFiltersContainers : docHTML.querySelectorAll(".gallery-grid .item-gallery .filters"),
-        filtersBar : docHTML.querySelectorAll(".sticky-filters"),
-        filtersBarBtns : docHTML.querySelectorAll(".sticky-filters .btn-filter"),
-        filtersClearBtn : docHTML.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
-        filtersBtns : null,
+        galleryItemsFiltersContainers : document.querySelectorAll(".gallery-grid .item-gallery .filters"),
+        filtersBar : document.querySelectorAll(".sticky-filters"),
+        filtersBarBtns : document.querySelectorAll(".sticky-filters .btn-filter"),
+        filtersClearBtn : document.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
+        filtersBtns : undefined,
+        shiftItemsMuuri: undefined,
+        shiftItemsContent: [],
     },
     galleryFilter : (item, matchFilter) => {
-        const itemE = item.getElement();
-        if (itemE.hasAttribute('thalia-gallery-item-filters')) {
-            if (itemE.getAttribute('thalia-gallery-item-filters').match(matchFilter)) {
-                return true;
-            }
+        if (item.getElement().getAttribute('thalia-gallery-item-filters').match(matchFilter)) {
+            return true;
         }
         return false;
     },
     onClickFilter : (el) => {
+        docHTML.setAttribute("thalia-gallery-filter-previous", docHTML.getAttribute("thalia-gallery-filter"));
+
         if (el.getAttribute("thalia-gallery-filter-btn-id") == GALLERY_GRID.data.currentFilter) {
             GALLERY_GRID.onUnfilter();
-            SCROLL.resize();
+            SCROLL.resize(ScrollMain);
         } else {
             GALLERY_GRID.onFilter(el);
             SCROLL.resize(ScrollMain);
@@ -291,8 +294,14 @@ let GALLERY_GRID = {
     },
     onFilter : (el) => {
         GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
+        GALLERY_GRID.setShiftItemsSize();
+        docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
 
-        GridMuuriGallery.filter((item) => { return GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter) });
+        GridMuuriGallery.refreshItems();
+        GridMuuriGallery.filter((item) => {
+            item.getElement().setAttribute("thalia-gallery-item-was-hidden", !item.isVisible());
+            return GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter);
+        });
 
         GALLERY_GRID.elements.filtersBarBtns.forEach((fbBtn) => {
             if (fbBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
@@ -304,7 +313,15 @@ let GALLERY_GRID = {
     },
     onUnfilter : () => {
         GALLERY_GRID.data.currentFilter = null;
-        GridMuuriGallery.filter((item) => { return true });
+        GALLERY_GRID.setShiftItemsSize();
+        docHTML.setAttribute("thalia-gallery-filter", "false");
+
+        GridMuuriGallery.refreshItems();
+        GridMuuriGallery.filter((item) => {
+            item.getElement().setAttribute("thalia-gallery-item-was-hidden", !item.isVisible());
+            return true;
+        });
+
         GALLERY_GRID.elements.filtersBarBtns.forEach((fbBtn) => { fbBtn.classList.remove("active") });
     },
     createItemsFiltersBtns : () => {
@@ -317,7 +334,9 @@ let GALLERY_GRID = {
         })
     },
     initFiltersBtns : () => {
-        GALLERY_GRID.elements.filtersBtns = docHTML.querySelectorAll("*[thalia-gallery-filter-btn-id]");
+        GALLERY_GRID.onUnfilter();
+
+        GALLERY_GRID.elements.filtersBtns = document.querySelectorAll("*[thalia-gallery-filter-btn-id]");
         if (GALLERY_GRID.elements.filtersBtns.length > 0) {
             GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
                 fBtn.addEventListener("click", () => {GALLERY_GRID.onClickFilter(fBtn)});
@@ -326,19 +345,50 @@ let GALLERY_GRID = {
                 fcBtn.addEventListener("click", GALLERY_GRID.onUnfilter);
             });
         }
-    }
+    },
+    getShiftItemsSize : (callback) => {
+        GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
+            item.setAttribute("thalia-gallery-item-height", item.firstElementChild.firstElementChild.offsetHeight);
+        });
+
+        if(callback) { callback() };
+    },
+    setShiftItemsSize : () => {
+        GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
+            item.style.height = ((GALLERY_GRID.data.currentFilter === null) ? GALLERY_GRID.itemsShiftValue : 0) + parseFloat(item.getAttribute("thalia-gallery-item-height")) +"px";
+        })
+    },
+    initShiftItems : () => {
+        docHTML.style.setProperty("--thalia-gallery-item-shift", GALLERY_GRID.itemsShiftValue +"px");
+
+        GALLERY_GRID.elements.shiftItemsMuuri = document.querySelectorAll(".gallery-grid .grid-muuri--item.item-shift");
+        GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
+            // the _Content and _Muuri item have the same index
+            GALLERY_GRID.elements.shiftItemsContent.push(item.querySelectorAll(".item-gallery"));
+        })
+
+        GALLERY_GRID.getShiftItemsSize();
+        GALLERY_GRID.setShiftItemsSize();
+        window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
+    },
 }
 
 
 
 
 //- RUN
-setTimeout(() => {
+window.addEventListener("load", () => {
     _GET.scrollbarWidth();
+
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     //ScrollMain_onScroll({});
+
+    THALIA_CHARA.interactions.init();
+
     GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
+    GALLERY_GRID.initShiftItems();
     GALLERY_GRID.createItemsFiltersBtns();
     GALLERY_GRID.initFiltersBtns();
+
     SCROLL.resize(ScrollMain);
-}, 50);
+})
