@@ -221,6 +221,15 @@ let THALIA_CHARA = {
 }
 
 
+window.addEventListener('scrollHit', (e) => {
+    if (e.detail.progress >= 1) {
+        e.detail.target.classList.add("is-scroll-hit");
+    } else {
+        e.detail.target.classList.remove("is-scroll-hit");
+    }
+});
+
+
 // GALLERY GRID
 let GridMuuriGallery;
 const GridMuuri_options = {
@@ -348,7 +357,9 @@ let GALLERY_GRID = {
     },
     getShiftItemsSize : (callback) => {
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
+            item.style.display = "block";
             item.setAttribute("thalia-gallery-item-height", item.firstElementChild.firstElementChild.offsetHeight);
+            setTimeout(() => { item.style.display = null; }, 5);
         });
 
         if(callback) { callback() };

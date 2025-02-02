@@ -405,6 +405,10 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
     padding: var(--ggrid-padding);
     padding-bottom: 12em;
 
+    > .grid-muuri {
+        transition: height 0.7s cubic-bezier(0.7, 0, 0.2, 1);
+    }
+
     .item-gallery {
         --ggrid-item-size-x: 1;
         --ggrid-item-size-y: 1;
