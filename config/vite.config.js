@@ -1,25 +1,11 @@
 import { defineConfig } from "vite";
 
+//-- PLUGINS
+import * as PLUGINS from "./plugins.js";
 
-// OPTIONS
-import PATHS from "./paths.js"
-
-let OPTIONS = {
-	buildWithAssets : false,
-
-	doMinify : {
-		"production" : "esbuild",
-		"development" : false
-	},
-	buildDir : {
-		"production" : PATHS.buildProd,
-		"development" : PATHS.buildDev
-	},
-}
-
-
-// PLUGINS
 import injectHTML from "vite-plugin-html-inject";
+// import { viteStaticCopy } from 'vite-plugin-static-copy';
+// import legacy from '@vitejs/plugin-legacy';
 
 // postcss
 import postcssInlineSvg from "postcss-inline-svg";
@@ -31,106 +17,45 @@ import postcssShort from "postcss-short";
 import postcssViewportHeightCorrection from "postcss-viewport-height-correction"; // [POSTCSS WARNING] https://github.com/Faisal-Manzer/postcss-viewport-height-correction/issues/18
 
 
-// MOVE SCRIPT TAG TO BODY END
-const scriptToBodyEnd = () => {
-	return {
-		name: "scriptToBodyEnd",
-		transformIndexHtml(html) {
-			let scriptTag = html.match(/^.*<script[^>]*>(.*?)<\/script[^>]*>/gm)[0];
-			html = html.replaceAll(scriptTag, "");
+//-- OPTIONS
+import PATHS from "./paths.js";
 
-			scriptTag = scriptTag.replaceAll(` type="module" crossorigin`, "");
-			html = html.replaceAll("</body>", scriptTag + `\n</body>`);
+let OPTIONS = {
+	buildWithAssets : true,
+	bundleMoreFiles : [],
 
-			return html;
-		},
-	};
-};
-
-
-// INSERT HTML TO ALL PAGES
-const insertToAllPagesHTML = (partitions) => {
-	/* Variables :
-	   targetRegex : /<regex.*>/g
-	   position : "before"|"after"
-	   newLine : boolean
-	   insert : "<>" 	-> if contains "%dirdepth%", will be replaced with multiple "../" to match directory detph
-	*/
-	return {
-		name: "insertToAllPagesHTML",
-		transformIndexHtml : {
-			order: "pre",
-			handler(html, ctx) {
-				partitions.forEach((part) => {
-					part.position = (part.position) ? part.position : "";
-					part.newLine = (part.newLine) ? part.newLine : false;
-
-					const insertHTML = part.insert.replaceAll("%dirdepth%", ("../").repeat(((ctx.path.match(/\//g)||[]).length) - 1));
-
-					html.match(part.targetRegex).forEach((targetHTML) => {
-						html = html.replaceAll(targetHTML, ""
-							+ ((part.position == "after") ? targetHTML + ((part.newLine) ? `\n` : "") : "")
-							+ insertHTML
-							+ ((part.position == "before") ? targetHTML + ((part.newLine) ? `\n` : "") : "")
-						);
-					});
-				});
-				return html;
-			},
-		},
-	};
-};
-
-
-// IGNORE ASSETS HTML
-const ignoreAssetsHTML = () => {
-	return {
-		name: "ignoreAssetsHTML",
-		transformIndexHtml : {
-			handler(html) {
-				html = html.replaceAll(` href=`, " vite-ignore href=");
-				html = html.replaceAll(` src=`, " vite-ignore src=");
-				return html;
-			},
-		},
-	};
-};
-
-
-// IGNORE ASSETS ROLLUP BUILD
-const isAsset = (assetFileNameOriginal) => {
-	const regexAssetsDir = new RegExp(`(${PATHS.dirNames.assets}\/)`);
-	return regexAssetsDir.test(assetFileNameOriginal);
+	doMinify : {
+		"production" : "esbuild",
+		"development" : false
+	},
+	doMinifyCSS : {
+		"production" : "esbuild",
+		"development" : false
+	},
+	doSourcemap : {
+		"production" : false,
+		"development" : true
+	},
+	buildDir : {
+		"production" : PATHS.buildProd,
+		"development" : PATHS.buildDev
+	},
 }
 
-const ignoreAssetsRollup = (buildWithAssets) => {
-	if (!buildWithAssets) {
-		return {
-			name: "ignoreAssetsRollup",
-			apply: "build",
-			generateBundle: {
-				order: "pre",
-				handler(options, bundle, isWrite) {
-					Object.entries(bundle).forEach((asset) => {
-						if (asset[1].type == "asset" && asset[1].originalFileNames.length > 0) {
-							if (isAsset(asset[1].originalFileNames[0])) {
-								delete bundle[asset[0]]; // do not generate asset
-							}
-						};
-					});
-				},
-			},
-		};
-	}
-};
 
-
-// CONFIG
+//-- CONFIG
 export default defineConfig(({ mode }) => {
+	OPTIONS.bundleMoreFiles_insertLinkTags = []; OPTIONS.bundleMoreFiles_inputAssets = {};
+	for (let i = 0; i < OPTIONS.bundleMoreFiles.length; i++) {
+		OPTIONS.bundleMoreFiles_insertLinkTags.push(OPTIONS.bundleMoreFiles[i]);
+		OPTIONS.bundleMoreFiles_inputAssets["bundleMoreFiles_asset_"+ i] = PATHS.dev +"/"+ OPTIONS.bundleMoreFiles[i];
+	}
+
 	return {
 		publicDir: PATHS.dirNames.devRoot,
 		root: PATHS.dirNames.devRoot,
 		base : "./",
+
 		server : {
 			port: 8888,
 			host: true,
@@ -139,34 +64,58 @@ export default defineConfig(({ mode }) => {
 			port: 8888,
 			host: true,
 		},
+
 		build: {
 			outDir: OPTIONS.buildDir[mode],
-			emptyOutDir : true,
 			assetsDir : "",
 			assetsInlineLimit : 0,
+			emptyOutDir : true,
 			copyPublicDir : false,
+
+			target: "es2015",
+			sourcemap: OPTIONS.doSourcemap[mode],
 			minify: OPTIONS.doMinify[mode],
+			cssMinify : OPTIONS.doMinifyCSS[mode],
+
 			rollupOptions: {
-				input: PATHS.pages,
+				input: {
+					...PATHS.pages,
+					...OPTIONS.bundleMoreFiles_inputAssets
+				},
+
 				output: {
-					chunkFileNames: "bundle-[hash].js",
+					entryFileNames: "scripts-[hash].js",
+					chunkFileNames: "scripts-[hash].js",
 					assetFileNames: (assetInfo) => {
 						// keep folder structure for assets
 						if (assetInfo.originalFileNames.length > 0) {
-							if (isAsset(assetInfo.originalFileNames[0])) {
+							if (PLUGINS.isAsset(assetInfo.originalFileNames[0])) {
 								return assetInfo.originalFileNames[0];
 							}
 						}
-						// css
-						return "bundle-[hash].[ext]";
-					}
+
+						// ...and for other assets like css files // TOFIX css url() are kept as is so relative paths are broken
+						if (assetInfo.originalFileNames.length > 0 && assetInfo.names[0] != "page_1.css") {
+							//OPTIONS.bundleMoreFiles_insertLinkTags.push(assetInfo.originalFileNames[0]);
+							return assetInfo.originalFileNames[0];
+						}
+
+						// main css
+						return "styles-[hash].[ext]";
+					},
 				},
+
+				plugins: [
+					PLUGINS.removeViteHashUpdateMarker(),
+				],
+
 				watch: {
 					exclude: PATHS.configDirDepth + "node_modules/**",
 					include: PATHS.dev + "/**",
-				}
+				},
 			},
 		},
+
 		css: {
 			transformer: "postcss",
 			postcss : {
@@ -202,13 +151,14 @@ export default defineConfig(({ mode }) => {
 				]
 			}
 		},
+
 		plugins: [
-			{ enforce: "pre", ...insertToAllPagesHTML([
+			{ enforce: "pre", ...PLUGINS.insertToAllPagesHTML([
 				{
 					targetRegex : /<head.*>/g,
 					position : "after",
 					newLine : true,
-					insert : `<import-html src="import/html/head.html" dirdepth="%dirdepth%" />`
+					insert : `<import-html src="import/html/head.html" dirdepth="%dirDepth%" />`
 				},
 				{
 					targetRegex : /<body.*>/g,
@@ -220,9 +170,22 @@ export default defineConfig(({ mode }) => {
 			{ enforce: "pre", ...injectHTML({ tagName: "import-html" }), },
 
 			// ignoreAssetsHTML(),
-			ignoreAssetsRollup(OPTIONS.buildWithAssets),
+			PLUGINS.ignoreAssetsRollup(OPTIONS.buildWithAssets),
 
-			{ enforce: "post", ...scriptToBodyEnd(), }
+			/*{ enforce: "post", ...PLUGINS.insertToAllPagesHTML([
+				{
+					// targetRegex : /(<link rel="stylesheet").*>/g,
+					// position : "before",
+					targetRegex : /(<import-assets\/>)/g,
+					targetReplace : true,
+					newLine : true,
+					forArray : OPTIONS.bundleMoreFiles_insertLinkTags,
+					dirDepthBase : "./",
+					insert : `<link rel="stylesheet" crossorigin href="%dirDepth%%forArray%">`
+				},
+			], "post"), },*/
+
+			//{ enforce: "post", ...scriptToBodyEnd(), }
 		],
 	}
 });
