@@ -2,7 +2,7 @@ import "./main.scss";
 import "./import/scripts/postcss-vh-correction.js";
 
 //- LIBRARIES
-import "./import/dependencies/locomotive/locomotive-edited.js";
+import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
 // import anime from 'animejs/lib/anime.es.js';
 
