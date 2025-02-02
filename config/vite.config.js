@@ -21,7 +21,7 @@ import postcssViewportHeightCorrection from "postcss-viewport-height-correction"
 import PATHS from "./paths.js";
 
 let OPTIONS = {
-	buildWithAssets : true,
+	buildWithAssets : false,
 	bundleMoreFiles : [],
 
 	doMinify : {
