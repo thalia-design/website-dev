@@ -11,7 +11,10 @@
     "previewdev": "vite preview --open --config ./config/vite.config.js --mode development"
   },
   "devDependencies": {
+    "animejs": "^3.2.2",
+    "bezier-easing": "^2.1.0",
     "glob": "^11.0.0",
+    "lenis": "^1.1.20",
     "locomotive-scroll": "github:yolanare/locomotive-scroll",
     "muuri": "^0.9.5",
     "postcss": "^8.4.49",
