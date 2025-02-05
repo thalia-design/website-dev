@@ -5,7 +5,7 @@ import "./import/scripts/postcss-vh-correction.js";
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
 // import anime from 'animejs/lib/anime.es.js';
-
+import BezierEasing from "bezier-easing"
 
 
 //- VARS
@@ -32,7 +32,7 @@ const _GET = {
         const sw = window.innerWidth - docHTML.clientWidth;
         docHTML.style.setProperty('--scrollbar-width', ((sw > 0) ? sw : 0) + 'px');
         return sw;
-    }
+    },
 }
 
 function lerp (start, end, amt) { return (1 - amt) * start + amt * end; }
@@ -66,9 +66,11 @@ const SCROLL = {
             //scrollCallback: ScrollMain_onScroll,
         },
         scrollTo: {
-            duration: 1.4,
+            offset: 0,
+            duration: 0.9,
+            immediate : false,
             lock: false,
-            easing: (x) => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2),
+            easing: (x) => ( BezierEasing(0.45, 0, 0.05, 1)(x) ),
         },
     },
     resize : (instance, delay = 200) => {
@@ -281,6 +283,7 @@ let GALLERY_GRID = {
         currentFilter : null,
     },
     elements : {
+        gallerySectionScrollToAnchor : document.querySelector(".section-home-gallery .scroll-to-anchor"),
         galleryItemsFiltersContainers : document.querySelectorAll(".gallery-grid .item-gallery .filters"),
         filtersBar : document.querySelectorAll(".sticky-filters"),
         filtersBarBtns : document.querySelectorAll(".sticky-filters .btn-filter"),
@@ -305,6 +308,7 @@ let GALLERY_GRID = {
             GALLERY_GRID.onFilter(el);
             SCROLL.resize(ScrollMain);
         }
+        GALLERY_GRID.scrollToTop();
     },
     onFilter : (el) => {
         GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
@@ -386,6 +390,11 @@ let GALLERY_GRID = {
         GALLERY_GRID.getShiftItemsSize();
         GALLERY_GRID.setShiftItemsSize();
         window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
+    },
+    scrollToTop : () => {
+        if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 0) {
+            ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, SCROLL.options.scrollTo);
+        }
     },
 }
 
