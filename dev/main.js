@@ -7,8 +7,10 @@ import Muuri from 'muuri';
 // import anime from 'animejs/lib/anime.es.js';
 
 
+
 //- VARS
 const docHTML = document.documentElement;
+
 
 
 // HELPER FUNCTIONS
@@ -36,10 +38,12 @@ const _GET = {
 function lerp (start, end, amt) { return (1 - amt) * start + amt * end; }
 
 
+
 //- OPTIONS
 let THALIA_GLOBALS = {};
 THALIA_GLOBALS.vpSize = _GET.viewportSize();
 window.addEventListener("resize", () => { THALIA_GLOBALS.vpSize = _GET.viewportSize(); });
+
 
 
 // SMOOTH SCROLL
@@ -72,6 +76,16 @@ const SCROLL = {
             instance.resize();
         }, delay);
     },
+    initEvents : () => {
+        window.addEventListener('scrollHit', (e) => {
+            if (e.detail.progress >= 1) {
+                e.detail.target.classList.add("is-scroll-hit");
+                return;
+            } else {
+                e.detail.target.classList.remove("is-scroll-hit");
+            }
+        });
+    }
 }
 
 
@@ -188,9 +202,8 @@ let THALIA_CHARA = {
                         , Math.PI + 0.8), Math.PI - 0.8)
                         - Math.PI
                     , THALIA_CHARA.options.dragIntensity[2])
-                    +"rad");
-                */
-
+                    +"rad"
+                );*/
             } else {
                 THALIA_CHARA.data.look.posFromCenter = [
                     (THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.look.center[0]) / THALIA_CHARA.options.look.damping[0],
@@ -220,14 +233,6 @@ let THALIA_CHARA = {
     },
 }
 
-
-window.addEventListener('scrollHit', (e) => {
-    if (e.detail.progress >= 1) {
-        e.detail.target.classList.add("is-scroll-hit");
-    } else {
-        e.detail.target.classList.remove("is-scroll-hit");
-    }
-});
 
 
 // GALLERY GRID
@@ -386,12 +391,12 @@ let GALLERY_GRID = {
 
 
 
-
 //- RUN
 window.addEventListener("load", () => {
     _GET.scrollbarWidth();
 
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
+    SCROLL.initEvents();
     //ScrollMain_onScroll({});
 
     THALIA_CHARA.interactions.init();
