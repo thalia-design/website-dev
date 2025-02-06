@@ -380,6 +380,10 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             transform: scaleX(0.98) scaleY(0.95);
             transition: 0.075s cubic-bezier(0, 0.3, 0.5, 3);
         }
+
+        html[thalia-chara-hands-toggle="false"] & {
+            transform: translateY(-50%);
+        }
     }
 }
 
@@ -675,6 +679,11 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
         &:hover {
             background-color: rgba(var(--thalia-rgb-bg), 0.8);
             transform: translateY(0em);
+        }
+
+        .gallery-grid & {
+            background-color: rgba(var(--thalia-rgb-accent), 1);
+            color: var(--thalia-c-bg);
         }
     }
 }
