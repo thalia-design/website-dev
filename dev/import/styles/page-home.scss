@@ -442,10 +442,16 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             cursor: pointer;
         }
 
-        & > * {
-            position: relative;
-            width: 100%;
-            max-width: 100%;
+        > wrapper {
+            @include dflex($a: flex-start, $j: flex-start);
+
+            > * {
+                position: relative;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .title { order: 3; }
         }
 
         .thumbnail {
@@ -495,11 +501,6 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             width: auto;
         }
 
-        & {
-            @include dflex($a: flex-start, $j: flex-start);
-        }
-        .title { order: 3; }
-
         .thumbnail > wrapper {
             transition: transform 0.4s cubic-bezier(0.4, 0, 0, 0.8);
         }
@@ -512,6 +513,17 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
         .title:active ~ .thumbnail > wrapper {
             transform: translateY(0.075em);
             transition: transform 0.05s ease;
+        }
+
+        &:not(.is-inview) > wrapper {
+            opacity: 0;
+            transform: translateY(10rem);
+        }
+        &.is-inview > wrapper {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s 0.2s ease,
+                        transform 1.2s 0s cubic-bezier(0.7, 0, 0, 1);
         }
     }
 

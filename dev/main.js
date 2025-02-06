@@ -404,9 +404,24 @@ let GALLERY_GRID = {
         GALLERY_GRID.setShiftItemsSize();
         window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
     },
+    initScrollInView : () => {
+        GridMuuriGallery.getItems().forEach((item) => {
+            const itemG = item.getElement().querySelector(".item-gallery");
+            itemG.setAttribute("data-scroll", "");
+            itemG.setAttribute("data-scroll-offset", "200,0");
+        });
+        ScrollMain.addScrollElements(GridMuuriGallery.getElement());
+    },
     scrollToTop : () => {
         if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 150) {
             ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, SCROLL.options.scrollTo);
+        } else {
+            setTimeout(() => {
+                ScrollMain.scrollTo(ScrollMain.lenisInstance.targetScroll + 1, { immediate: true });
+                setTimeout(() => {
+                    ScrollMain.scrollTo(ScrollMain.lenisInstance.targetScroll - 1, { immediate: true });
+                }, 1);
+            }, 500);
         }
     },
 }
@@ -427,6 +442,10 @@ window.addEventListener("load", () => {
     GALLERY_GRID.initShiftItems();
     GALLERY_GRID.createItemsFiltersBtns();
     GALLERY_GRID.initFiltersBtns();
+    GridMuuriGallery.layout(true);
+    setTimeout(() => {
+        GALLERY_GRID.initScrollInView();
+    }, 100);
 
     SCROLL.resize(ScrollMain);
 })
