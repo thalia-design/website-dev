@@ -413,15 +413,15 @@ let GALLERY_GRID = {
         ScrollMain.addScrollElements(GridMuuriGallery.getElement());
     },
     scrollToTop : () => {
-        if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 150) {
-            ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, SCROLL.options.scrollTo);
-        } else {
-            setTimeout(() => {
-                ScrollMain.scrollTo(ScrollMain.lenisInstance.targetScroll + 1, { immediate: true });
-                setTimeout(() => {
-                    ScrollMain.scrollTo(ScrollMain.lenisInstance.targetScroll - 1, { immediate: true });
-                }, 1);
-            }, 500);
+        const anchorPos = GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top;
+        if (ScrollMain.lenisInstance.targetScroll > 50) {
+            ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
+                ...SCROLL.options.scrollTo,
+                offset: 0,
+                onComplete: () => {
+                    SCROLL.resize(ScrollMain);
+                }
+            });
         }
     },
 }
