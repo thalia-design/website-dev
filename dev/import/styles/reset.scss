@@ -55,6 +55,12 @@ wrapper {
     width: 100%;
     height: auto;
 }
+wrapper-container {
+    position: relative;
+    display: block;
+    width: auto;
+    height: auto;
+}
 blocker {
     z-index: 100;
     position: absolute;
