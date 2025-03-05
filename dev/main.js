@@ -37,6 +37,31 @@ const _GET = {
 
 function lerp (start, end, amt) { return (1 - amt) * start + amt * end; }
 
+function atTransitionEnd(el, callback, options = {property : false, once : true, debug : false}) {
+    if (!options.property) { // all css properties
+        el.addEventListener("transitionend", () => {
+            callback();
+        }, { once : options.once });
+    }
+    else { // only for specified css property
+        el.addEventListener("transitionend", (ev) => {
+            if (ev.propertyName == options.property) { callback(); }
+        }, { once : options.once });
+    }
+
+    if (options.debug) {
+        el.addEventListener("transitionend", (ev) => {
+            console.debug("[atTransitionEnd] "+ ev.propertyName + ((options.property) ? (" (selected)") : ""), el);
+        });
+    }
+
+    let isNotAlreadyListening = true;
+    atTransitionEnd_Array.forEach((e) => { isNotAlreadyListening &= (e == el) ? false : true; });
+    if (isNotAlreadyListening) {
+        atTransitionEnd_Array.push(el);
+        el.childNodes.forEach((el) => { el.addEventListener("transitionend", (ev) => { ev.stopPropagation(); })});
+    }
+} let atTransitionEnd_Array = [];
 
 
 //- OPTIONS
@@ -79,7 +104,7 @@ const SCROLL = {
         }, delay);
     },
     initEvents : () => {
-        window.addEventListener('scrollHit', (e) => {
+        window.addEventListener('scrollHit', (e) => { // data-scroll-position="start,start"
             if (e.detail.progress >= 1) {
                 e.detail.target.classList.add("is-scroll-hit");
                 return;
@@ -87,6 +112,61 @@ const SCROLL = {
                 e.detail.target.classList.remove("is-scroll-hit");
             }
         });
+    }
+}
+
+
+// STICKY MENU
+let STICKY_MENU = {
+    elements : {
+        menusContainers : document.querySelectorAll(".sticky-menu wrapper[menu-show-id]"),
+    },
+
+    init : () => {
+        docHTML.setAttribute("thalia-sticky-menu-state", "false");
+        STICKY_MENU.elements.menusContainers.forEach((el) => { el.setAttribute("menu-show-state", "false"); });
+
+        window.addEventListener('scrollStickyMenu', (e) => {
+            if (ScrollMain.lenisInstance.targetScroll > 5) {
+                docHTML.setAttribute("thalia-sticky-menu-state", e.detail.way == "enter");
+                return;
+            } else {
+                docHTML.setAttribute("thalia-sticky-menu-state", "true");
+            }
+        });
+    },
+
+    triggerAnimate : (el, state = false) => {
+        el.style.width = el.firstElementChild.getBoundingClientRect().width + "px";
+
+        setTimeout(() => {
+            el.setAttribute("menu-show-state", "transition-"+ state);
+
+            atTransitionEnd(
+                el,
+                () => {
+                    el.setAttribute("menu-show-state", state);
+                    el.style.width = null;
+                },
+                { once : true }
+            );
+        }, 100);
+    },
+
+    toggleMenu: (menuKey) => {
+        const selectMenus = document.querySelectorAll('*[menu-show-id="'+ menuKey +'"]');
+        if(selectMenus.length <= 0) { console.error("[STICKY_MENU.toggleMenu] not found : "+ menuKey); return; };
+
+        STICKY_MENU.elements.menusContainers.forEach((el) => {
+            if (el.getAttribute("menu-show-id") !== menuKey) {
+                STICKY_MENU.triggerAnimate(el, false);
+            }
+        });
+
+        selectMenus.forEach((el) => {
+            if (el.getAttribute("menu-show-state").includes("true")) { return; }
+            STICKY_MENU.triggerAnimate(el, true);
+        })
     }
 }
 
@@ -297,8 +377,7 @@ let GALLERY_GRID = {
     elements : {
         gallerySectionScrollToAnchor : document.querySelector(".section-home-gallery .scroll-to-anchor"),
         galleryItemsFiltersContainers : document.querySelectorAll(".gallery-grid .item-gallery .filters"),
-        filtersBar : document.querySelectorAll(".sticky-filters"),
-        filtersBarBtns : document.querySelectorAll(".sticky-filters .btn-filter"),
+        filtersBarBtns : document.querySelectorAll(".sticky-menu wrapper[menu-show-id='filters'] .btn-filter"),
         filtersClearBtn : document.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
         filtersBtns : undefined,
         shiftItemsMuuri: undefined,
@@ -435,6 +514,11 @@ window.addEventListener("load", () => {
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     SCROLL.initEvents();
     //ScrollMain_onScroll({});
+
+    STICKY_MENU.init();
+    STICKY_MENU.toggleMenu("filters");
+    document.querySelector("*[test-click='project']").addEventListener("click", () => { STICKY_MENU.toggleMenu("project"); });
+    document.querySelector("*[test-click='filters']").addEventListener("click", () => { STICKY_MENU.toggleMenu("filters"); });
 
     THALIA_CHARA.interactions.init();
 
