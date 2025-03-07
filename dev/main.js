@@ -218,6 +218,7 @@ let THALIA_CHARA = {
                         THALIA_CHARA.interactions.toggleHands(true);
                     }
                 });
+                THALIA_CHARA.interactions.initBlinkHit();
 
                 THALIA_CHARA.interactions.updateEyesPosition();
                 window.addEventListener("resize", THALIA_CHARA.interactions.updateEyesPosition);
@@ -332,7 +333,23 @@ let THALIA_CHARA = {
         },
         toggleHands: (active) => {
             docHTML.setAttribute("thalia-chara-hands-toggle", active);
-        }
+        },
+        initBlinkHit: () => {
+            THALIA_CHARA.interactions.blinkHit(false);
+
+            THALIA_CHARA.elements.hands.forEach((hand) => {
+                hand.addEventListener("pointerdown", () => { THALIA_CHARA.interactions.blinkHit(true); });
+                hand.addEventListener("pointerup", () => { THALIA_CHARA.interactions.blinkHit(false); });
+                hand.addEventListener("pointerleave", () => { THALIA_CHARA.interactions.blinkHit(false); });
+            })
+        },
+        blinkHit: (active) => {
+            docHTML.setAttribute("thalia-chara-state", (active) ? "grabbing" : "resting");
+            THALIA_CHARA.data.dragPos = [0,0];
+            docHTML.style.setProperty("--thalia-chara-drag-x", "0px");
+            docHTML.style.setProperty("--thalia-chara-drag-y", "0px");
+            docHTML.style.setProperty("--thalia-chara-drag-rotate", "0deg");
+        },
     },
 }
 

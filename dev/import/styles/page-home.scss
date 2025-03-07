@@ -376,7 +376,7 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
             transition: 0.15s ease;
         }
 
-        &:active {
+        &:hover:active {
             transform: scaleX(0.98) scaleY(0.95);
             transition: 0.075s cubic-bezier(0, 0.3, 0.5, 3);
         }
