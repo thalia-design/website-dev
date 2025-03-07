@@ -5,13 +5,13 @@
         <div class="item-gallery" style="--ggrid-item-size-x: {=$itemSizeX}; --ggrid-item-size-y: {=$itemSizeY};">
             <wrapper>
 
-            <div class="title">
+            <a class="title" href="/projets/{=$itemSlug}/">
                 <span>{=$itemTitle}</span>
-            </div>
+            </a>
             <div class="thumbnail">
                 <wrapper>
                     <img src="{=$itemThumbnailURL}">
-                    <blocker></blocker>
+                    <a class="blocker" href="/projets/{=$itemSlug}/"></a>
                 </wrapper>
             </div>
             <div class="filters">

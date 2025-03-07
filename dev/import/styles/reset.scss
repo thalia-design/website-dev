@@ -49,19 +49,19 @@ body {
     opacity: 0;
 }
 
-wrapper {
+wrapper, .wrapper {
     position: relative;
     display: block;
     width: 100%;
     height: auto;
 }
-wrapper-container {
+wrapper-container, .wrapper-container {
     position: relative;
     display: block;
     width: auto;
     height: auto;
 }
-blocker {
+blocker, .blocker {
     z-index: 100;
     position: absolute;
     display: block;

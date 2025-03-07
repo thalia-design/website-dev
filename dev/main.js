@@ -2,6 +2,7 @@ import "./main.scss";
 import "./import/scripts/postcss-vh-correction.js";
 
 //- LIBRARIES
+import Swup from "swup";
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
 // import anime from 'animejs/lib/anime.es.js';
@@ -28,8 +29,12 @@ const _GET = {
             elRect.top + (elRect.height / 2)
         ]
     },
-    scrollbarWidth : () => {
-        const sw = window.innerWidth - docHTML.clientWidth;
+    scrollbarWidth : (forceNewBigger = false) => {
+        let sw = window.innerWidth - docHTML.clientWidth;
+        if(forceNewBigger) {
+            const swCurrent = parseFloat(window.getComputedStyle(docHTML).getPropertyValue('--scrollbar-width').replace("px", ""));
+            sw = (swCurrent > sw) ? swCurrent : sw;
+        }
         docHTML.style.setProperty('--scrollbar-width', ((sw > 0) ? sw : 0) + 'px');
         return sw;
     },
@@ -62,6 +67,7 @@ function atTransitionEnd(el, callback, options = {property : false, once : true,
         el.childNodes.forEach((el) => { el.addEventListener("transitionend", (ev) => { ev.stopPropagation(); })});
     }
 } let atTransitionEnd_Array = [];
+
 
 
 //- OPTIONS
@@ -103,6 +109,9 @@ const SCROLL = {
             instance.resize();
         }, delay);
     },
+    getScroll : (instance) => {
+        return instance.lenisInstance.targetScroll;
+    },
     initEvents : () => {
         window.addEventListener('scrollHit', (e) => { // data-scroll-position="start,start"
             if (e.detail.progress >= 1) {
@@ -112,7 +121,7 @@ const SCROLL = {
                 e.detail.target.classList.remove("is-scroll-hit");
             }
         });
-    }
+    },
 }
 
 
@@ -375,13 +384,45 @@ let GALLERY_GRID = {
         currentFilter : null,
     },
     elements : {
+        section : document.querySelector(".section-home-gallery"),
         gallerySectionScrollToAnchor : document.querySelector(".section-home-gallery .scroll-to-anchor"),
-        galleryItemsFiltersContainers : document.querySelectorAll(".gallery-grid .item-gallery .filters"),
+        galleryItemsFiltersContainers : undefined,
         filtersBarBtns : document.querySelectorAll(".sticky-menu wrapper[menu-show-id='filters'] .btn-filter"),
         filtersClearBtn : document.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
         filtersBtns : undefined,
         shiftItemsMuuri: undefined,
         shiftItemsContent: [],
+    },
+    init : () => {
+        GALLERY_GRID.elements.galleryItemsFiltersContainers = document.querySelectorAll(".gallery-grid .item-gallery .filters");
+
+        GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
+
+        GALLERY_GRID.initShiftItems();
+        GALLERY_GRID.createItemsFiltersBtns();
+        GALLERY_GRID.initFiltersBtns();
+
+        GridMuuriGallery.layout(true);
+
+        // setTimeout(() => { GALLERY_GRID.initScrollInView(); }, 100);
+    },
+    destroy : () => {
+        GridMuuriGallery.destroy();
+
+        GALLERY_GRID.elements.filtersBtns = document.querySelectorAll("*[thalia-gallery-filter-btn-id]");
+
+        GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
+            if (fBtn) {
+                let newEl = fBtn.cloneNode(true);
+                fBtn.parentNode.replaceChild(newEl, fBtn);
+                fBtn = newEl;
+            }
+        });
+        GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
+            if (fcBtn) {
+                fcBtn.removeEventListener("click", GALLERY_GRID.onUnfilter);
+            }
+        });
     },
     galleryFilter : (item, matchFilter) => {
         if (item.getElement().getAttribute('thalia-gallery-item-filters').match(matchFilter)) {
@@ -492,14 +533,11 @@ let GALLERY_GRID = {
         ScrollMain.addScrollElements(GridMuuriGallery.getElement());
     },
     scrollToTop : () => {
-        const anchorPos = GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top;
-        if (ScrollMain.lenisInstance.targetScroll > 50) {
+        if (SCROLL.getScroll(ScrollMain) > 50) {
             ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
                 ...SCROLL.options.scrollTo,
                 offset: 0,
-                onComplete: () => {
-                    SCROLL.resize(ScrollMain);
-                }
+                onComplete: () => { SCROLL.resize(ScrollMain); }
             });
         }
     },
@@ -507,29 +545,100 @@ let GALLERY_GRID = {
 
 
 
+// PROJECTS
+const PROJECTS = {
+    initPagesHandling: () => {
+        // GALLERY GRID
+        swup.hooks.on('page:view', (visit) => {
+            if (GridMuuriGallery) {
+                GALLERY_GRID.destroy();
+            }
+
+            if (visit.to.url === "/") {
+                GALLERY_GRID.init();
+                // TODO restore current filter instead of emptying
+            }
+        });
+
+
+        // SCROLL
+        swup.hooks.on('visit:start', (visit) => {
+            visit.scroll.reset = false; // disable default swup scroll to top animation
+
+            if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top > 0) {
+                if (visit.to.url !== "/") {
+                    ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
+                        ...SCROLL.options.scrollTo,
+                        lock: true,
+                        offset: 0,
+                        onComplete: () => { SCROLL.resize(ScrollMain); }
+                    });
+                }
+            }
+            else {
+                swup.hooks.on('content:replace', () => {
+                    if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 0) {
+                        ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
+                            immediate: true,
+                            lock: true,
+                            offset: 0,
+                            onComplete: () => { SCROLL.resize(ScrollMain); }
+                        }, { once : true, before: true });
+                    }
+                });
+            }
+
+            if (visit.to.url !== "/") {
+                STICKY_MENU.toggleMenu("project");
+            }
+            else {
+                STICKY_MENU.toggleMenu("filters");
+            }
+        });
+    }
+}
+
+
+
+//- SWUP
+const swup = new Swup({
+    animateHistoryBrowsing: true,
+    cache: true,
+
+    containers: ['#swup'],
+    animationSelector: '[class*="swup-transition-"]',
+    animationScope: 'html',
+
+    linkSelector: 'a[href]',
+    linkToSelf: 'scroll',
+
+    timeout: 0,
+    native: false,
+    // resolveUrl: (url) => url,
+
+    // hooks: {},
+    // plugins: [],
+});
+
+
+
 //- RUN
 window.addEventListener("load", () => {
     _GET.scrollbarWidth();
+    swup.hooks.on('content:replace', () => { _GET.scrollbarWidth(true); });
 
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     SCROLL.initEvents();
     //ScrollMain_onScroll({});
 
     STICKY_MENU.init();
-    STICKY_MENU.toggleMenu("filters");
-    document.querySelector("*[test-click='project']").addEventListener("click", () => { STICKY_MENU.toggleMenu("project"); });
-    document.querySelector("*[test-click='filters']").addEventListener("click", () => { STICKY_MENU.toggleMenu("filters"); });
+    if (swup.location.pathname === "/") { STICKY_MENU.toggleMenu("filters"); }
+    else { STICKY_MENU.toggleMenu("project"); }
 
     THALIA_CHARA.interactions.init();
 
-    GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
-    GALLERY_GRID.initShiftItems();
-    GALLERY_GRID.createItemsFiltersBtns();
-    GALLERY_GRID.initFiltersBtns();
-    GridMuuriGallery.layout(true);
-    setTimeout(() => {
-        GALLERY_GRID.initScrollInView();
-    }, 100);
+    PROJECTS.initPagesHandling();
+    if (document.querySelector(".gallery-grid")) { GALLERY_GRID.init(); }
 
     SCROLL.resize(ScrollMain);
 })

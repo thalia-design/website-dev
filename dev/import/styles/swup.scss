@@ -1,0 +1,29 @@
+.swup-transition--home {
+    transition: opacity 0.4s ease,
+                transform 0.4s ease;
+
+    html.is-changing & {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    html.is-animating & {
+        opacity: 0;
+        transform: translateY(2em);
+    }
+}
+
+.swup-transition--project {
+    transition: opacity 0.4s ease,
+                transform 0.4s ease;
+
+    html.is-changing & {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    html.is-animating & {
+        opacity: 0;
+        transform: translateY(-5em);
+    }
+}
