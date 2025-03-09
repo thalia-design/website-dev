@@ -18,11 +18,51 @@ const scriptToBodyEnd = () => {
 };
 
 
+// REPLACE IN ALL HTML PAGES
+const replaceToAllPagesHTML = (partitions, enforceOrder = "pre") => {
+/**	VARIABLES
+ * 	replaceWith : ""
+ * 	targetRegex : /(regex)/g
+ *
+ * 	dirDepth : boolean			-> toggle for dirDepth mode, will replace any matched regex to the directory depth of the html page
+ * 								   "replaceWith" will be ignored
+ * 	dirDepthBase : ""			-> will place the string specified for the home page only, generally "./"
+ */
+	return {
+		name: "replaceToAllPagesHTML",
+		transformIndexHtml : {
+			order: enforceOrder,
+			handler(html, ctx) {
+				partitions.forEach((part) => {
+					part.dirDepth = (part.dirDepth) ? part.dirDepth : false;
+					part.dirDepthBase = (part.dirDepthBase) ? part.dirDepthBase : "";
+
+					if (part.dirDepth) {
+						const dirDepth = ""+ ("../").repeat(((ctx.path.match(/\//g)||[]).length) - 1);
+						part.replaceWith = (dirDepth === "") ? part.dirDepthBase : dirDepth;
+					}
+
+					if (part.targetRegex) {
+						const targetMatches = html.match(part.targetRegex);
+						if (targetMatches != null) {
+							targetMatches.forEach((targetHTML) => {
+								html = html.replaceAll(targetHTML, part.replaceWith);
+							});
+						}
+					}
+				});
+				return html;
+			},
+		},
+	};
+};
+
+
 // INSERT HTML TO ALL PAGES
 const insertToAllPagesHTML = (partitions, enforceOrder = "pre") => {
 /**	VARIABLES
- * 	insert : "<>" 				-> if contains "%dirDepth%", will be replaced with multiple "../" to match directory detph
- * 								-> if "forArray" is defined, will repeat through it while replacing %forArray% for each item
+ * 	insert : "<>" 				-> if contains "{%dirDepth%}", will be replaced with multiple "../" to match directory detph
+ * 								-> if "forArray" is defined, will repeat through it while replacing "{%forArray%}" for each item
  * 	targetRegex : /<regex.*>/g
  * 	targetReplace : boolean		-> will remove matched target
  * 	position : "before"|"after"
@@ -43,25 +83,30 @@ const insertToAllPagesHTML = (partitions, enforceOrder = "pre") => {
 					part.dirDepthBase = (part.dirDepthBase) ? part.dirDepthBase : "";
 
 					const dirDepth = ""+ ("../").repeat(((ctx.path.match(/\//g)||[]).length) - 1);
-					let insertHTML = part.insert.replaceAll("%dirDepth%", ((dirDepth === "") ? part.dirDepthBase : dirDepth));
+					let insertHTML = part.insert.replaceAll("{%dirDepth%}", ((dirDepth === "") ? part.dirDepthBase : dirDepth));
 
 					if (part.forArray) {
 						const insertHTML_template = insertHTML;
 						insertHTML = "";
 
 						for (let index = 0; index < part.forArray.length; index++) {
-							insertHTML += insertHTML_template.replaceAll("%forArray%", part.forArray[index]);
+							insertHTML += insertHTML_template.replaceAll("{%forArray%}", part.forArray[index]);
 							if (index < part.forArray.length) { insertHTML += (part.newLine) ? `\n` : ""; }
 						}
 					}
 
-					html.match(part.targetRegex).forEach((targetHTML) => {
-						html = html.replaceAll(targetHTML, ""
-							+ ((part.position == "after" ) ? ((part.targetReplace) ? "" : targetHTML) + ((part.newLine) ? `\n` : "") : "")
-							+ insertHTML
-							+ ((part.position == "before") ? ((part.targetReplace) ? "" : targetHTML) + ((part.newLine) ? `\n` : "") : "")
-						);
-					});
+					if (part.targetRegex) {
+						const targetMatches = html.match(part.targetRegex);
+						if (targetMatches != null) {
+							targetMatches.forEach((targetHTML) => {
+								html = html.replaceAll(targetHTML, ""
+									+ ((part.position == "after" ) ? ((part.targetReplace) ? "" : targetHTML) + ((part.newLine) ? `\n` : "") : "")
+									+ insertHTML
+									+ ((part.position == "before") ? ((part.targetReplace) ? "" : targetHTML) + ((part.newLine) ? `\n` : "") : "")
+								);
+							});
+						}
+					}
 				});
 				return html;
 			},
@@ -138,6 +183,7 @@ const removeViteHashUpdateMarker = () => {
 
 export {
     scriptToBodyEnd,
+    replaceToAllPagesHTML,
     insertToAllPagesHTML,
     ignoreAssetsHTML,
     isAsset,

@@ -153,12 +153,25 @@ export default defineConfig(({ mode }) => {
 		},
 
 		plugins: [
+			/*{ enforce: "pre", ...PLUGINS.replaceToAllPagesHTML([
+				{
+					targetRegex : /({%dirDepth%})/g,
+					dirDepth : true,
+					dirDepthBase : "./",
+				},
+			]), },*/
 			{ enforce: "pre", ...PLUGINS.insertToAllPagesHTML([
+				{
+					targetRegex : /({%dirDepth%})/g,
+					targetReplace : true,
+					insert : "{%dirDepth%}",
+					dirDepthBase : "./"
+				},
 				{
 					targetRegex : /<head.*>/g,
 					position : "after",
 					newLine : true,
-					insert : `<import-html src="import/html/head.html" dirdepth="%dirDepth%" />`
+					insert : `<import-html src="import/html/head.html" dirdepth="{%dirDepth%}" />`
 				},
 				{
 					targetRegex : /<body.*>/g,
@@ -181,7 +194,7 @@ export default defineConfig(({ mode }) => {
 					newLine : true,
 					forArray : OPTIONS.bundleMoreFiles_insertLinkTags,
 					dirDepthBase : "./",
-					insert : `<link rel="stylesheet" crossorigin href="%dirDepth%%forArray%">`
+					insert : `<link rel="stylesheet" crossorigin href="{%dirDepth%}{%forArray%}">`
 				},
 			], "post"), },*/
 
