@@ -27,3 +27,10 @@
         transform: translateY(-5em);
     }
 }
+
+
+html.is-leaving {
+    a, button {
+        pointer-events: none !important;
+    }
+}

@@ -132,11 +132,16 @@ const SCROLL = {
 let STICKY_MENU = {
     elements : {
         menusContainers : document.querySelectorAll(".sticky-menu wrapper[menu-show-id]"),
-    },
 
+        projectNameSpan : document.querySelector(".sticky-menu wrapper[menu-show-id] .project-name"),
+        projectH1 : undefined,
+    },
     init : () => {
         docHTML.setAttribute("thalia-sticky-menu-state", "false");
         STICKY_MENU.elements.menusContainers.forEach((el) => { el.setAttribute("menu-show-state", "false"); });
+
+        STICKY_MENU.toggleMenuFromURL(swup.location.pathname);
+        swup.hooks.on('content:replace', (visit) => { STICKY_MENU.toggleMenuFromURL(visit.to.url); });
 
         window.addEventListener('scrollStickyMenu', (e) => {
             if (SCROLL.getScroll(ScrollMain) < 5) {
@@ -146,7 +151,6 @@ let STICKY_MENU = {
             docHTML.setAttribute("thalia-sticky-menu-state", e.detail.way === "enter");
         });
     },
-
     triggerAnimate : (el, state = false) => {
         el.style.width = el.firstElementChild.getBoundingClientRect().width + "px";
 
@@ -163,8 +167,19 @@ let STICKY_MENU = {
             );
         }, 100);
     },
-
     toggleMenu: (menuKey) => {
+        if (menuKey === "project") {
+            STICKY_MENU.elements.projectH1 = document.querySelector(".section-home-gallery h1.project-title");
+
+            if (!STICKY_MENU.elements.projectH1) {
+                STICKY_MENU.elements.projectNameSpan.innerText = "t";
+            }
+            else {
+                STICKY_MENU.elements.projectNameSpan.innerText = STICKY_MENU.elements.projectH1.innerText;
+            }
+
+        }
+
         const selectMenus = document.querySelectorAll('*[menu-show-id="'+ menuKey +'"]');
         if(selectMenus.length <= 0) { console.error("[STICKY_MENU.toggleMenu] not found : "+ menuKey); return; };
 
@@ -177,8 +192,16 @@ let STICKY_MENU = {
         selectMenus.forEach((el) => {
             if (el.getAttribute("menu-show-state").includes("true")) { return; }
             STICKY_MENU.triggerAnimate(el, true);
-        })
-    }
+        });
+    },
+    toggleMenuFromURL : (toURL) => {
+        if (toURL !== "/") {
+            STICKY_MENU.toggleMenu("project");
+        }
+        else {
+            STICKY_MENU.toggleMenu("filters");
+        }
+    },
 }
 
 
@@ -639,6 +662,11 @@ let GALLERY_GRID = {
 
 // PROJECTS
 const PROJECTS = {
+    data : {
+        homePrevScrollPos : null,
+        homePrevAnchorPos : null,
+    },
+
     initPagesHandling: () => {
         // GALLERY GRID
         swup.hooks.on('page:view', (visit) => {
@@ -656,7 +684,12 @@ const PROJECTS = {
         swup.hooks.on('visit:start', (visit) => {
             visit.scroll.reset = false; // disable default swup scroll to top animation
 
-            if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top > 0) {
+            if (visit.from.url === "/") {
+                PROJECTS.data.homePrevScrollPos = SCROLL.getScroll(ScrollMain);
+                PROJECTS.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top;
+            }
+
+            if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top > 1) {
                 if (visit.to.url !== "/") {
                     ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
                         ...SCROLL.options.scrollTo,
@@ -668,22 +701,29 @@ const PROJECTS = {
             }
             else {
                 swup.hooks.on('content:replace', () => {
-                    if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 0) {
-                        ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
+                    if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 1) {
+                        ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionScrollToAnchor), {
                             immediate: true,
                             lock: true,
                             offset: 0,
                             onComplete: () => { SCROLL.resize(ScrollMain); }
-                        }, { once : true, before: true });
-                    }
-                });
-            }
+                        });
 
-            if (visit.to.url !== "/") {
-                STICKY_MENU.toggleMenu("project");
-            }
-            else {
-                STICKY_MENU.toggleMenu("filters");
+                        // home scroll restoration
+                        if (visit.to.url === "/" && PROJECTS.data.homePrevScrollPos != null) {
+                            if (PROJECTS.data.homePrevScrollPos > THALIA_GLOBALS.vpSize[1] && PROJECTS.data.homePrevAnchorPos < 0) {
+                                setTimeout(() => {
+                                    ScrollMain.scrollTo((PROJECTS.data.homePrevScrollPos), {
+                                        ...SCROLL.options.scrollTo,
+                                        lock: true,
+                                        offset: 0,
+                                        onComplete: () => { SCROLL.resize(ScrollMain); }
+                                    });
+                                }, 300);
+                            }
+                        }
+                    }
+                }, { once : true, before: true });
             }
         });
     }
@@ -723,8 +763,6 @@ window.addEventListener("load", () => {
     //ScrollMain_onScroll({});
 
     STICKY_MENU.init();
-    if (swup.location.pathname === "/") { STICKY_MENU.toggleMenu("filters"); }
-    else { STICKY_MENU.toggleMenu("project"); }
 
     THALIA_CHARA.interactions.init();
 
