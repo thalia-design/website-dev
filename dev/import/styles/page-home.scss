@@ -535,8 +535,8 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
         }
         .thumbnail:active > wrapper,
         .title:active ~ .thumbnail > wrapper {
-            transform: translateY(0.075em);
-            transition: transform 0.05s ease;
+            transform: translateY(-0.25em) scale(0.985);
+            transition: transform 0.05s ease-out;
         }
 
         /*&:not(.is-inview) > wrapper {
