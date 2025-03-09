@@ -38,6 +38,9 @@ const _GET = {
         docHTML.style.setProperty('--scrollbar-width', ((sw > 0) ? sw : 0) + 'px');
         return sw;
     },
+    randomIntFromInterval : (min, max) => { // min and max included
+        return Math.floor(Math.random() * (max - min + 1) + min)
+    },
 }
 
 function lerp (start, end, amt) { return (1 - amt) * start + amt * end; }
@@ -136,12 +139,11 @@ let STICKY_MENU = {
         STICKY_MENU.elements.menusContainers.forEach((el) => { el.setAttribute("menu-show-state", "false"); });
 
         window.addEventListener('scrollStickyMenu', (e) => {
-            if (ScrollMain.lenisInstance.targetScroll > 5) {
-                docHTML.setAttribute("thalia-sticky-menu-state", e.detail.way == "enter");
-                return;
-            } else {
+            if (SCROLL.getScroll(ScrollMain) < 5) {
                 docHTML.setAttribute("thalia-sticky-menu-state", "true");
+                return;
             }
+            docHTML.setAttribute("thalia-sticky-menu-state", e.detail.way === "enter");
         });
     },
 
@@ -189,11 +191,18 @@ let THALIA_CHARA = {
         look : {
             maxDistance : 10,
             damping : [20, 15]
+        },
+        blink : {
+            startTimeout : 2000,
+            interval : 6000,
+            randomIntervalAdd : 4000,
+            speed : 190,
         }
     },
     data : {
         dragPos : [0, 0],
-        look : {}
+        look : {},
+        blinkIntervalInstance : null,
     },
     elements : {
         dragContainer : document.querySelector("main"),
@@ -211,12 +220,11 @@ let THALIA_CHARA = {
                 docHTML.setAttribute("thalia-chara-state", "resting");
                 THALIA_CHARA.interactions.toggleHands(true);
                 window.addEventListener('scrollThaliaCharaHandsToggle', (e) => {
-                    if (ScrollMain.lenisInstance.targetScroll > 5) {
-                        THALIA_CHARA.interactions.toggleHands(e.detail.way == "enter");
-                        return;
-                    } else {
+                    if (SCROLL.getScroll(ScrollMain) < 5) {
                         THALIA_CHARA.interactions.toggleHands(true);
+                        return;
                     }
+                    THALIA_CHARA.interactions.toggleHands(e.detail.way === "enter");
                 });
                 THALIA_CHARA.interactions.initBlinkHit();
 
@@ -231,7 +239,6 @@ let THALIA_CHARA = {
                 THALIA_CHARA.elements.dragContainer.addEventListener("mouseup", THALIA_CHARA.interactions.pointerStop);
 
                 THALIA_CHARA.elements.main.addEventListener("mousedown", THALIA_CHARA.interactions.pointerActive);
-                THALIA_CHARA.elements.dragContainer.addEventListener("mousemove", THALIA_CHARA.interactions.following);
 
                 // social btns
                 if(THALIA_CHARA.elements.socialBtns.length > 0) {
@@ -248,6 +255,31 @@ let THALIA_CHARA = {
                     });
                 }
             }
+
+            THALIA_CHARA.interactions.enable();
+
+            window.addEventListener('scrollThaliaCharaPause', (e) => {
+                if (SCROLL.getScroll(ScrollMain) < 5) {
+                    THALIA_CHARA.interactions.enable();
+                    return;
+                }
+
+                if (e.detail.way === "enter") {
+                    THALIA_CHARA.interactions.enable();
+                } else {
+                    THALIA_CHARA.interactions.disable();
+                }
+            });
+        },
+        enable : () => {
+            THALIA_CHARA.elements.dragContainer.addEventListener("mousemove", THALIA_CHARA.interactions.following);
+
+            THALIA_CHARA.interactions.blinkLoopStart();
+        },
+        disable : () => {
+            THALIA_CHARA.elements.dragContainer.removeEventListener("mousemove", THALIA_CHARA.interactions.following);
+
+            THALIA_CHARA.interactions.blinkLoopStop();
         },
 
         updateEyesPosition : (e) => {
@@ -349,6 +381,31 @@ let THALIA_CHARA = {
             docHTML.style.setProperty("--thalia-chara-drag-x", "0px");
             docHTML.style.setProperty("--thalia-chara-drag-y", "0px");
             docHTML.style.setProperty("--thalia-chara-drag-rotate", "0deg");
+        },
+        blink: (now = false) => {
+            setTimeout(() => {
+                docHTML.setAttribute("thalia-chara-blink", "true");
+                setTimeout(() => {
+                    docHTML.setAttribute("thalia-chara-blink", "false");
+                }, THALIA_CHARA.options.blink.speed);
+            }, (now) ? 0 : _GET.randomIntFromInterval(0, THALIA_CHARA.options.blink.randomIntervalAdd));
+        },
+        blinkLoopStart: () => {
+            if (!THALIA_CHARA.data.blinkIntervalInstance) {
+                setTimeout(() => {
+                    THALIA_CHARA.interactions.blink(true);
+                }, THALIA_CHARA.options.blink.startTimeout);
+
+                THALIA_CHARA.data.blinkIntervalInstance = setInterval(() => {
+                    THALIA_CHARA.interactions.blink();
+                }, THALIA_CHARA.options.blink.interval);
+            }
+        },
+        blinkLoopStop: () => {
+            if (THALIA_CHARA.data.blinkIntervalInstance) {
+                clearTimeout(THALIA_CHARA.data.blinkIntervalInstance);
+                THALIA_CHARA.data.blinkIntervalInstance = null;
+            }
         },
     },
 }
@@ -591,7 +648,7 @@ const PROJECTS = {
 
             if (visit.to.url === "/") {
                 GALLERY_GRID.init(false);
-                            }
+            }
         });
 
 

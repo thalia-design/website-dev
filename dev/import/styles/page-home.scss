@@ -147,6 +147,16 @@ svg.thalia-chara {
             opacity: 1;
         }
     }
+    html[thalia-chara-blink="true"]:not([thalia-chara-state="grabbing"]) & {
+        .state--resting g[data-name="eyes"],
+        .state--grabbing > *:not(g[data-name="eyes"]) {
+            opacity: 0;
+        }
+        .state--grabbing,
+        .state--grabbing g[data-name="eyes"] {
+            opacity: 1;
+        }
+    }
 
     & {
         --pointer-follow-look-x: 0px;
@@ -215,6 +225,7 @@ svg.thalia-chara {
         transform: rotateX(0.01deg) translate3d(0, 0, 0);
         transition: transform 0.2s ease;
     }
+    html[thalia-chara-blink="true"] &,
     html[thalia-chara-state="grabbing"] & {
         .state--grabbing g[data-name="eyes"] {
             transform: rotateX(0.01deg) scale(1);
@@ -228,6 +239,11 @@ svg.thalia-chara {
             transform: rotateX(0.01deg) translate3d(0, 0, 0);
             transition: transform 0.2s ease;
         }
+        .state--resting g[data-name="sourcils"] {
+            transform: rotateX(0.01deg) translate3d(0, 1%, 0);
+        }
+    }
+    html[thalia-chara-state="grabbing"] & {
         .state--resting g[data-name="sourcils"] {
             transform: rotateX(0.01deg) translate3d(0, 6%, 0);
         }
