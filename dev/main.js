@@ -410,16 +410,20 @@ let GALLERY_GRID = {
         shiftItemsMuuri: undefined,
         shiftItemsContent: [],
     },
-    init : () => {
+    init : (initReset = true) => {
         GALLERY_GRID.elements.galleryItemsFiltersContainers = document.querySelectorAll(".gallery-grid .item-gallery .filters");
 
         GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
 
         GALLERY_GRID.initShiftItems();
         GALLERY_GRID.createItemsFiltersBtns();
-        GALLERY_GRID.initFiltersBtns();
+        GALLERY_GRID.initFiltersBtns(initReset);
 
+        GridMuuriGallery._settings.hideDuration = 0;
         GridMuuriGallery.layout(true);
+        setTimeout(() => {
+            GridMuuriGallery._settings.hideDuration = GridMuuri_options.gallery.hideDuration;
+        }, 200);
 
         // setTimeout(() => { GALLERY_GRID.initScrollInView(); }, 100);
     },
@@ -464,32 +468,41 @@ let GALLERY_GRID = {
         GALLERY_GRID.setShiftItemsSize();
         docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
 
-        GridMuuriGallery.refreshItems();
-        GridMuuriGallery.filter((item) => {
-            item.getElement().setAttribute("thalia-gallery-item-was-hidden", !item.isVisible());
-            return GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter);
-        });
-
-        GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
-            if (fBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
-                fBtn.classList.add("active");
-            } else {
-                fBtn.classList.remove("active");
-            }
-        });
+        GALLERY_GRID.filterItems();
     },
-    onUnfilter : () => {
-        GALLERY_GRID.data.currentFilter = null;
-        GALLERY_GRID.setShiftItemsSize();
-        docHTML.setAttribute("thalia-gallery-filter", "false");
+    onUnfilter : (initReset = true) => {
+        if (initReset) {
+            GALLERY_GRID.data.currentFilter = null;
+            GALLERY_GRID.setShiftItemsSize();
+            docHTML.setAttribute("thalia-gallery-filter", "false");
+        }
+        else {
+            GALLERY_GRID.setShiftItemsSize();
+        }
+
+        GALLERY_GRID.filterItems();
+    },
+    filterItems : () => {
+        const doFilter = !!GALLERY_GRID.data.currentFilter;
 
         GridMuuriGallery.refreshItems();
         GridMuuriGallery.filter((item) => {
             item.getElement().setAttribute("thalia-gallery-item-was-hidden", !item.isVisible());
-            return true;
+            return (doFilter) ? GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter) : true;
         });
 
-        GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => { fBtn.classList.remove("active") });
+        if (doFilter) {
+            GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
+                if (fBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
+                    fBtn.classList.add("active");
+                } else {
+                    fBtn.classList.remove("active");
+                }
+            });
+        }
+        else {
+            GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => { fBtn.classList.remove("active") });
+        }
     },
     createItemsFiltersBtns : () => {
         GridMuuriGallery.getItems().forEach((item) => {
@@ -500,7 +513,7 @@ let GALLERY_GRID = {
             item.getElement().querySelector(".filters").innerHTML = filterElements;
         })
     },
-    initFiltersBtns : () => {
+    initFiltersBtns : (initReset = true) => {
         GALLERY_GRID.elements.filtersBtns = document.querySelectorAll("*[thalia-gallery-filter-btn-id]");
         if (GALLERY_GRID.elements.filtersBtns.length > 0) {
             GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
@@ -511,14 +524,19 @@ let GALLERY_GRID = {
             });
         }
 
-        GALLERY_GRID.onUnfilter();
+        GALLERY_GRID.onUnfilter(initReset);
     },
     getShiftItemsSize : (callback) => {
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
             item.style.display = "block";
             item.setAttribute("thalia-gallery-item-height", item.firstElementChild.firstElementChild.offsetHeight);
             item.setAttribute("thalia-gallery-item-height", window.getComputedStyle(item.firstElementChild.firstElementChild).height.replace("px", ""));
-            setTimeout(() => { item.style.display = null; }, 5);
+
+            setTimeout(() => {
+                if (!item.classList.contains("muuri-item-hidden")) {
+                    item.style.display = null;
+                } else { item.style.display = "none"; }
+            }, 5);
         });
 
         if(callback) { callback() };
@@ -572,9 +590,8 @@ const PROJECTS = {
             }
 
             if (visit.to.url === "/") {
-                GALLERY_GRID.init();
-                // TODO restore current filter instead of emptying
-            }
+                GALLERY_GRID.init(false);
+                            }
         });
 
 

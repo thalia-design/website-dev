@@ -305,7 +305,7 @@ wrapper[menu-show-id] {
         border-radius: 99em;
         background-color: rgba(var(--thalia-rgb-bg), 0.4);
         backdrop-filter: blur(35px);
-        filter: drop-shadow(0px 6px 5px rgba(var(--thalia-rgb-accent), 0.15));
+        filter: drop-shadow(0px 6px 4px rgba(var(--thalia-rgb-accent), 0.1));
 
         transition: background-color 0.4s ease,
                     border-color 0.2s ease;
@@ -319,10 +319,6 @@ wrapper[menu-show-id] {
         }
     }
     html:not([thalia-sticky-menu-state="true"]) & {
-        .bg {
-            filter: drop-shadow(0px 6px 3px rgba(var(--thalia-rgb-accent), 0.08));
-        }
-
         .grp[menu-show-id="filters"] {
             > wrapper > *:not(:first-child):not(:last-child) {
                 margin-left: 0.5em;
