@@ -217,8 +217,8 @@ let THALIA_CHARA = {
         },
         blink : {
             startTimeout : 2000,
-            interval : 6000,
-            randomIntervalAdd : 4000,
+            interval : 4000,
+            randomIntervalAdd : 10000,
             speed : 190,
         }
     },
