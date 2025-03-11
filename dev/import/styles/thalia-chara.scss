@@ -1,0 +1,306 @@
+@use 'utils' as *;
+
+:root {
+    --thalia-chara-width: 23vw;
+    --thalia-chara-hand-width: 5vw;
+    --thalia-chara-hands-spacing: 9vw;
+    --thalia-chara-stroke-width: 4.5;
+    --thalia-chara-drag-hands-strength: 0.65;
+    --thalia-chara-drag-direction: 1;
+}
+svg.thalia-chara {
+    .tc- {
+        &f, &fs {
+            fill: var(--thalia-c-bg2);
+        }
+        &ff, &ffs {
+            fill: var(--thalia-c-accent);
+        }
+        &s, &fs, &ffs {
+            stroke: var(--thalia-c-accent);
+            stroke-width: var(--thalia-chara-stroke-width);
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-miterlimit: 10;
+        }
+        &f, &ff {
+            stroke: none;
+        }
+        &s {
+            fill: none;
+        }
+    }
+
+    g[data-name="blush"] {
+        fill: var(--thalia-c-orange);
+        mix-blend-mode: darken;
+    }
+
+    *[class*="state--"] {
+        opacity: 0;
+    }
+    html[thalia-chara-state="resting"] & {
+        .state--resting {
+            opacity: 1;
+        }
+    }
+    html[thalia-chara-state="grabbing"] & {
+        .state--grabbing {
+            opacity: 1;
+        }
+    }
+    html[thalia-chara-blink="true"]:not([thalia-chara-state="grabbing"]) & {
+        .state--resting g[data-name="eyes"],
+        .state--grabbing > *:not(g[data-name="eyes"]) {
+            opacity: 0;
+        }
+        .state--grabbing,
+        .state--grabbing g[data-name="eyes"] {
+            opacity: 1;
+        }
+    }
+
+    & {
+        --pointer-follow-look-x: 0px;
+        --pointer-follow-look-y: 0px;
+        --pointer-follow-look-x2: calc(var(--pointer-follow-look-x) / 2.5);
+        --pointer-follow-look-y2: calc(var(--pointer-follow-look-y) / 2.5);
+    }
+
+    .eye-follow,
+    .face-follow {
+        transform: rotateX(0.01deg) translate3d(0, 0, 0);
+        transition: transform 0.5s cubic-bezier(0.3, 0, 0.2, 1);
+    }
+    html[thalia-chara-state="resting"] &.looking {
+        .eye-follow,
+        .face-follow {
+            transition: transform 0.09s ease;
+        }
+        .eye-follow {
+            transform: rotateX(0.01deg) translate3d(var(--pointer-follow-look-x), var(--pointer-follow-look-y), 0);
+        }
+        .face-follow {
+            transform: rotateX(0.01deg) translate3d(var(--pointer-follow-look-x2), var(--pointer-follow-look-y2), 0);
+        }
+    }
+
+    .state--resting g[data-name="sourcils"] {
+        transform: rotateX(0.01deg) translate3d(0, 1%, 0);
+        transition: transform 0.45s 0.05s cubic-bezier(0.7, 0, 0.1, 0.9);
+        > * {
+            transform-origin: center;
+            transition: transform 0.15s ease-out;
+            > [data-name="L"] { transform-origin: right bottom; }
+            > [data-name="R"] { transform-origin: left bottom; }
+        }
+    }
+    &.looking {
+        .state--resting g[data-name="sourcils"] {
+            transform: rotateX(0.01deg) translate3d(0, -1.5%, 0);
+            transition: transform 0.165s ease;
+        }
+    }
+    &.looking:hover,
+    html[thalia-social-hover="true"] &.looking {
+        .state--resting g[data-name="sourcils"] {
+            > [data-name="L"] { transform: rotateZ(8deg) translate3d(1%, -5%, 0); }
+            > [data-name="R"] { transform: rotateZ(-8deg) translate3d(-1%, -5%, 0); }
+        }
+    }
+
+    .state--grabbing g[data-name="eyes"] {
+        transform-origin: bottom;
+        transform: rotateX(0.01deg) scaleX(0.95) scaleY(1.3);
+        transition: transform 0s linear;
+    }
+    .state--resting g[data-name="eyes"] {
+        transform-origin: center 80%;
+        transform: rotateX(0.01deg) scale(1);
+        transition: transform 0.7s cubic-bezier(0.6, 0, 0, 1);
+    }
+    .state--grabbing g[data-name="sourcils"] {
+        transform: rotateX(0.01deg) translate3d(0, -14%, 0);
+        transition: transform 0s linear;
+    }
+    g[data-name="blush"] > * {
+        transform: rotateX(0.01deg) translate3d(0, 0, 0);
+        transition: transform 0.2s ease;
+    }
+    html[thalia-chara-blink="true"] &,
+    html[thalia-chara-state="grabbing"] & {
+        .state--grabbing g[data-name="eyes"] {
+            transform: rotateX(0.01deg) scale(1);
+            transition: transform 0.3s cubic-bezier(0.2, 0.2, 0, 1);
+        }
+        .state--resting g[data-name="eyes"] {
+            transform: rotateX(0.01deg) scaleY(1.3);
+            transition: transform 0s linear;
+        }
+        .state--grabbing g[data-name="sourcils"] {
+            transform: rotateX(0.01deg) translate3d(0, 0, 0);
+            transition: transform 0.2s ease;
+        }
+        .state--resting g[data-name="sourcils"] {
+            transform: rotateX(0.01deg) translate3d(0, 1%, 0);
+        }
+    }
+    html[thalia-chara-state="grabbing"] & {
+        .state--resting g[data-name="sourcils"] {
+            transform: rotateX(0.01deg) translate3d(0, 6%, 0);
+        }
+        g[data-name="blush"] {
+            > [data-name="L"] { transform: rotateX(0.01deg) translate3d(-2.5%, 0, 0); }
+            > [data-name="R"] { transform: rotateX(0.01deg) translate3d(2.5%, 0, 0); }
+        }
+        /*[data-name="hair-front"] {
+            transform: translate3d(calc(var(--thalia-chara-drag-x) * -0.05), 0, 0);
+        }*/
+    }
+
+    [data-name="hair-front"] {
+        transform-origin: center 30%;
+        animation: none;
+    }
+    html[thalia-chara-drag-strength="strong"]:not([thalia-chara-state="grabbing"]) & {
+        [data-name="hair-front"] {
+            animation: thalia-chara-hair-front-bounce--strong 0.92s cubic-bezier(0.5, 0, 0, 0.9);
+        }
+    }
+    html[thalia-chara-drag-strength="weak"]:not([thalia-chara-state="grabbing"]) & {
+        [data-name="hair-front"] {
+            animation: thalia-chara-hair-front-bounce--weak 0.9s cubic-bezier(0.3, 0.3, 0, 0.9);
+        }
+    }
+}
+
+@keyframes thalia-chara-hair-front-bounce--strong {
+    0% { transform: rotateZ(calc(0deg * var(--thalia-chara-drag-direction))); }
+    20% { transform: rotateZ(calc(-12deg * var(--thalia-chara-drag-direction))); }
+    52% { transform: rotateZ(calc(4deg * var(--thalia-chara-drag-direction))); }
+    100% { transform: rotateZ(calc(0deg * var(--thalia-chara-drag-direction))); }
+}
+@keyframes thalia-chara-hair-front-bounce--weak {
+    0% { transform: rotateZ(calc(0deg * var(--thalia-chara-drag-direction))); }
+    17% { transform: rotateZ(calc(-4deg * var(--thalia-chara-drag-direction))); }
+    45% { transform: rotateZ(calc(3deg * var(--thalia-chara-drag-direction))); }
+    100% { transform: rotateZ(calc(0deg * var(--thalia-chara-drag-direction))); }
+}
+
+
+.interactive-chara-thalia {
+    width: 100%;
+    max-width: var(--thalia-chara-width);
+    @include usn;
+
+    svg g {
+        pointer-events: all !important;
+        cursor: grab;
+    }
+
+    svg.thalia-chara {
+        transition: transform 0.5s cubic-bezier(0.3, 0, 0, 1);
+        transition: transform 0.8s linear(
+            0, 0.007, 0.028 2.2%, 0.063, 0.113 4.8%, 0.225 7.3%, 0.606 14.8%, 0.714,
+            0.804, 0.879, 0.939, 0.986, 1.02 29.9%, 1.036 31.8%, 1.047, 1.054 36.1%,
+            1.055 38.6%, 1.048 43.3%, 1.013 56.7%, 1.001 64.8%, 0.997 75.4%, 1
+          );
+          // https://linear-easing-generator.netlify.app/ / mass 1, stiffness 92, damping 13, velocity 0
+
+        > g {
+            transition: transform 0.3s cubic-bezier(0.2, 0.3, 0, 1);
+        }
+        html[thalia-chara-state="grabbing"] & {
+
+            transform: rotateZ(var(--thalia-chara-drag-rotate)) translate3d(var(--thalia-chara-drag-x), var(--thalia-chara-drag-y), 0);
+            & > g {
+                transform: rotateX(0.01deg) translate3d(0, 8%, 0);
+            }
+        }
+    }
+}
+html[thalia-chara-state="grabbing"] * {
+    cursor: grabbing !important;
+}
+
+.interactive-chara-thalia svg.thalia-chara,
+.chara-thalia--hands .move {
+    transform: translate3d(0, 0, 0);
+
+    svg > g {
+        transition: transform 0.3s cubic-bezier(0.2, 0.3, 0, 1);
+    }
+    html[thalia-chara-state="grabbing"] & {
+        transition: transform 0s ease;
+        & svg > g {
+            transform: rotateX(0.01deg) translate3d(0, 3.5%, 0);
+        }
+    }
+}
+html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interactive-chara-thalia svg.thalia-chara.looking > g {
+    transition: transform 0.4s cubic-bezier(0.2, 0.4, 0, 0.9);
+    transform: rotateX(0.01deg) translate3d(0, -3.5%, 0);
+
+    [data-name="bouche"] { transform: translateY(3%); }
+}
+[data-name="bouche"] { transition: 0.1s linear; }
+
+.chara-thalia--hands {
+    z-index: 1000;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 0;
+    @include usn;
+
+    > wrapper {
+        transform: translateY(-48%);
+        overflow: hidden;
+        padding: 8% _;
+        max-width: 100vw;
+    }
+
+    .move {
+        transition: transform 0.65s cubic-bezier(0.4, 0.05, 0, 1);
+        transition: transform 0.75s linear(
+            0, -0.004, -0.003 1.4%, 0.01, 0.04 4.4%, 0.086 6.2%, 0.192 9.3%, 0.558 18.9%,
+            0.662, 0.748 25.1%, 0.815, 0.87, 0.916 33.7%, 0.953, 0.98 40.1%, 1 43.7%,
+            1.013 47.6%, 1.02 52.1% 59.5%, 1.003 83.5%, 1
+          );
+          // https://linear-easing-generator.netlify.app/ / mass 1, stiffness 120, damping 17, velocity -1
+
+        html[thalia-chara-state="grabbing"] & {
+            transform: translate3d(calc(var(--thalia-chara-drag-x) * var(--thalia-chara-drag-hands-strength)), 0, 0);
+        }
+    }
+
+    .move > wrapper {
+        @include dflex($d: row);
+        gap: var(--thalia-chara-hands-spacing);
+    }
+
+    svg.thalia-chara {
+        --thalia-chara-stroke-width: 3.6;
+        width: var(--thalia-chara-hand-width);
+
+        g {
+            pointer-events: all !important;
+            cursor: pointer;
+        }
+
+        & {
+            transform-origin: center 7.5%;
+            transform: rotateX(0.01deg);
+            transition: 0.15s ease;
+        }
+
+        &:hover:active {
+            transform: scaleX(0.98) scaleY(0.95);
+            transition: 0.075s cubic-bezier(0, 0.3, 0.5, 3);
+        }
+
+        html[thalia-chara-hands-toggle="false"] & {
+            transform: translateY(-60%);
+        }
+    }
+}

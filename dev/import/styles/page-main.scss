@@ -1,0 +1,123 @@
+@use 'utils' as *;
+
+.section-main-head {
+    overflow: hidden;
+    background-color: var(--thalia-c-bg2);
+
+    .titles {
+        @include dflex();
+        padding-top: 4rem;
+
+        > wrapper {
+            display: flex;
+            flex-direction: column;
+            width: auto;
+            gap: 1.25em;
+            font-size: 2rem;
+            transform: translateY(3vw);
+        }
+
+        h1 {
+            font-size: 22vw;
+            line-height: 0.7;
+            font-family: "Bricolage Grotesque", sans-serif;
+            font-variation-settings:
+                "wdth" 100,
+                "wght" 400,
+                "opsz" 96;
+            letter-spacing: -3%;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        h2 {
+            font-size: 1.25em;
+        }
+    }
+
+    .decorations {
+        @include dflex($j: flex-end);
+
+        .socials {
+            @include dflex($d: row);
+            gap: 2.4em;
+            width: auto;
+            margin-bottom: 1.5em;
+
+            .social-btn {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                font-size: 1em;
+                font-weight: 475;
+                user-select: none;
+
+                &:not(:first-child):not(:last-child) {
+                    margin-bottom: 1.2em;
+                }
+
+                > div:first-child {
+                    size: 2.75em;
+                    margin-bottom: 0.5em;
+                    @include usn;
+
+                    transition: transform 0.15s ease-out;
+                }
+
+                & {
+                    transform: scale(1);
+                    transition: transform 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+                }
+
+                &:hover {
+                    transform: scale(1.05);
+                    transition: transform 0.2s cubic-bezier(0.3, 0, 0.1, 1);
+
+                    > div:first-child {
+                        transform: translateY(-5%);
+                        transition: transform var(--thalia-tr-jump);
+                    }
+                }
+
+                &:active {
+                    > div:first-child {
+                        transform: translateY(2%);
+                        transition: transform 0.05s ease;
+                    }
+                }
+            }
+        }
+    }
+}
+.section-main-head > wrapper,
+.chara-thalia--hands .move {
+    display: grid;
+    grid-template-columns: 60% 1fr;
+    padding: _ 5em;
+    height: auto;
+}
+
+
+.section-main-gallery {
+    min-height: 100vh;
+    background-color: var(--thalia-c-bg);
+
+    .main-gallery-padding-top {
+        padding-top: 4.5rem;
+    }
+
+    &::before {
+        content: "";
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translateY(-100%);
+        width: 100%;
+        height: 5em;
+        background: linear-gradient(to top, #404CFF, ease-out, transparent);
+        opacity: 0.25;
+        @include usn;
+    }
+}

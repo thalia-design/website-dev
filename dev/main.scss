@@ -15,5 +15,7 @@
 
 
 // CONTENT
+@use './import/styles/page-main.scss';
+@use './import/styles/thalia-chara.scss';
 @use './import/styles/page-home.scss';
 @use './import/styles/page-projects.scss';

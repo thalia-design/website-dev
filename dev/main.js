@@ -169,7 +169,7 @@ let STICKY_MENU = {
     },
     toggleMenu: (menuKey) => {
         if (menuKey === "project") {
-            STICKY_MENU.elements.projectH1 = document.querySelector(".section-home-gallery h1.project-title");
+            STICKY_MENU.elements.projectH1 = document.querySelector(".section-main-gallery h1.project-title");
 
             if (!STICKY_MENU.elements.projectH1) {
                 STICKY_MENU.elements.projectNameSpan.innerText = "t";
@@ -229,11 +229,11 @@ let THALIA_CHARA = {
     },
     elements : {
         dragContainer : document.querySelector("main"),
-        contentContainer : document.querySelector(".section-home-head"),
+        contentContainer : document.querySelector(".section-main-head"),
         main : document.querySelector(".interactive-chara-thalia svg.thalia-chara"),
         mainEyes : document.querySelector(".interactive-chara-thalia svg.thalia-chara g[data-name='eyes']"),
         hands : document.querySelectorAll(".chara-thalia--hands svg.thalia-chara"),
-        socialBtns : document.querySelectorAll(".section-home-head .socials .social-btn")
+        socialBtns : document.querySelectorAll(".section-main-head .socials .social-btn")
     },
     interactions : {
         init: () => {
@@ -481,8 +481,8 @@ let GALLERY_GRID = {
         currentFilter : null,
     },
     elements : {
-        section : document.querySelector(".section-home-gallery"),
-        gallerySectionScrollToAnchor : document.querySelector(".section-home-gallery .scroll-to-anchor"),
+        section : document.querySelector(".section-main-gallery"),
+        gallerySectionScrollToAnchor : document.querySelector(".section-main-gallery .scroll-to-anchor"),
         galleryItemsFiltersContainers : undefined,
         filtersBarBtns : document.querySelectorAll(".sticky-menu wrapper[menu-show-id='filters'] .btn-filter"),
         filtersClearBtn : document.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),

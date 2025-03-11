@@ -35,3 +35,103 @@ body {
     background-color: var(--thalia-c-bg);
     color: var(--thalia-c-accent);
 }
+
+
+/* COMPONENTS */
+.btn-simple {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
+
+}
+
+.btn-simple,
+*[thalia-gallery-filter-btn-id] {
+    color: var(--thalia-c-accent);
+    background-color: rgba(var(--thalia-rgb-bg), 0.75);
+    transform: translateY(0);
+    transition: color 0.2s ease,
+                background-color 0.2s ease,
+                border-color 0.35s cubic-bezier(0.3, 0.2, 0, 1),
+                transform 0.3s cubic-bezier(0.3, 0, 0, 0.9),
+                margin 0.2s ease-out;
+
+    font-size: 1em;
+    line-height: 1;
+    padding: 0.5em 1.15em;
+    border-radius: 99em;
+    user-select: none;
+    cursor: pointer;
+
+    > span {
+        display: inline-block;
+    }
+
+    .icon-container {
+        size: 0.75em;
+    }
+    svg {
+        fill: none;
+        stroke-width: 12px;
+        stroke-linecap: round;
+
+        stroke: var(--thalia-c-accent);
+        transition: stroke 0.2s ease;
+    }
+
+    .sticky-menu & {
+        font-weight: 500;
+    }
+
+    .gallery-grid & {
+        border: 2px solid var(--thalia-c-accent);
+    }
+
+    &:hover {
+        color: rgba(var(--thalia-rgb-accent), 0.8);
+        background-color: rgba(var(--thalia-rgb-bg), 0.6);
+        transform: translateY(-0.15em);
+        transition: color 0.2s ease,
+                    background-color 0.2s ease,
+                    border-color 0.2s ease,
+                    transform 0.2s cubic-bezier(0.1, 0.3, 0, 1);
+
+        svg {
+            stroke: rgba(var(--thalia-rgb-accent), 0.8);
+            transition: stroke 0.2s ease;
+        }
+    }
+    &:active {
+        background-color: rgba(var(--thalia-rgb-bg), 0.15);
+        transform: translateY(0.1em) !important;
+        transition: color 0.1s ease,
+                    background-color 0.1s ease,
+                    border-color 0.1s ease,
+                    transform 0.04s ease;
+    }
+
+    &.active {
+        color: var(--thalia-c-bg);
+        background-color: var(--thalia-c-accent) !important;
+
+        svg {
+            stroke: var(--thalia-c-bg);
+        }
+
+        &:hover {
+            background-color: rgba(var(--thalia-rgb-accent), 0.85) !important;
+            transform: translateY(0em);
+        }
+
+        .gallery-grid & {
+            color: var(--thalia-c-bg);
+            background-color: rgba(var(--thalia-rgb-accent), 1);
+            border-color: transparent !important;
+
+            svg {
+                stroke: var(--thalia-c-bg);
+            }
+        }
+    }
+}
