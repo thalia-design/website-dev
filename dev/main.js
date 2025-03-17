@@ -253,15 +253,15 @@ let THALIA_CHARA = {
 
                 THALIA_CHARA.interactions.updateEyesPosition();
                 window.addEventListener("resize", THALIA_CHARA.interactions.updateEyesPosition);
-                THALIA_CHARA.elements.contentContainer.addEventListener("mouseenter", THALIA_CHARA.interactions.updateEyesPosition);
+                THALIA_CHARA.elements.contentContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.updateEyesPosition);
 
                 THALIA_CHARA.interactions.look();
-                THALIA_CHARA.elements.dragContainer.addEventListener("mouseenter", THALIA_CHARA.interactions.look);
-                THALIA_CHARA.elements.dragContainer.addEventListener("mouseleave", THALIA_CHARA.interactions.unlook);
-                THALIA_CHARA.elements.dragContainer.addEventListener("mouseleave", THALIA_CHARA.interactions.pointerStop);
-                THALIA_CHARA.elements.dragContainer.addEventListener("mouseup", THALIA_CHARA.interactions.pointerStop);
+                THALIA_CHARA.elements.dragContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.look);
+                THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.unlook);
+                THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.pointerStop);
+                THALIA_CHARA.elements.dragContainer.addEventListener("pointerup", THALIA_CHARA.interactions.pointerStop);
 
-                THALIA_CHARA.elements.main.addEventListener("mousedown", THALIA_CHARA.interactions.pointerActive);
+                THALIA_CHARA.elements.main.addEventListener("pointerdown", THALIA_CHARA.interactions.pointerActive);
 
                 // social btns
                 if(THALIA_CHARA.elements.socialBtns.length > 0) {
@@ -273,8 +273,8 @@ let THALIA_CHARA = {
                     }
 
                     THALIA_CHARA.elements.socialBtns.forEach((sBtn) => {
-                        sBtn.addEventListener("mouseenter", THALIA_CHARA.interactions.socialBtnHover);
-                        sBtn.addEventListener("mouseleave", THALIA_CHARA.interactions.socialBtnOut);
+                        sBtn.addEventListener("pointerenter", THALIA_CHARA.interactions.socialBtnHover);
+                        sBtn.addEventListener("pointerleave", THALIA_CHARA.interactions.socialBtnOut);
                     });
                 }
             }
@@ -295,12 +295,12 @@ let THALIA_CHARA = {
             });
         },
         enable : () => {
-            THALIA_CHARA.elements.dragContainer.addEventListener("mousemove", THALIA_CHARA.interactions.following);
+            THALIA_CHARA.elements.dragContainer.addEventListener("pointermove", THALIA_CHARA.interactions.following);
 
             THALIA_CHARA.interactions.blinkLoopStart();
         },
         disable : () => {
-            THALIA_CHARA.elements.dragContainer.removeEventListener("mousemove", THALIA_CHARA.interactions.following);
+            THALIA_CHARA.elements.dragContainer.removeEventListener("pointermove", THALIA_CHARA.interactions.following);
 
             THALIA_CHARA.interactions.blinkLoopStop();
         },

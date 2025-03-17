@@ -1,5 +1,9 @@
 @use 'utils' as *;
 
+body {
+    overflow-x: hidden;
+}
+
 .anchor {
     position: relative;
     width: 100%;
@@ -104,6 +108,7 @@ wrapper[menu-show-id] {
     top: 0;
     margin: 0 auto;
     width: fit-content;
+    max-width: 100%;
     padding: 0.65em;
 
     > div {

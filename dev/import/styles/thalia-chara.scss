@@ -9,6 +9,8 @@
     --thalia-chara-drag-direction: 1;
 }
 svg.thalia-chara {
+    touch-action: none;
+
     .tc- {
         &f, &fs {
             fill: var(--thalia-c-bg2);
