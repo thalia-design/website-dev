@@ -60,11 +60,10 @@
         text-wrap: pretty;
     }
 
-    video + .txt,
-    .video + .txt,
-    img + .txt,
-    .img + .txt {
-        padding-left: 2rem;
+    .txt {
+        > * {
+            padding: _ 6rem;
+        }
     }
 
     *[thalia-p-section-name="project"] {
