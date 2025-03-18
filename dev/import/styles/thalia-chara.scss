@@ -34,7 +34,8 @@ svg.thalia-chara {
     }
 
     g[data-name="blush"] {
-        fill: var(--thalia-c-orange);
+        opacity: 0.7;
+        fill: var(--thalia-c-gold);
         mix-blend-mode: darken;
     }
 

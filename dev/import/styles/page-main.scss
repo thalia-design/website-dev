@@ -6,18 +6,22 @@
 
     .titles {
         @include dflex();
-        padding-top: 4rem;
+        padding-top: 3rem;
 
         > wrapper {
             display: flex;
             flex-direction: column;
             width: auto;
-            gap: 1.25em;
+            gap: 1.65em;
             font-size: 2rem;
-            transform: translateY(3vw);
+            transform: translateY(2vw);
         }
 
-        h1 {
+        * {
+            user-select: none;
+        }
+
+        h1.title-thalia {
             font-size: 22vw;
             line-height: 0.7;
             font-family: "Bricolage Grotesque", sans-serif;
@@ -28,6 +32,29 @@
             letter-spacing: -3%;
             user-select: none;
             pointer-events: none;
+        }
+
+        svg.title-thalia {
+            height: 16vw;
+            overflow: visible;
+
+            .tt-s {
+                stroke: var(--thalia-c-accent);
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                stroke-width: 26px;
+            }
+
+            .tt-f {
+                fill: var(--thalia-c-accent);
+            }
+        }
+
+        .title-thalia--off {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            user-select: none;
         }
 
         h2 {
@@ -116,7 +143,7 @@
         transform: translateY(-100%);
         width: 100%;
         height: 5em;
-        background: linear-gradient(to top, #404CFF, ease-out, transparent);
+        background: linear-gradient(to top, rgb(32, 78, 207), ease-out, transparent);
         opacity: 0.25;
         @include usn;
     }

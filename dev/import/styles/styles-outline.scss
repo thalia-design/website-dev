@@ -4,6 +4,11 @@ body {
     overflow-x: hidden;
 }
 
+
+.placeholder-hidden {
+    opacity: 0;
+}
+
 .anchor {
     position: relative;
     width: 100%;
@@ -18,6 +23,14 @@ body {
     position: relative;
     width: 100%;
     min-height: 100vh;
+
+    > * {
+        padding-top: 3em;
+        padding-bottom: 12em;
+    }
+    &.swup-transition--home > * {
+        padding-top: 6em;
+    }
 }
 
 
@@ -58,7 +71,7 @@ body {
         width: 100%;
         height: 25rem;
         border-radius: 50%;
-        background-color: var(--thalia-c-orange);
+        background-color: var(--thalia-c-lightblue);
         filter: blur(80px);
         pointer-events: none;
         user-select: none;
@@ -124,12 +137,17 @@ wrapper[menu-show-id] {
 
         & > wrapper {
             @include dflex($d: row);
+            gap: 0;
             padding: 0.28em 0.35em;
             width: auto;
             width: max-content;
 
             > * {
                 flex-shrink: 0;
+            }
+
+            .hide {
+                display: none;
             }
         }
 

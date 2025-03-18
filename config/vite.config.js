@@ -162,16 +162,10 @@ export default defineConfig(({ mode }) => {
 			]), },*/
 			{ enforce: "pre", ...PLUGINS.insertToAllPagesHTML([
 				{
-					targetRegex : /({%dirDepth%})/g,
-					targetReplace : true,
-					insert : "{%dirDepth%}",
-					dirDepthBase : "./"
-				},
-				{
 					targetRegex : /<head.*>/g,
 					position : "after",
 					newLine : true,
-					insert : `<import-html src="import/html/head.html" dirdepth="{%dirDepth%}" />`
+					insert : `<import-html src="import/html/head.html"/>`
 				},
 				{
 					targetRegex : /<body.*>/g,
@@ -181,6 +175,15 @@ export default defineConfig(({ mode }) => {
 				},
 			]), },
 			{ enforce: "pre", ...injectHTML({ tagName: "import-html" }), },
+
+			{ enforce: "pre", ...PLUGINS.insertToAllPagesHTML([
+				{
+					targetRegex : /({%dirDepth%})/g,
+					targetReplace : true,
+					insert : "{%dirDepth%}",
+					dirDepthBase : "./"
+				},
+			]), },
 
 			// ignoreAssetsHTML(),
 			PLUGINS.ignoreAssetsRollup(OPTIONS.buildWithAssets),

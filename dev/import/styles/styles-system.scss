@@ -1,6 +1,8 @@
-:root {
-    --thalia-rgb-blue: 64, 76, 255;
-    --thalia-rgb-orange: 255, 192, 149;
+html {
+    --thalia-rgb-blue: 32, 78, 207;
+    --thalia-rgb-lightblue: 143, 183, 255;
+    --thalia-rgb-orange: 242, 103, 73;
+    --thalia-rgb-gold: 255, 155, 80;
     --thalia-rgb-beige: 253, 236, 251;
     --thalia-rgb-white: 255, 255, 255;
 
@@ -10,7 +12,9 @@
 
 
     --thalia-c-blue: rgb(var(--thalia-rgb-blue));
+    --thalia-c-lightblue: rgb(var(--thalia-rgb-lightblue));
     --thalia-c-orange: rgb(var(--thalia-rgb-orange));
+    --thalia-c-gold: rgb(var(--thalia-rgb-gold));
     --thalia-c-beige: rgb(var(--thalia-rgb-beige));
     --thalia-c-white: rgb(var(--thalia-rgb-white));
 
@@ -20,6 +24,8 @@
 
     --thalia-tr-jump: 0.35s cubic-bezier(0.3, 0, 0, 3.75);
     --thalia-tr-jump-quick: 0.35s cubic-bezier(0.5, 0, 0, 4.5);
+
+    --thalia-v-radius-normal: 8px;
 }
 
 ::selection {
@@ -34,6 +40,21 @@ body {
 
     background-color: var(--thalia-c-bg);
     color: var(--thalia-c-accent);
+}
+
+video, .video, img, .img {
+    border-radius: var(--thalia-v-radius-normal);
+}
+
+
+/* TEXT */
+p {
+    line-height: 1.5;
+
+    & + p,
+    & + span {
+        margin-top: 0.75em;
+    }
 }
 
 
@@ -59,6 +80,7 @@ body {
 
     font-size: 1em;
     line-height: 1;
+    text-wrap: nowrap;
     padding: 0.5em 1.15em;
     border-radius: 99em;
     user-select: none;
@@ -84,7 +106,10 @@ body {
         font-weight: 500;
     }
 
-    .gallery-grid & {
+    .page-content & {
+        font-size: 0.8em;
+        font-weight: 500;
+        padding: 0.3em 0.7em;
         border: 2px solid var(--thalia-c-accent);
     }
 
@@ -124,7 +149,7 @@ body {
             transform: translateY(0em);
         }
 
-        .gallery-grid & {
+        .page-content & {
             color: var(--thalia-c-bg);
             background-color: rgba(var(--thalia-rgb-accent), 1);
             border-color: transparent !important;

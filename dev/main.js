@@ -172,12 +172,13 @@ let STICKY_MENU = {
             STICKY_MENU.elements.projectH1 = document.querySelector(".section-main-gallery h1.project-title");
 
             if (!STICKY_MENU.elements.projectH1) {
-                STICKY_MENU.elements.projectNameSpan.innerText = "t";
+                STICKY_MENU.elements.projectNameSpan.classList.add("hide");
+                STICKY_MENU.elements.projectNameSpan.innerText = "";
             }
             else {
+                STICKY_MENU.elements.projectNameSpan.classList.remove("hide");
                 STICKY_MENU.elements.projectNameSpan.innerText = STICKY_MENU.elements.projectH1.innerText;
             }
-
         }
 
         const selectMenus = document.querySelectorAll('*[menu-show-id="'+ menuKey +'"]');
@@ -497,7 +498,7 @@ let GALLERY_GRID = {
 
         GALLERY_GRID.initShiftItems();
         GALLERY_GRID.createItemsFiltersBtns();
-        GALLERY_GRID.initFiltersBtns(initReset);
+        GALLERY_GRID.initItemsFiltersBtns(initReset);
 
         GridMuuriGallery._settings.hideDuration = 0;
         GridMuuriGallery.layout(true);
@@ -531,24 +532,36 @@ let GALLERY_GRID = {
         }
         return false;
     },
-    onClickFilter : (el) => {
+    onClickFilter : (el, passive = false) => {
         docHTML.setAttribute("thalia-gallery-filter-previous", docHTML.getAttribute("thalia-gallery-filter"));
 
-        if (el.getAttribute("thalia-gallery-filter-btn-id") == GALLERY_GRID.data.currentFilter) {
-            GALLERY_GRID.onUnfilter();
-            SCROLL.resize(ScrollMain);
-        } else {
-            GALLERY_GRID.onFilter(el);
+        if (!passive) {
+            if (el.getAttribute("thalia-gallery-filter-btn-id") == GALLERY_GRID.data.currentFilter) {
+                GALLERY_GRID.onUnfilter();
+                SCROLL.resize(ScrollMain);
+            } else {
+                GALLERY_GRID.onFilter(el);
+                SCROLL.resize(ScrollMain);
+            }
+            GALLERY_GRID.scrollToTop();
+        }
+        else {
+            GALLERY_GRID.onFilter(el, passive);
             SCROLL.resize(ScrollMain);
         }
-        GALLERY_GRID.scrollToTop();
     },
-    onFilter : (el) => {
-        GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
-        GALLERY_GRID.setShiftItemsSize();
-        docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
+    onFilter : (el, passive = false) => {
+        if (!passive) {
+            GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
+            GALLERY_GRID.setShiftItemsSize();
+            docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
 
-        GALLERY_GRID.filterItems();
+            GALLERY_GRID.filterItems();
+        }
+        else {
+            GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
+            docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
+        }
     },
     onUnfilter : (initReset = true) => {
         if (initReset) {
@@ -593,11 +606,35 @@ let GALLERY_GRID = {
             item.getElement().querySelector(".filters").innerHTML = filterElements;
         })
     },
-    initFiltersBtns : (initReset = true) => {
+    createFilterBtns : (container, filterActionCallback = null) => {
+        const filtersContainers = container.querySelectorAll("*[thalia-gallery-filters--insert]");
+
+        if (filtersContainers.length > 0) {
+            filtersContainers.forEach((el) => {
+                let filterElements = "";
+                el.getAttribute("thalia-gallery-filters--insert").split(";").forEach((filterName) => {
+                    filterElements += '<span thalia-gallery-filter-btn-id="'+ filterName +'">'+ filterName +'</span>';
+                });
+                el.innerHTML = filterElements;
+            });
+            if (filterActionCallback != null) {
+                container.querySelectorAll("*[thalia-gallery-filters--insert] *[thalia-gallery-filter-btn-id]").forEach((elFilter) => {
+                    elFilter.addEventListener("click", () => {
+                        GALLERY_GRID.onClickFilter(elFilter, true);
+                        filterActionCallback();
+                    });
+                });
+            };
+            filtersContainers.forEach((el) => {
+                el.removeAttribute("thalia-gallery-filters--insert");
+            });
+        }
+    },
+    initItemsFiltersBtns : (initReset = true) => {
         GALLERY_GRID.elements.filtersBtns = document.querySelectorAll("*[thalia-gallery-filter-btn-id]");
         if (GALLERY_GRID.elements.filtersBtns.length > 0) {
             GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
-                fBtn.addEventListener("click", () => { GALLERY_GRID.onClickFilter(fBtn) });
+                fBtn.addEventListener("click", () => { GALLERY_GRID.onClickFilter(fBtn); });
             });
             GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
                 fcBtn.addEventListener("click", GALLERY_GRID.onUnfilter);
@@ -639,7 +676,7 @@ let GALLERY_GRID = {
         GALLERY_GRID.setShiftItemsSize();
         window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
     },
-    initScrollInView : () => {
+    initScrollInView : () => { // disabled
         GridMuuriGallery.getItems().forEach((item) => {
             const itemG = item.getElement().querySelector(".item-gallery");
             itemG.setAttribute("data-scroll", "");
@@ -660,33 +697,35 @@ let GALLERY_GRID = {
 
 
 
-// PROJECTS
-const PROJECTS = {
+// PAGES
+const PAGES = {
     data : {
         homePrevScrollPos : null,
         homePrevAnchorPos : null,
     },
 
     initPagesHandling: () => {
-        // GALLERY GRID
         swup.hooks.on('page:view', (visit) => {
+            // GALLERY GRID
             if (GridMuuriGallery) {
                 GALLERY_GRID.destroy();
             }
-
             if (visit.to.url === "/") {
                 GALLERY_GRID.init(false);
             }
+
+            PAGES.doOnEachPages();
         });
 
+        PAGES.doOnEachPages();
 
         // SCROLL
         swup.hooks.on('visit:start', (visit) => {
             visit.scroll.reset = false; // disable default swup scroll to top animation
 
             if (visit.from.url === "/") {
-                PROJECTS.data.homePrevScrollPos = SCROLL.getScroll(ScrollMain);
-                PROJECTS.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top;
+                PAGES.data.homePrevScrollPos = SCROLL.getScroll(ScrollMain);
+                PAGES.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top;
             }
 
             if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top > 1) {
@@ -710,10 +749,10 @@ const PROJECTS = {
                         });
 
                         // home scroll restoration
-                        if (visit.to.url === "/" && PROJECTS.data.homePrevScrollPos != null) {
-                            if (PROJECTS.data.homePrevScrollPos > THALIA_GLOBALS.vpSize[1] && PROJECTS.data.homePrevAnchorPos < 0) {
+                        if (visit.to.url === "/" && PAGES.data.homePrevScrollPos != null) {
+                            if (PAGES.data.homePrevScrollPos > THALIA_GLOBALS.vpSize[1] && PAGES.data.homePrevAnchorPos < 0) {
                                 setTimeout(() => {
-                                    ScrollMain.scrollTo((PROJECTS.data.homePrevScrollPos), {
+                                    ScrollMain.scrollTo((PAGES.data.homePrevScrollPos), {
                                         ...SCROLL.options.scrollTo,
                                         lock: true,
                                         offset: 0,
@@ -726,7 +765,11 @@ const PROJECTS = {
                 }, { once : true, before: true });
             }
         });
-    }
+    },
+
+    doOnEachPages : () => {
+        GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => { swup.navigate("/"); });
+    },
 }
 
 
@@ -766,7 +809,7 @@ window.addEventListener("load", () => {
 
     THALIA_CHARA.interactions.init();
 
-    PROJECTS.initPagesHandling();
+    PAGES.initPagesHandling();
     if (document.querySelector(".gallery-grid")) { GALLERY_GRID.init(); }
 
     SCROLL.resize(ScrollMain);
