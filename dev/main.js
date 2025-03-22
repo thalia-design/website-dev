@@ -5,7 +5,7 @@ import "./import/scripts/postcss-vh-correction.js";
 import Swup from "swup";
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
-// import anime from 'animejs/lib/anime.es.js';
+import anime from 'animejs/lib/anime.es.js';
 import BezierEasing from "bezier-easing"
 
 
@@ -42,6 +42,25 @@ const _GET = {
         return Math.floor(Math.random() * (max - min + 1) + min)
     },
 }
+
+window.requestAnimationFrame = (() => {
+    return (
+        window.requestAnimationFrame
+     || window.mozRequestAnimationFrame
+     || window.webkitRequestAnimationFrame
+     || window.msRequestAnimationFrame
+     || function (callback) { window.setTimeout(callback, 1000 / 60) }
+    );
+})();
+
+window.performance = window.performance || {};
+performance.now = (() => {
+    return (
+        performance.now
+     || performance.webkitNow
+     || function () { return new Date().getTime() }
+    );
+})();
 
 function lerp (start, end, amt) { return (1 - amt) * start + amt * end; }
 
@@ -113,6 +132,9 @@ const SCROLL = {
         }, delay);
     },
     getScroll : (instance) => {
+        return instance.lenisInstance.animatedScroll;
+    },
+    getScrollTarget : (instance) => {
         return instance.lenisInstance.targetScroll;
     },
     initEvents : () => {
@@ -697,6 +719,258 @@ let GALLERY_GRID = {
 
 
 
+// PROJECTS LAYOUT COMPONENTS
+window.addEventListener("scrollCarouselInfinite_call", (e) => {
+    if (SCROLL.getScroll(ScrollMain) < 5) {
+        carouselInfiniteGlobal.toggle(true, e.detail.target.getAttribute("data-carousel-infinite-index"));
+        return;
+    }
+    carouselInfiniteGlobal.toggle(e.detail.way === "enter", e.detail.target.getAttribute("data-carousel-infinite-index"));
+});
+window.addEventListener("scrollCarouselInfinite_onScroll", (e) => {
+    const index = e.detail.target.getAttribute("data-carousel-infinite-index");
+    carouselInfiniteGlobal.apply(
+        e.detail.target,
+        index,
+        Math.abs(ScrollMain.lenisInstance.velocity) * carouselInfiniteGlobal.data.instances[index].scrollStrength
+    );
+});
+
+let carouselInfiniteGlobal;
+class CarouselInfinite {
+    constructor(options = {}) {
+        this.options = {
+            scrollInstance : options.scrollInstance || ScrollMain, // locomotive v5
+            initPosition : options.initPosition || -100,
+            idleSpeed : options.idleSpeed || -60, // px per second
+            scrollStrength : options.scrollStrength || -0.5,
+            dragStrength : options.dragStrength || 2.5,
+            dragEasingDuration : options.dragEasingDuration || 1350,
+            dragEasingTiming : options.dragEasingTiming || "easeOutExpo",
+        };
+
+        this.data = {
+            idleLoop : undefined,
+            instances : {},
+            eventListeners : {},
+        };
+
+        this.elements = {
+            carousels : undefined,
+        }
+    }
+
+    init() {
+        this.elements.carousels = docHTML.querySelectorAll("*[data-carousel-infinite]");
+
+        if (this.elements.carousels.length <= 0) { return; }
+
+        let countInstance = 0;
+
+        this.elements.carousels.forEach((targetEl) => {
+            targetEl.setAttribute("data-carousel-infinite-index", countInstance);
+
+            targetEl.setAttribute("data-scroll", "");
+            targetEl.setAttribute("data-scroll-repeat", "");
+            targetEl.setAttribute("data-scroll-position", "start,end");
+            targetEl.setAttribute("data-scroll-offset", "-5,-5");
+            targetEl.setAttribute("data-scroll-call", "scrollCarouselInfinite_call");
+            targetEl.setAttribute("data-scroll-event-progress", "scrollCarouselInfinite_onScroll");
+
+            // duplicate items group
+            const itemsGroup = targetEl.firstElementChild.firstElementChild;
+            itemsGroup.classList.add("carousel-infinite--group");
+            Array.prototype.slice.call(itemsGroup.children).forEach((el) => { el.classList.add("carousel-infinite--item"); });
+            const itemsGroupClone = itemsGroup.cloneNode(true);
+            itemsGroup.parentNode.appendChild(itemsGroupClone);
+
+            const carouselItemsNb = Array.prototype.slice.call(itemsGroup.children).length;
+            if (carouselItemsNb < (targetEl.hasAttribute("data-carousel-infinite--3rd-mirror-threshold") ? parseInt(targetEl.getAttribute("data-carousel-infinite--3rd-mirror-threshold")) : 4)) { // make another copy
+                const itemsGroupClone2 = itemsGroupClone.cloneNode(true);
+                itemsGroup.parentNode.appendChild(itemsGroupClone2);
+            }
+
+            const carouselWay = targetEl.hasAttribute("data-carousel-infinite--invert") ? -1 : 1;
+
+            this.data.instances[countInstance] = {
+                way : carouselWay,
+                idleSpeed : (targetEl.hasAttribute("data-carousel-infinite--idle-speed") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--idle-speed")) : this.options.idleSpeed) * carouselWay,
+                scrollStrength : (targetEl.hasAttribute("data-carousel-infinite--scroll-strength") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--scroll-strength")) : this.options.scrollStrength) * carouselWay,
+
+                active : false,
+                currentPos : 0,
+                loopEndPos : 0,
+                itemsNb : carouselItemsNb,
+
+                drag : {
+                    isDragging: false,
+                    mousePrevious : undefined,
+                    mouseCurrent : undefined,
+                    posFrom: 0,
+                    posAnimated: 0,
+                    posTo: 0,
+                }
+            };
+
+            this.idle();
+
+            // drag interactions
+            if (!targetEl.onpointerdown) { targetEl.onpointerdown = this.dragToggle_down.bind(this, countInstance); };
+            if (!targetEl.onpointerup) { targetEl.onpointerup = this.dragToggle_up.bind(this, countInstance); };
+            if (!targetEl.onpointerout) { targetEl.onpointerout = this.dragToggle_up.bind(this, countInstance); };
+            if (!targetEl.onpointermove) { targetEl.onpointermove = this.dragMove.bind(this, countInstance); };
+
+            countInstance += 1;
+        });
+
+        // global updates init
+        this.updateSizes();
+        if (!this.data.eventListeners.resize_updateSizes) {
+            this.data.eventListeners.resize_updateSizes = window.addEventListener("resize", this.updateSizes.bind(this));
+        }
+    }
+
+    clear() {
+        if (this.data.idleLoop) { this.data.idleLoop = false; }
+
+        for (const prop of Object.getOwnPropertyNames(this.data.instances)) { delete this.data.instances[prop]; }
+
+        if (this.data.eventListeners.resize_updateSizes) {
+            window.removeEventListener("resize", this.updateSizes);
+            delete this.data.eventListeners.resize_updateSizes;
+        }
+
+        this.elements.carousels.forEach(targetEl => {
+            targetEl.onpointerdown = null;
+            targetEl.onpointerup = null;
+            targetEl.onpointerout = null;
+            targetEl.onpointermove = null;
+        });
+    }
+
+    toggle(active = true, index) {
+        this.data.instances[index].active = !!active;
+
+        if (!active) {
+            let isAtLeastOneActive = false;
+            for (let i = 0; i < Object.values(this.data.instances).length; i++) {
+                isAtLeastOneActive |= !!this.data.instances[i].active;
+            }
+
+            // turn off raf if none is active
+            if (!isAtLeastOneActive) {
+                this.data.idleLoop = false;
+                return;
+            }
+
+            // if one is still active, keep raf
+        }
+
+        // if raf is off, turn it back on
+        if (!this.data.idleLoop) {
+            this.idle()
+        }
+    }
+
+    updateSizes() {
+        let count = 0;
+        this.elements.carousels.forEach(targetEl => {
+            this.data.instances[count].loopEndPos = -targetEl.querySelector(".carousel-infinite--group").getBoundingClientRect().width;
+            count += 1;
+        });
+    }
+
+    apply(targetEl, index, move) {
+        // checks
+        let newPos = this.data.instances[index].currentPos + move;
+        if (newPos > 0) { // loop start
+            //this.updateSizes();
+            newPos = this.data.instances[index].loopEndPos;
+        } else if (newPos < this.data.instances[index].loopEndPos) { // loop end
+            this.updateSizes();
+            newPos = 0;
+        }
+
+        // apply
+        this.data.instances[index].currentPos = newPos;
+        targetEl.firstElementChild.style.transform = "translate3D("+ newPos +"px, 0, 0) rotateX(0.04deg)";
+    }
+
+    idle() {
+        if (this.data.idleLoop) { return; }
+
+        const animate = (targetEl, index, deltaTime) => {
+            const carouselData = this.data.instances[index];
+
+            if (carouselData.drag.isDragging) {
+                this.data.instances[index].drag.posFrom = (carouselData.drag.mouseCurrent - carouselData.drag.mousePrevious) * this.options.dragStrength;
+                this.data.instances[index].drag.mousePrevious = carouselData.drag.mouseCurrent;
+            }
+
+            // animate
+            if (this.data.instances[index].drag.posFrom != carouselData.drag.posTo) { // only run if new pos
+                this.data.instances[index].drag.posTo = this.data.instances[index].drag.posFrom;
+
+                const posVar = {
+                    move: this.data.instances[index].drag.posAnimated,
+                }
+                anime({
+                    targets: posVar,
+                    easing: this.options.dragEasingTiming,
+                    duration: this.options.dragEasingDuration,
+
+                    move: [this.data.instances[index].drag.posAnimated, this.data.instances[index].drag.posFrom],
+
+                    update: () => {
+                        this.data.instances[index].drag.posAnimated = posVar.move;
+                    },
+                });
+            }
+
+            this.apply(targetEl, index, this.data.instances[index].drag.posAnimated + carouselData.idleSpeed * deltaTime);
+        }
+
+        const loop = (timeNow) => {
+            const deltaTime = (timeNow - timeStart) / 1000; // Convert to seconds
+            timeStart = timeNow;
+
+            if (this.data.idleLoop) {
+                let count = 0;
+                this.elements.carousels.forEach((_targetEl) => {
+                    if (this.data.instances[count].active) { animate(_targetEl, count, deltaTime); }
+                    count += 1;
+                });
+
+                this.data.idleLoop = requestAnimationFrame(loop);
+            }
+        };
+
+        let timeStart = performance.now();
+        this.data.idleLoop = requestAnimationFrame(loop.bind(this));
+    }
+
+    dragToggle_down(index, e) {
+        this.data.instances[index].drag.mouseCurrent = e.clientX;
+        this.data.instances[index].drag.mousePrevious = this.data.instances[index].drag.mouseCurrent;
+        this.data.instances[index].drag.isDragging = true;
+    }
+
+    dragToggle_up(index, e) {
+        e.stopPropagation(); // dunno if this works
+        this.data.instances[index].drag.mouseCurrent = 0;
+        this.data.instances[index].drag.mousePrevious = 0;
+        this.data.instances[index].drag.posFrom = 0;
+        this.data.instances[index].drag.isDragging = false;
+    }
+
+    dragMove(index, e) {
+        if (this.data.instances[index].drag.isDragging) {
+            this.data.instances[index].drag.mouseCurrent = e.clientX;
+        }
+    }
+}
+
+
 // PAGES
 const PAGES = {
     data : {
@@ -705,6 +979,7 @@ const PAGES = {
     },
 
     initPagesHandling: () => {
+        // -> view
         swup.hooks.on('page:view', (visit) => {
             // GALLERY GRID
             if (GridMuuriGallery) {
@@ -714,10 +989,16 @@ const PAGES = {
                 GALLERY_GRID.init(false);
             }
 
-            PAGES.doOnEachPages();
+            PAGES.whenPageView();
         });
 
-        PAGES.doOnEachPages();
+        PAGES.whenPageView(true);
+
+        // -> exit
+        swup.hooks.on('content:replace', (visit) => {
+            PAGES.whenPageExit();
+        }, { before: true });
+
 
         // SCROLL
         swup.hooks.on('visit:start', (visit) => {
@@ -767,8 +1048,22 @@ const PAGES = {
         });
     },
 
-    doOnEachPages : () => {
+    whenPageView : (firstInit = false) => {
         GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => { swup.navigate("/"); });
+
+        carouselInfiniteGlobal.init();
+
+        if (!firstInit) {
+            ScrollMain.addScrollElements(document.querySelector(".page-content"));
+        }
+    },
+
+    whenPageExit : (firstInit = false) => {
+        if (carouselInfiniteGlobal) { carouselInfiniteGlobal.clear(); }
+
+        if (!firstInit) {
+            ScrollMain.removeScrollElements(document.querySelector(".page-content"));
+        }
     },
 }
 
@@ -806,6 +1101,10 @@ window.addEventListener("load", () => {
     //ScrollMain_onScroll({});
 
     STICKY_MENU.init();
+
+    carouselInfiniteGlobal = new CarouselInfinite({
+        scrollInstance : ScrollMain,
+    });
 
     THALIA_CHARA.interactions.init();
 

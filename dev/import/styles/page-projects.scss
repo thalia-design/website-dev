@@ -1,16 +1,21 @@
 @use 'utils' as *;
 
 .project-layout {
-    --media-height: 80vh;
+    --media-height: 70vh;
     --margin-global: 1em;
 
     width: 100%;
     height: auto;
 
     .content-body {
-        > *:not(:first-child) {
-            margin-top: var(--margin-global);
+        > *:not(:first-child):not([class*="space"]) {
+            margin-top: var(--margin-global) !important;
         }
+    }
+
+    // small layout components
+    .space {
+        margin: 12em _;
     }
 
     *[class*="width-"] {
@@ -19,9 +24,8 @@
 
         width: 100%;
         padding: 0;
-        margin: 0 auto;
+        margin: _ auto;
     }
-
     .width- {
         &simple {
             width: 60%;
@@ -59,46 +63,9 @@
     p {
         text-wrap: pretty;
     }
-
     .txt {
         > * {
             padding: _ 6rem;
-        }
-    }
-
-    *[thalia-p-section-name="project"] {
-        @include dflex();
-
-        > wrapper {
-            width: auto;
-        }
-    }
-
-    *[thalia-p-section-name="edito"] {
-        margin: 12em _;
-
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 10rem;
-
-        .desc {
-            flex-grow: 1;
-            flex-shrink: 1;
-            text-wrap: balance;
-        }
-
-        .filters {
-            flex-grow: 0;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            gap: 0.4em;
         }
     }
 
@@ -159,5 +126,116 @@
     }
     .images-grid-4 {
         grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+
+    // specific
+    *[thalia-p-section-name="project"] {
+        @include dflex();
+
+        > wrapper {
+            width: auto;
+        }
+    }
+
+    *[thalia-p-section-name="edito"] {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 10rem;
+
+        .desc {
+            flex-grow: 1;
+            flex-shrink: 1;
+            text-wrap: balance;
+        }
+
+        .filters {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 0.4em;
+        }
+    }
+}
+
+
+// LAYOUT COMPONENTS
+*[data-carousel-infinite] {
+    position: relative;
+    width: 100%;
+    height: calc(20vw + 35vh);
+    min-height: 40rem;
+    max-height: 70vh;
+
+    --carousel-gap: var(--margin-global, 1em);
+    --carousel-aspect-ratio: auto;
+
+    user-select: none;
+    cursor: grab;
+    &:active { cursor: grabbing; }
+
+    & * { pointer-events: none !important; } // prevent bubbling
+
+    > wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: var(--carousel-gap) _;
+
+        &,
+        > wrapper {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            flex-shrink: 0;
+            gap: 0;
+            white-space: nowrap;
+
+            width: auto;
+            height: 100%;
+        }
+
+        > wrapper {
+            > * {
+                display: inline-block !important;
+                position: relative !important;
+                height: 100% !important;
+                aspect-ratio: var(--carousel-aspect-ratio);
+                padding-right: var(--carousel-gap);
+
+                > * {
+                    size: 100%;
+                }
+            }
+        }
+    }
+}
+*[data-carousel-infinite="debug"] {
+    > wrapper {
+        > wrapper > * {
+            &::after {
+                z-index: 1;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 8vw;
+            }
+            @for $i from 1 through 6 {
+                &:nth-child(#{$i})::after {
+                    content: "#{$i}";
+                }
+            }
+        }
+        > wrapper:nth-child(2) { color: #f00; }
+        > wrapper:nth-child(3) { color: #0f0; }
     }
 }
