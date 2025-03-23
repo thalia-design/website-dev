@@ -1,5 +1,5 @@
 import "./main.scss";
-import "./import/scripts/postcss-vh-correction.js";
+import "./import/dependencies/postcss-vh-correction/postcss-vh-correction.js";
 
 //- LIBRARIES
 import Swup from "swup";
