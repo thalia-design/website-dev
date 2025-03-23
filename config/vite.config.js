@@ -43,6 +43,75 @@ let OPTIONS = {
 }
 
 
+//-- DATA
+import * as DATA from "../dev/data/projects.js";
+
+function thaliaProjectsDataTransform(data) {
+	if (data[1].itemThumbnailURL.includes("{p%key%}")) {
+		data[1].itemThumbnailURL = data[1].itemThumbnailURL.replaceAll("{p%key%}", data[0]);
+	}
+
+	if (!data[1].itemShift) {
+		data[1].itemShift = false;
+	}
+
+	if (Array.isArray(data[1].filters)) {
+        data[1].filters = data[1].filters.join(";");
+    }
+
+	return data[1];
+}
+const thaliaAutoFillProjects = (options, enforceOrder = "pre") => {
+	return {
+		name: "thaliaAutoFillProjects",
+		transformIndexHtml : {
+			order: enforceOrder,
+			handler(html, ctx) {
+
+				// home gallery items
+				if (html.includes("<thaliaAutoFillProjects htmlGalleryItems/>")) {
+					let htmlGalleryItems = "";
+
+					Object.entries(options.data).forEach((projectEntry) => {
+						const projectData = thaliaProjectsDataTransform(projectEntry);
+
+						htmlGalleryItems += `
+<import-html src="import/html/gallery-grid-item.html"
+	itemSizeX="${projectData.itemSize[0]}" itemSizeY="${projectData.itemSize[1]}"
+	itemTitle="${projectData.title}"
+	itemSlug="${projectEntry[0]}"
+	itemThumbnailURL="${projectData.itemThumbnailURL}"
+	itemFilters="${projectData.filters}"
+	itemClassesAdd="${(projectData.itemShift) ? "item-shift" : ""}"
+/>`;
+					});
+
+					html = html.replaceAll("<thaliaAutoFillProjects htmlGalleryItems/>", htmlGalleryItems);
+				}
+
+				// projects data auto fill
+				Object.entries(options.data).forEach((projectEntry) => {
+					if (ctx.path.includes(projectEntry[0])) {
+						if (ctx.path.replace("/index.html", "").split("/").at(-1) == projectEntry[0]) {
+							const projectData = thaliaProjectsDataTransform(projectEntry);
+
+							Object.entries(projectData).forEach((pDataEntry) => {
+								const entryAlias = "{p%"+ pDataEntry[0] +"%}";
+								if (html.includes(entryAlias)) {
+									html = html.replaceAll(entryAlias, pDataEntry[1]);
+								}
+							});
+						}
+					}
+				});
+
+
+				return html;
+			},
+		},
+	};
+};
+
 //-- CONFIG
 export default defineConfig(({ mode }) => {
 	OPTIONS.bundleMoreFiles_insertLinkTags = []; OPTIONS.bundleMoreFiles_inputAssets = {};
@@ -174,13 +243,26 @@ export default defineConfig(({ mode }) => {
 					insert : `<import-html src="import/html/noscript.html" />`
 				},
 			]), },
+			{ enforce: "pre", ...thaliaAutoFillProjects(
+				{ data : DATA.THALIA_PROJECTS }
+			), },
 			{ enforce: "pre", ...injectHTML({ tagName: "import-html" }), },
 
 			{ enforce: "pre", ...PLUGINS.insertToAllPagesHTML([
 				{
+					targetRegex : /({%ap%})/g,
+					targetReplace : true,
+					insert : "assets/projets",
+				},
+				{
+					targetRegex : /({%p%})/g,
+					targetReplace : true,
+					insert : "{%%dirName%%}",
+				},
+				{
 					targetRegex : /({%dirDepth%})/g,
 					targetReplace : true,
-					insert : "{%dirDepth%}",
+					insert : "{%%dirDepth%%}",
 					dirDepthBase : "./"
 				},
 			]), },

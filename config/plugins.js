@@ -61,8 +61,9 @@ const replaceToAllPagesHTML = (partitions, enforceOrder = "pre") => {
 // INSERT HTML TO ALL PAGES
 const insertToAllPagesHTML = (partitions, enforceOrder = "pre") => {
 /**	VARIABLES
- * 	insert : "<>" 				-> if contains "{%dirDepth%}", will be replaced with multiple "../" to match directory detph
- * 								-> if "forArray" is defined, will repeat through it while replacing "{%forArray%}" for each item
+ * 	insert : "<>" 				-> if contains "{%%dirDepth%%}", will be replaced with multiple "../" to match directory detph
+ * 								-> if contains "{%%dirName%%}", will be replace by page directory name
+ * 								-> if "forArray" is defined, will repeat through it while replacing "{%%forArray%%}" for each item
  * 	targetRegex : /<regex.*>/g
  * 	targetReplace : boolean		-> will remove matched target
  * 	position : "before"|"after"
@@ -82,17 +83,27 @@ const insertToAllPagesHTML = (partitions, enforceOrder = "pre") => {
 					part.forArray = (part.forArray) ? part.forArray : undefined;
 					part.dirDepthBase = (part.dirDepthBase) ? part.dirDepthBase : "";
 
-					const dirDepth = ""+ ("../").repeat(((ctx.path.match(/\//g)||[]).length) - 1);
-					let insertHTML = part.insert.replaceAll("{%dirDepth%}", ((dirDepth === "") ? part.dirDepthBase : dirDepth));
+					let insertHTML = part.insert;
 
 					if (part.forArray) {
 						const insertHTML_template = insertHTML;
 						insertHTML = "";
 
 						for (let index = 0; index < part.forArray.length; index++) {
-							insertHTML += insertHTML_template.replaceAll("{%forArray%}", part.forArray[index]);
+							insertHTML += insertHTML_template.replaceAll("{%%forArray%%}", part.forArray[index]);
 							if (index < part.forArray.length) { insertHTML += (part.newLine) ? `\n` : ""; }
 						}
+					}
+					else {
+						if (insertHTML.includes("{%%dirDepth%%}")) {
+							const dirDepth = ""+ ("../").repeat(((ctx.path.match(/\//g)||[]).length) - 1);
+							insertHTML = insertHTML.replaceAll("{%%dirDepth%%}", ((dirDepth === "") ? part.dirDepthBase : dirDepth));
+						}
+
+						if (insertHTML.includes("{%%dirName%%}")) {
+							insertHTML = insertHTML.replaceAll("{%%dirName%%}", ctx.path.replace("/index.html", "").split("/").at(-1));
+						}
+
 					}
 
 					if (part.targetRegex) {
