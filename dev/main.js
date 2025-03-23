@@ -3,6 +3,7 @@ import "./import/dependencies/postcss-vh-correction/postcss-vh-correction.js";
 
 //- LIBRARIES
 import Swup from "swup";
+import SwupPreloadPlugin from '@swup/preload-plugin';
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
 import anime from 'animejs/lib/anime.es.js';
@@ -41,6 +42,15 @@ const _GET = {
     randomIntFromInterval : (min, max) => { // min and max included
         return Math.floor(Math.random() * (max - min + 1) + min)
     },
+    arrayOfElements : (selectors = [], container = document) => {
+        let elements = [];
+        selectors.forEach((sel) => {
+            container.querySelectorAll(sel).forEach((el) => {
+                if(!elements.includes(el)) { elements.push(el); }
+            });
+        });
+        return elements;
+    }
 }
 
 window.requestAnimationFrame = (() => {
@@ -502,6 +512,7 @@ let GALLERY_GRID = {
     itemsShiftValue : 140,
     data : {
         currentFilter : null,
+        // maxSize : 0,
     },
     elements : {
         section : document.querySelector(".section-main-gallery"),
@@ -528,7 +539,17 @@ let GALLERY_GRID = {
             GridMuuriGallery._settings.hideDuration = GridMuuri_options.gallery.hideDuration;
         }, 200);
 
+        /*GridMuuriGallery.on('layoutEnd', function () {
+            if (docHTML.getAttribute("thalia-gallery-filter") == "false") {
+                GALLERY_GRID.data.maxSize = GridMuuriGallery._layout.height;
+            }
+        });*/
         // setTimeout(() => { GALLERY_GRID.initScrollInView(); }, 100);
+    },
+    initAttributes : () => {
+        if (!docHTML.hasAttribute("thalia-gallery-filter")) {
+            docHTML.setAttribute("thalia-gallery-filter", "false");
+        }
     },
     destroy : () => {
         GridMuuriGallery.destroy();
@@ -639,14 +660,21 @@ let GALLERY_GRID = {
                 });
                 el.innerHTML = filterElements;
             });
-            if (filterActionCallback != null) {
-                container.querySelectorAll("*[thalia-gallery-filters--insert] *[thalia-gallery-filter-btn-id]").forEach((elFilter) => {
-                    elFilter.addEventListener("click", () => {
-                        GALLERY_GRID.onClickFilter(elFilter, true);
-                        filterActionCallback();
+            container.querySelectorAll("*[thalia-gallery-filters--insert] *[thalia-gallery-filter-btn-id]").forEach((elFilter) => {
+                elFilter.addEventListener("click", () => {
+                    GALLERY_GRID.onClickFilter(elFilter, true);
+
+                    container.querySelectorAll(".sticky-menu *[thalia-gallery-filter-btn-id]").forEach((fBtn) => {
+                        if (fBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
+                            fBtn.classList.add("active");
+                        } else {
+                            fBtn.classList.remove("active");
+                        }
                     });
+
+                    if (filterActionCallback != null) { filterActionCallback(); };
                 });
-            };
+            });
             filtersContainers.forEach((el) => {
                 el.removeAttribute("thalia-gallery-filters--insert");
             });
@@ -668,7 +696,6 @@ let GALLERY_GRID = {
     getShiftItemsSize : (callback) => {
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
             item.style.display = "block";
-            item.setAttribute("thalia-gallery-item-height", item.firstElementChild.firstElementChild.offsetHeight);
             item.setAttribute("thalia-gallery-item-height", window.getComputedStyle(item.firstElementChild.firstElementChild).height.replace("px", ""));
 
             setTimeout(() => {
@@ -696,6 +723,7 @@ let GALLERY_GRID = {
 
         GALLERY_GRID.getShiftItemsSize();
         GALLERY_GRID.setShiftItemsSize();
+        setTimeout(() => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize); }, 1500);
         window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
     },
     initScrollInView : () => { // disabled
@@ -741,7 +769,7 @@ class CarouselInfinite {
     constructor(options = {}) {
         this.options = {
             scrollInstance : options.scrollInstance || ScrollMain, // locomotive v5
-            initPosition : options.initPosition || -100,
+            initPosition : options.initPosition || -600,
             idleSpeed : options.idleSpeed || -60, // px per second
             scrollStrength : options.scrollStrength || -0.5,
             dragStrength : options.dragStrength || 2.5,
@@ -777,10 +805,16 @@ class CarouselInfinite {
             targetEl.setAttribute("data-scroll-call", "scrollCarouselInfinite_call");
             targetEl.setAttribute("data-scroll-event-progress", "scrollCarouselInfinite_onScroll");
 
-            // duplicate items group
+
             const itemsGroup = targetEl.firstElementChild.firstElementChild;
             itemsGroup.classList.add("carousel-infinite--group");
-            Array.prototype.slice.call(itemsGroup.children).forEach((el) => { el.classList.add("carousel-infinite--item"); });
+            let itemsGroupChildren = _GET.arrayOfElements([".carousel-infinite--group > *"], targetEl);
+            itemsGroupChildren.forEach((el) => { el.classList.add("carousel-infinite--item"); });
+
+            // make the last item be the first
+            // itemsGroup.insertBefore(itemsGroupChildren[itemsGroupChildren.length - 1], itemsGroupChildren[0]);
+
+            // duplicate items group
             const itemsGroupClone = itemsGroup.cloneNode(true);
             itemsGroup.parentNode.appendChild(itemsGroupClone);
 
@@ -797,6 +831,7 @@ class CarouselInfinite {
                 idleSpeed : (targetEl.hasAttribute("data-carousel-infinite--idle-speed") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--idle-speed")) : this.options.idleSpeed) * carouselWay,
                 scrollStrength : (targetEl.hasAttribute("data-carousel-infinite--scroll-strength") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--scroll-strength")) : this.options.scrollStrength) * carouselWay,
 
+                firstInit : false,
                 active : false,
                 currentPos : 0,
                 loopEndPos : 0,
@@ -828,6 +863,22 @@ class CarouselInfinite {
         if (!this.data.eventListeners.resize_updateSizes) {
             this.data.eventListeners.resize_updateSizes = window.addEventListener("resize", this.updateSizes.bind(this));
         }
+
+        let count = 0;
+        this.elements.carousels.forEach((targetEl) => {
+            targetEl.querySelectorAll(".carousel-infinite--item > *").forEach((item) => {
+                item.addEventListener("load", this.updateSizes.bind(this));
+            });
+
+            // init position
+            setTimeout(() => {
+                let startPos = (targetEl.hasAttribute("data-carousel-infinite--init-position") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--init-position")) : this.options.initPosition);
+                if (startPos < 0) { startPos =  this.data.instances[count].loopEndPos - startPos; }
+
+                this.apply(targetEl, count, this.data.instances[count].currentPos + startPos);
+                count += 1;
+            }, 500);
+        });
     }
 
     clear() {
@@ -881,8 +932,8 @@ class CarouselInfinite {
     }
 
     apply(targetEl, index, move) {
-        // checks
         let newPos = this.data.instances[index].currentPos + move;
+
         if (newPos > 0) { // loop start
             //this.updateSizes();
             newPos = this.data.instances[index].loopEndPos;
@@ -931,7 +982,7 @@ class CarouselInfinite {
         }
 
         const loop = (timeNow) => {
-            const deltaTime = (timeNow - timeStart) / 1000; // Convert to seconds
+            const deltaTime = (timeNow - timeStart) / 1000;
             timeStart = timeNow;
 
             if (this.data.idleLoop) {
@@ -976,9 +1027,12 @@ const PAGES = {
     data : {
         homePrevScrollPos : null,
         homePrevAnchorPos : null,
+        homePrevFilter : null,
     },
 
     initPagesHandling: () => {
+        GALLERY_GRID.initAttributes();
+
         // -> view
         swup.hooks.on('page:view', (visit) => {
             // GALLERY GRID
@@ -989,14 +1043,14 @@ const PAGES = {
                 GALLERY_GRID.init(false);
             }
 
-            PAGES.whenPageView();
+            PAGES.whenPageView(visit);
         });
 
-        PAGES.whenPageView(true);
+        PAGES.whenPageView(null, true);
 
         // -> exit
         swup.hooks.on('content:replace', (visit) => {
-            PAGES.whenPageExit();
+            PAGES.whenPageExit(visit);
         }, { before: true });
 
 
@@ -1030,8 +1084,13 @@ const PAGES = {
                         });
 
                         // home scroll restoration
-                        if (visit.to.url === "/" && PAGES.data.homePrevScrollPos != null) {
-                            if (PAGES.data.homePrevScrollPos > THALIA_GLOBALS.vpSize[1] && PAGES.data.homePrevAnchorPos < 0) {
+                        if (
+                            visit.to.url === "/"
+                         && PAGES.data.homePrevScrollPos != null
+                         // && (THALIA_GLOBALS.vpSize[1] * 1.35) < GALLERY_GRID.data.maxSize // yes if 135vh is < grid height
+                         && PAGES.data.homePrevFilter == docHTML.getAttribute("thalia-gallery-filter") // yes if the filters state has not changed
+                        ) {
+                            if (PAGES.data.homePrevScrollPos > (THALIA_GLOBALS.vpSize[1] * 1.3) && PAGES.data.homePrevAnchorPos < 0) {
                                 setTimeout(() => {
                                     ScrollMain.scrollTo((PAGES.data.homePrevScrollPos), {
                                         ...SCROLL.options.scrollTo,
@@ -1048,7 +1107,7 @@ const PAGES = {
         });
     },
 
-    whenPageView : (firstInit = false) => {
+    whenPageView : (visit, firstInit = false) => {
         GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => { swup.navigate("/"); });
 
         carouselInfiniteGlobal.init();
@@ -1058,7 +1117,11 @@ const PAGES = {
         }
     },
 
-    whenPageExit : (firstInit = false) => {
+    whenPageExit : (visit, firstInit = false) => {
+        if (visit && visit.from.url === "/") {
+            PAGES.data.homePrevFilter = docHTML.getAttribute("thalia-gallery-filter");
+        }
+
         if (carouselInfiniteGlobal) { carouselInfiniteGlobal.clear(); }
 
         if (!firstInit) {
@@ -1086,7 +1149,14 @@ const swup = new Swup({
     // resolveUrl: (url) => url,
 
     // hooks: {},
-    // plugins: [],
+    plugins: [
+        new SwupPreloadPlugin({
+            throttle : 5,
+            preloadHoveredLinks : true,
+            preloadVisibleLinks : false,
+            preloadInitialPage : true,
+        }),
+    ],
 });
 
 

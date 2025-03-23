@@ -11,6 +11,7 @@
     "previewdev": "vite preview --open --config ./config/vite.config.js --mode development"
   },
   "devDependencies": {
+    "@swup/preload-plugin": "^3.2.11",
     "animejs": "^3.2.2",
     "bezier-easing": "^2.1.0",
     "glob": "^11.0.0",

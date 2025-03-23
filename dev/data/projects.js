@@ -4,7 +4,7 @@ const THALIA_PROJECTS = {
         title : "Les nuits botaniques",
         filters : [
             "branding",
-            "motion design"
+            "motion design",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
@@ -16,7 +16,7 @@ const THALIA_PROJECTS = {
         title : "Belmont",
         filters : [
             "branding",
-            "print"
+            "print",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
@@ -40,7 +40,7 @@ const THALIA_PROJECTS = {
         title : "Calentón",
         filters : [
             "branding",
-            "print"
+            "print",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],

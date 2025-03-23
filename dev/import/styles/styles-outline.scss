@@ -223,6 +223,11 @@ wrapper[menu-show-id] {
             transition: 0.6s cubic-bezier(0.6, 0, 0, 0.975);
             transition-property: width, height, padding, opacity;
         }
+
+        html.is-rendering &,
+        html.is-rendering & svg {
+            transition: 0s !important;
+        }
     }
 
     .bg {
