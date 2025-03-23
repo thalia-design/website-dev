@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <title>{p%documentTitle%}</title>
+    <script type="module" src="{%dirDepth%}main.js"></script>
+</head>
+
+<body>
+
+    <main>
+
+        <import-html src="import/html/section-main-head.html"/>
+
+        <div class="section-main-gallery">
+
+            <import-html src="import/html/section-main-gallery--head.html"/>
+
+            <div id="swup" class="page-content swup-transition--project">
+                <wrapper>
+
+                    <h1 class="project-title" hidden>{p%title%}</h1>
+
+                    <div class="project-layout">
+
+                        <wrapper class="content-head">
+
+                            <import-html src="import/html/p/head-image.html"
+                                projectValue="assets/placeholder.mp4"
+                                projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
+                            />
+
+                            <div thalia-p-section-name="edito" class="width-simple space">
+                                <div class="desc">
+                                    <p>
+                                        Dans le cadre d'une demande fictive de l'hôtel Les Rives Bleues de La Grande-Motte, j'ai réalisé un rebranding visant à moderniser l'image de l'hôtel et à mettre en avant ses engagements.
+                                    </p>
+                                    <p>
+                                        La consigne était de ne pas utiliser de bleu. J'ai donc opté pour une couleur rose, à la fois engageante et douce, qui invite les familles à profiter pleinement de leurs vacances. Ce choix de couleur vise à créer une atmosphère accueillante et chaleureuse, en parfaite adéquation avec l'expérience que l'hôtel souhaite offrir à ses clients.
+                                    </p>
+                                </div>
+
+                                <div class="filters" thalia-gallery-filters--insert="{p%filters%}"></div>
+                            </div>
+
+                        </wrapper>
+                        <wrapper class="content-body">
+
+                            <div class="width-fill images-column">
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-01.jpg"/>
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-02.jpg"/>
+                            </div>
+
+                            <div data-carousel-infinite>
+                                <wrapper><wrapper>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-03.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-04.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-05.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-06.jpg"/>
+                                </wrapper></wrapper>
+                            </div>
+
+                            <div class="width-fill images-column">
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-07.jpg"/>
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-08.jpg"/>
+                            </div>
+
+                            <div data-carousel-infinite>
+                                <wrapper><wrapper>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-09.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-10.jpg"/>
+                                </wrapper></wrapper>
+                            </div>
+
+                            <div class="width-simple images-column">
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-15.jpg"/>
+                            </div>
+
+                            <div class="width-fill images-column">
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-11.jpg"/>
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/dossier-12.jpg"/>
+                            </div>
+
+                            <div class="width-fill images-line flexible">
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/mockup-tshirt.jpg"/>
+                                <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/mockup-chambre.jpg"/>
+                            </div>
+
+                        </wrapper>
+
+                    </div>
+
+                </wrapper>
+            </div>
+
+        </div>
+
+        <import-html src="import/html/section-footer.html"/>
+
+    </main>
+
+</body>
+</html>
