@@ -126,6 +126,7 @@ const SCROLL = {
             triggerRootMargin: '-1px -1px -1px -1px', // inview elements
             rafRootMargin: '100% 100% 100% 100%', // scroll elements
             autoResize: true,
+            autoStart: false,
             //scrollCallback: ScrollMain_onScroll,
         },
         scrollTo: {
@@ -1161,9 +1162,162 @@ const swup = new Swup({
 
 
 
+const LOADING = {
+    elements : {
+        container : document.querySelector(".thalia-loading-screen"),
+        thaliaSmallProfile : document.querySelector(".thalia-loading-screen .thalia-small-profile"),
+    },
+    data : {
+        events: {
+            pageLoaded: false,
+            introAnimStarted : false,
+            introAnimFinished : false,
+            hiding : false,
+        },
+    },
+
+    init: (callbackInit) => {
+        if (!LOADING.elements.container) { callbackInit(); console.error("[LOADING] no container found"); return; }
+        LOADING.setState("init");
+
+        // simple page loading callback
+        window.addEventListener("load", () => {
+            if (LOADING.data.events.pageLoaded) { return; }
+            LOADING.data.events.pageLoaded = true;
+
+            LOADING.setState("page-loaded");
+
+            if (callbackInit) { callbackInit() };
+
+            if (LOADING.data.events.introAnimFinished) {
+                LOADING.hide();
+            };
+            setTimeout(() => {
+                if (!LOADING.data.events.introAnimFinished) {
+                    LOADING.data.events.introAnimFinished = true;
+                    console.warn("[LOADING] automatically dismissed, took too long");
+                    LOADING.hide();
+                }
+            }, 8000);
+        })
+
+        // intro anim
+        LOADING.introAnim(() => {
+            if (!LOADING.data.events.pageLoaded) {
+                window.addEventListener("load", () => {
+                    LOADING.hide();
+                });
+            }
+            else {
+                LOADING.hide();
+            };
+        });
+
+    },
+
+    setState: (state) => {
+        docHTML.setAttribute("thalia-loading-state", state);
+    },
+
+    hide: () => {
+        if (LOADING.data.events.hiding) { return; }
+        LOADING.data.events.hiding = true;
+
+        LOADING.setState("hiding");
+        ScrollMain.scrollTo(0, {
+            offset: 0, immediate : true, lock: true,
+            onComplete: () => { SCROLL.resize(ScrollMain); }
+        });
+
+        setTimeout(() => {
+            LOADING.setState("hidden");
+            ScrollMain.start();
+            ScrollMain.scrollTo(SCROLL.getScroll(ScrollMain), {
+                offset: 0, immediate : true, lock: true,
+                onComplete: (ScrollMain) => { SCROLL.resize(ScrollMain); }
+            });
+            setTimeout(() => { SCROLL.resize(ScrollMain) }, 100);
+
+            setTimeout(() => {
+                THALIA_CHARA.interactions.blink(true);
+            }, 1350);
+            setTimeout(() => {
+                LOADING.setState("hidden-fully");
+                SCROLL.resize(ScrollMain);
+            }, 2500);
+        }, 600);
+    },
+
+    introAnim: (callbackHide) => {
+        if (LOADING.data.events.introAnimStarted) { return; }
+        LOADING.data.events.introAnimStarted = true;
+
+        let animElems_blink = LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim="blink"]');
+        animElems_blink.forEach((el) => {
+            el.classList.add("anim");
+
+            setTimeout(() => { el.classList.add("anim-blink")
+                setTimeout(() => { el.classList.remove("anim-blink")
+                    setTimeout(() => { el.classList.add("anim-blink")
+                    }, 150);
+                }, 300);
+            }, 1300);
+        });
+
+        const dataAnim = {
+            "circle" : {
+                delay : 500,
+                duration : 2300,
+                easing : 'cubicBezier(0.6, 0, 0.2, 0.95)',
+            },
+            "hair" : {
+                delay : 0,
+                duration : 700,
+                easing : 'cubicBezier(0.7, 0.2, 0.4, 0.7)',
+            },
+            "face" : {
+                delay : 700,
+                duration : 800,
+                easing : 'cubicBezier(0.2, 0.2, 0.2, 1)',
+            },
+            "throat" : {
+                delay : 1100,
+                duration : 800,
+                easing : 'cubicBezier(0.3, 0.2, 0.2, 0.9)',
+            },
+        };
+
+        anime({
+            targets: LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim="trim-path"]'),
+            strokeDashoffset: [anime.setDashoffset, 0],
+            delay: function(el, i) {
+                return (el.hasAttribute("data-name") && !!dataAnim[el.getAttribute("data-name")])
+                    ? dataAnim[el.getAttribute("data-name")].delay
+                    : 0;
+            },
+            duration: function(el, i) {
+                return (el.hasAttribute("data-name") && !!dataAnim[el.getAttribute("data-name")])
+                    ? dataAnim[el.getAttribute("data-name")].duration
+                    : 1000;
+            },
+            easing: function(el, i) {
+                return (el.hasAttribute("data-name") && !!dataAnim[el.getAttribute("data-name")])
+                    ? dataAnim[el.getAttribute("data-name")].easing
+                    : "easeInOutExpo";
+            },
+            complete: function(anim) {
+                LOADING.data.events.introAnimFinished = true;
+                if (callbackHide) { callbackHide() };
+            }
+        });
+    }
+}
+
+
+
 //- RUN
-window.addEventListener("load", () => {
-    _GET.scrollbarWidth();
+LOADING.init(() => {
+    _GET.scrollbarWidth(true);
     swup.hooks.on('content:replace', () => { _GET.scrollbarWidth(true); });
 
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
@@ -1182,4 +1336,4 @@ window.addEventListener("load", () => {
     if (document.querySelector(".gallery-grid")) { GALLERY_GRID.init(); }
 
     SCROLL.resize(ScrollMain);
-})
+});

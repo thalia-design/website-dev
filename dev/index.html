@@ -16,17 +16,21 @@
 
             <import-html src="import/html/section-main-gallery--head.html"/>
 
-            <div id="swup" class="page-content swup-transition--home">
+            <wrapper class="page-content-container">
+                <div id="swup" class="page-content swup-transition--home" style="overflow-x: hidden;">
+                    <wrapper>
 
-                <div class="gallery-grid">
-                    <div class="grid-muuri">
+                        <div class="gallery-grid">
+                            <div class="grid-muuri">
 
-                        <thaliaAutoFillProjects htmlGalleryItems/>
+                                <thaliaAutoFillProjects htmlGalleryItems/>
 
-                    </div>
+                            </div>
+                        </div>
+
+                    </wrapper>
                 </div>
-
-            </div>
+            </wrapper>
 
         </div>
 

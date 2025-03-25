@@ -46,6 +46,57 @@ video, .video, img, .img {
     border-radius: var(--thalia-v-radius-normal);
 }
 
+video,
+img:not([src$=".png"]) {
+    background-color: var(--thalia-c-bg2);
+}
+
+
+svg {
+    --svg-c: var(--thalia-c-accent);
+    --svg-w: 2px;
+
+    &.svg-f-all *,
+    &.svg-f-all-only *,
+    &.svg-f,
+    &.svg-f-only,
+    .svg-f-all *,
+    .svg-f-all-only *,
+    .svg-f,
+    .svg-f-only {
+        fill: var(--svg-c);
+    }
+    &.svg-s-all *,
+    &.svg-s-all-only *,
+    &.svg-s,
+    &.svg-s-only,
+    .svg-s-all *,
+    .svg-s-all-only *,
+    .svg-s,
+    .svg-s-only {
+        stroke: var(--svg-c);
+        stroke-width: var(--svg-w);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    &.svg-f-all-only *,
+    &.svg-f-only,
+    .svg-f-all-only *,
+    .svg-f-only {
+        stroke: transparent;
+        stroke: none;
+        stroke-width: 0px;
+    }
+    &.svg-s-all-only *,
+    &.svg-s-only,
+    .svg-s-all-only *,
+    .svg-s-only {
+        stroke: transparent;
+        fill: none;
+    }
+}
+
 
 /* TEXT */
 p {
@@ -158,5 +209,15 @@ p {
                 stroke: var(--thalia-c-bg);
             }
         }
+    }
+}
+
+
+/* THALIA */
+.thalia-small-profile {
+    size: 8rem;
+
+    svg {
+        --svg-w: 4px;
     }
 }

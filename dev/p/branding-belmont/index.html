@@ -16,51 +16,53 @@
 
             <import-html src="import/html/section-main-gallery--head.html"/>
 
-            <div id="swup" class="page-content swup-transition--project">
-                <wrapper>
+            <wrapper class="page-content-container">
+                <div id="swup" class="page-content swup-transition--project" style="overflow-x: hidden;">
+                    <wrapper>
 
-                    <h1 class="project-title" hidden>{p%title%}</h1>
+                        <h1 class="project-title" hidden>{p%title%}</h1>
 
-                    <div class="project-layout">
+                        <div class="project-layout">
 
-                        <wrapper class="content-head">
+                            <wrapper class="content-head">
 
-                            <import-html src="import/html/p/head-image.html"
-                                projectValue="assets/placeholder.mp4"
-                                projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
-                            />
+                                <import-html src="import/html/p/head-image.html"
+                                    projectValue="assets/placeholder.mp4"
+                                    projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
+                                />
 
-                            <div thalia-p-section-name="edito" class="width-simple space">
-                                <div class="desc">
-                                    <p>
-                                        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Perferendis rem at optio a quis rerum enim quasi porro perspiciatis repellendus. Ad mollitia voluptatem doloribus dolor quo sapiente amet odit sed?
-                                        Nulla libero ut cum fugiat officiis quam porro quaerat rem? Eum perspiciatis pariatur qui, obcaecati saepe earum reiciendis fuga non praesentium, quasi consequuntur cum nulla voluptas iusto! Harum, ipsum suscipit.
-                                    </p>
+                                <div thalia-p-section-name="edito" class="width-simple space">
+                                    <div class="desc">
+                                        <p>
+                                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Perferendis rem at optio a quis rerum enim quasi porro perspiciatis repellendus. Ad mollitia voluptatem doloribus dolor quo sapiente amet odit sed?
+                                            Nulla libero ut cum fugiat officiis quam porro quaerat rem? Eum perspiciatis pariatur qui, obcaecati saepe earum reiciendis fuga non praesentium, quasi consequuntur cum nulla voluptas iusto! Harum, ipsum suscipit.
+                                        </p>
+                                    </div>
+
+                                    <div class="filters" thalia-gallery-filters--insert="{p%filters%}"></div>
                                 </div>
 
-                                <div class="filters" thalia-gallery-filters--insert="{p%filters%}"></div>
-                            </div>
+                            </wrapper>
+                            <wrapper class="content-body">
 
-                        </wrapper>
-                        <wrapper class="content-body">
+                                <div data-carousel-infinite>
+                                    <wrapper><wrapper>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/thumbnail.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-1.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-2.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-3.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-4.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-5.jpg"/>
+                                    </wrapper></wrapper>
+                                </div>
 
-                            <div data-carousel-infinite>
-                                <wrapper><wrapper>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/thumbnail.jpg"/>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-1.jpg"/>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-2.jpg"/>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-3.jpg"/>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-4.jpg"/>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-5.jpg"/>
-                                </wrapper></wrapper>
-                            </div>
+                            </wrapper>
 
-                        </wrapper>
+                        </div>
 
-                    </div>
-
-                </wrapper>
-            </div>
+                    </wrapper>
+                </div>
+            </wrapper>
 
         </div>
 
