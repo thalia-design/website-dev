@@ -21,8 +21,6 @@
     }
 
     .thalia-small-profile {
-        transition: opacity 0.8s ease;
-
         [data-anim="blink"] {
             transform: rotateY(0.01deg) scaleY(0);
             transform-origin: center;
@@ -43,10 +41,16 @@
 
         transition: opacity 1.25s 0.2s cubic-bezier(0.6, 0, 0.4, 1);
     }
+    &:not(.loading-animating) .thalia-small-profile {
+        opacity: 0;
+    }
     html[thalia-loading-state^="hid"] & {
         &,
         .thalia-small-profile {
             opacity: 0;
+        }
+        .thalia-small-profile {
+            transition: opacity 0.8s ease;
         }
     }
     html[thalia-loading-state^="hidden"] & {

@@ -1202,17 +1202,18 @@ const LOADING = {
         })
 
         // intro anim
-        LOADING.introAnim(() => {
-            if (!LOADING.data.events.pageLoaded) {
-                window.addEventListener("load", () => {
+        setTimeout(() => {
+            LOADING.introAnim(() => {
+                if (!LOADING.data.events.pageLoaded) {
+                    window.addEventListener("load", () => {
+                        LOADING.hide();
+                    });
+                }
+                else {
                     LOADING.hide();
-                });
-            }
-            else {
-                LOADING.hide();
-            };
-        });
-
+                };
+            });
+        }, 300);
     },
 
     setState: (state) => {
@@ -1251,6 +1252,7 @@ const LOADING = {
     introAnim: (callbackHide) => {
         if (LOADING.data.events.introAnimStarted) { return; }
         LOADING.data.events.introAnimStarted = true;
+        LOADING.elements.container.classList.add("loading-animating");
 
         let animElems_blink = LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim="blink"]');
         animElems_blink.forEach((el) => {
