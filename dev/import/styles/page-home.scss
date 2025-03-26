@@ -6,7 +6,6 @@
     --ggrid-col-nb: 4;
     --ggrid-col-size: calc(((100vw - var(--scrollbar-width) - 4px) - (var(--ggrid-padding) * 2)) / var(--ggrid-col-nb));
 
-    min-height: 100vh;
     overflow: hidden;
     padding: _ var(--ggrid-padding);
 

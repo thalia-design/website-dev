@@ -205,11 +205,11 @@ let STICKY_MENU = {
             STICKY_MENU.elements.projectH1 = document.querySelector(".section-main-gallery h1.project-title");
 
             if (!STICKY_MENU.elements.projectH1) {
-                STICKY_MENU.elements.projectNameSpan.classList.add("hide");
+                STICKY_MENU.elements.projectNameSpan.parentElement.classList.add("hide");
                 STICKY_MENU.elements.projectNameSpan.innerText = "";
             }
             else {
-                STICKY_MENU.elements.projectNameSpan.classList.remove("hide");
+                STICKY_MENU.elements.projectNameSpan.parentElement.classList.remove("hide");
                 STICKY_MENU.elements.projectNameSpan.innerText = STICKY_MENU.elements.projectH1.innerText;
             }
         }
@@ -534,6 +534,13 @@ let GALLERY_GRID = {
         GALLERY_GRID.createItemsFiltersBtns();
         GALLERY_GRID.initItemsFiltersBtns(initReset);
 
+        // fix : item shift size not well computed at init
+        setTimeout(() => {
+            GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize);
+            GridMuuriGallery.refreshItems();
+            GridMuuriGallery.layout(true);
+        }, 1);
+
         GridMuuriGallery._settings.hideDuration = 0;
         GridMuuriGallery.layout(true);
         setTimeout(() => {
@@ -697,7 +704,8 @@ let GALLERY_GRID = {
     getShiftItemsSize : (callback) => {
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
             item.style.display = "block";
-            item.setAttribute("thalia-gallery-item-height", window.getComputedStyle(item.firstElementChild.firstElementChild).height.replace("px", ""));
+            //item.setAttribute("thalia-gallery-item-height", window.getComputedStyle(item.firstElementChild.firstElementChild).height.replace("px", ""));
+            item.setAttribute("thalia-gallery-item-height", item.firstElementChild.firstElementChild.getBoundingClientRect().height);
 
             setTimeout(() => {
                 if (!item.classList.contains("muuri-item-hidden")) {
@@ -722,9 +730,7 @@ let GALLERY_GRID = {
             GALLERY_GRID.elements.shiftItemsContent.push(item.querySelectorAll(".item-gallery"));
         })
 
-        GALLERY_GRID.getShiftItemsSize();
-        GALLERY_GRID.setShiftItemsSize();
-        setTimeout(() => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize); }, 1500);
+        GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize);
         window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
     },
     initScrollInView : () => { // disabled
