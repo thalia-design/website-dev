@@ -26,3 +26,15 @@ thalia.gallery website development files.
 - [x] home gallery item shift not working when first loading page from project page
 - [x] home gallery shift item not the right height on first load, is corrected on window resize
 - [x] fix sticky menu animation jump because of width change
+
+<br>
+
+safari :
+- [x] thalia title svg needs "width: auto;"
+- [x] background blur not working
+- [-] inline videos not autoplaying, and since no poster : video is transparent
+    - [ ] -> make them always have a backup poster => fix : "background:color;" ?
+    - [-] -> fix the no autoplay issue
+- [-] transition timing function linear still read by safari but is jittery, either fix or disable for safari only
+
+to be tested

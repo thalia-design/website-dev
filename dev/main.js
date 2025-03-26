@@ -1109,16 +1109,31 @@ const PAGES = {
     },
 
     whenPageView : (visit, firstInit = false) => {
+        const pageContentEl = document.querySelector(".page-content");
+
         GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => { swup.navigate("/"); });
 
         carouselInfiniteGlobal.init();
 
         if (!firstInit) {
-            ScrollMain.addScrollElements(document.querySelector(".page-content"));
+            ScrollMain.addScrollElements(pageContentEl);
+        }
+
+        // safari fix : videos not autoplaying
+        const videosAutoplay = pageContentEl.querySelectorAll("video[autoplay]");
+        if(videosAutoplay.length > 0 ) {
+            videosAutoplay.forEach((videoEl) => {
+                videoEl.pause();
+                setTimeout(() => {
+                    videoEl.play().then().catch((err) => { console.log("[VIDEOS.autoplay] failed to play video", videoEl, err); });
+                }, 0);
+            })
         }
     },
 
     whenPageExit : (visit, firstInit = false) => {
+        const pageContentEl = document.querySelector(".page-content");
+
         if (visit && visit.from.url === "/") {
             PAGES.data.homePrevFilter = docHTML.getAttribute("thalia-gallery-filter");
         }
@@ -1126,7 +1141,7 @@ const PAGES = {
         if (carouselInfiniteGlobal) { carouselInfiniteGlobal.clear(); }
 
         if (!firstInit) {
-            ScrollMain.removeScrollElements(document.querySelector(".page-content"));
+            ScrollMain.removeScrollElements(pageContentEl);
         }
     },
 }

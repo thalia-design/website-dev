@@ -203,12 +203,14 @@ svg.thalia-chara {
 
     svg.thalia-chara {
         transition: transform 0.5s cubic-bezier(0.3, 0, 0, 1);
-        transition: transform 0.8s linear(
-            0, 0.007, 0.028 2.2%, 0.063, 0.113 4.8%, 0.225 7.3%, 0.606 14.8%, 0.714,
-            0.804, 0.879, 0.939, 0.986, 1.02 29.9%, 1.036 31.8%, 1.047, 1.054 36.1%,
-            1.055 38.6%, 1.048 43.3%, 1.013 56.7%, 1.001 64.8%, 0.997 75.4%, 1
-          );
-          // https://linear-easing-generator.netlify.app/ / mass 1, stiffness 92, damping 13, velocity 0
+        @supports (animation-timing-function: linear(0, 0.5, 1)) {
+            transition: transform 0.8s linear(
+                0, 0.007, 0.028 2.2%, 0.063, 0.113 4.8%, 0.225 7.3%, 0.606 14.8%, 0.714,
+                0.804, 0.879, 0.939, 0.986, 1.02 29.9%, 1.036 31.8%, 1.047, 1.054 36.1%,
+                1.055 38.6%, 1.048 43.3%, 1.013 56.7%, 1.001 64.8%, 0.997 75.4%, 1
+            );
+            // https://linear-easing-generator.netlify.app/ / mass 1, stiffness 92, damping 13, velocity 0
+        }
 
         > g {
             transition: transform 0.3s cubic-bezier(0.2, 0.3, 0, 1);
@@ -273,12 +275,14 @@ html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interacti
 
     .move {
         transition: transform 0.65s cubic-bezier(0.4, 0.05, 0, 1);
-        transition: transform 0.75s linear(
-            0, -0.004, -0.003 1.4%, 0.01, 0.04 4.4%, 0.086 6.2%, 0.192 9.3%, 0.558 18.9%,
-            0.662, 0.748 25.1%, 0.815, 0.87, 0.916 33.7%, 0.953, 0.98 40.1%, 1 43.7%,
-            1.013 47.6%, 1.02 52.1% 59.5%, 1.003 83.5%, 1
-          );
-          // https://linear-easing-generator.netlify.app/ / mass 1, stiffness 120, damping 17, velocity -1
+        @supports (animation-timing-function: linear(0, 0.5, 1)) {
+            transition: transform 0.75s linear(
+                0, -0.004, -0.003 1.4%, 0.01, 0.04 4.4%, 0.086 6.2%, 0.192 9.3%, 0.558 18.9%,
+                0.662, 0.748 25.1%, 0.815, 0.87, 0.916 33.7%, 0.953, 0.98 40.1%, 1 43.7%,
+                1.013 47.6%, 1.02 52.1% 59.5%, 1.003 83.5%, 1
+            );
+            // https://linear-easing-generator.netlify.app/ / mass 1, stiffness 120, damping 17, velocity -1
+        }
 
         html[thalia-chara-state="grabbing"] & {
             transform: translate3d(calc(var(--thalia-chara-drag-x) * var(--thalia-chara-drag-hands-strength)), 0, 0);

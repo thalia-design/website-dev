@@ -48,6 +48,7 @@ video, .video, img, .img {
 
 video,
 img:not([src$=".png"]) {
+    background: var(--thalia-c-bg2);
     background-color: var(--thalia-c-bg2);
 }
 

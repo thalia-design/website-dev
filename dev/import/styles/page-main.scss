@@ -42,6 +42,8 @@
         }
 
         .title-thalia {
+            width: auto;
+
             html:not([thalia-loading-state="hidden-fully"])[thalia-loading-state] & {
                 transform: translateY(100%);
                 transition: transform 1.5s cubic-bezier(0.3, 0.3, 0, 1);
