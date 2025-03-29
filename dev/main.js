@@ -17,6 +17,13 @@ const docHTML = document.documentElement;
 
 // HELPER FUNCTIONS
 const _GET = {
+    isTouchDevice: () => {
+        var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
+        var mq = function(query) { return window.matchMedia(query).matches };
+        if ('ontouchstart' in window) { return true };
+        var query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
+        return mq(query);
+    },
     viewportSize : () => {
         return [
             window.innerWidth  || docHTML.clientWidth  || document.body.clientWidth,
@@ -103,9 +110,34 @@ function atTransitionEnd(el, callback, options = {property : false, once : true,
 
 
 //- OPTIONS
-let THALIA_GLOBALS = {};
-THALIA_GLOBALS.vpSize = _GET.viewportSize();
-window.addEventListener("resize", () => { THALIA_GLOBALS.vpSize = _GET.viewportSize(); });
+let THALIA_GLOBALS = {
+    vpSizeBreakpoints : {
+        current : {
+            w : "",
+        },
+        breakpoints : {
+            w : {
+                square : 1100,
+                vertical : 700,
+            },
+        },
+    },
+    init: () => {
+        THALIA_GLOBALS.vpSize = _GET.viewportSize();
+
+        if (THALIA_GLOBALS.vpSize[0] < THALIA_GLOBALS.vpSizeBreakpoints.breakpoints.w.square) {
+            if (THALIA_GLOBALS.vpSize[0] < THALIA_GLOBALS.vpSizeBreakpoints.breakpoints.w.vertical) {
+                THALIA_GLOBALS.vpSizeBreakpoints.current.w = "vpWidthVertical";
+            } else {
+                THALIA_GLOBALS.vpSizeBreakpoints.current.w = "vpWidthSquare";
+            }
+        } else {
+            THALIA_GLOBALS.vpSizeBreakpoints.current.w = "vpWidthDefault";
+        }
+    }
+};
+THALIA_GLOBALS.init();
+window.addEventListener("resize", THALIA_GLOBALS.init);
 
 
 
@@ -243,7 +275,11 @@ let STICKY_MENU = {
 // THALIA CHARA ANIMATIONS
 let THALIA_CHARA = {
     options : {
-        dragIntensity : [0.5, 0.6],
+        dragIntensity : {
+            vpWidthDefault : [0.5, 0.6],
+            vpWidthSquare : [0.5, 0.6],
+            vpWidthVertical : [0.5, 0.4],
+        },
         angleDamping : 0.025,
         look : {
             maxDistance : 10,
@@ -289,16 +325,20 @@ let THALIA_CHARA = {
                 window.addEventListener("resize", THALIA_CHARA.interactions.updateEyesPosition);
                 THALIA_CHARA.elements.contentContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.updateEyesPosition);
 
-                THALIA_CHARA.interactions.look();
-                THALIA_CHARA.elements.dragContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.look);
-                THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.unlook);
+
+                if (!THALIA_GLOBALS.isTouch) {
+                    THALIA_CHARA.interactions.look();
+                    THALIA_CHARA.elements.dragContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.look);
+                    THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.unlook);
+                }
                 THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.pointerStop);
                 THALIA_CHARA.elements.dragContainer.addEventListener("pointerup", THALIA_CHARA.interactions.pointerStop);
 
                 THALIA_CHARA.elements.main.addEventListener("pointerdown", THALIA_CHARA.interactions.pointerActive);
 
                 // social btns
-                if(THALIA_CHARA.elements.socialBtns.length > 0) {
+                docHTML.setAttribute("thalia-social-hover", "false");
+                if(THALIA_CHARA.elements.socialBtns.length > 0 && !THALIA_GLOBALS.isTouch) {
                     THALIA_CHARA.interactions.socialBtnHover = (e) => {
                         docHTML.setAttribute("thalia-social-hover", "true");
                     }
@@ -371,8 +411,16 @@ let THALIA_CHARA = {
 
             if(THALIA_CHARA.data.state == "grabbing") {
                 THALIA_CHARA.data.dragPos = [
-                    lerp(0, THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.pointerPosStart[0], THALIA_CHARA.options.dragIntensity[0]),
-                    lerp(0, THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.pointerPosStart[1], THALIA_CHARA.options.dragIntensity[1])
+                    lerp(
+                        0,
+                        THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.pointerPosStart[0],
+                        THALIA_CHARA.options.dragIntensity[THALIA_GLOBALS.vpSizeBreakpoints.current.w][0]
+                    ),
+                    lerp(
+                        0,
+                        THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.pointerPosStart[1],
+                        THALIA_CHARA.options.dragIntensity[THALIA_GLOBALS.vpSizeBreakpoints.current.w][1]
+                    )
                 ];
 
                 docHTML.style.setProperty("--thalia-chara-drag-x", THALIA_CHARA.data.dragPos[0] +"px");
@@ -394,7 +442,7 @@ let THALIA_CHARA = {
                     , THALIA_CHARA.options.dragIntensity[2])
                     +"rad"
                 );*/
-            } else {
+            } else if(!THALIA_GLOBALS.isTouch) {
                 THALIA_CHARA.data.look.posFromCenter = [
                     (THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.look.center[0]) / THALIA_CHARA.options.look.damping[0],
                     (THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.look.center[1]) / THALIA_CHARA.options.look.damping[1]
@@ -1337,9 +1385,11 @@ const LOADING = {
 }
 
 
-
 //- RUN
 LOADING.init(() => {
+    THALIA_GLOBALS.isTouch = _GET.isTouchDevice();
+    if (THALIA_GLOBALS.isTouch) { docHTML.classList.add("deviceIsTouch"); }
+
     _GET.scrollbarWidth(true);
     swup.hooks.on('content:replace', () => { _GET.scrollbarWidth(true); });
 

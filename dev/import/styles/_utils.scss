@@ -1,3 +1,7 @@
+$size-vertical: 700px;
+$size-vertical-min: $size-vertical + 1px;
+$size-square: 1100px;
+$size-square-min: $size-square + 1px;
 
 @mixin usn {
     user-select: none;

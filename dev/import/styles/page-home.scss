@@ -1,13 +1,13 @@
 @use 'utils' as *;
 
 .gallery-grid {
-    --ggrid-padding: 4em;
     --ggrid-gap: 0.65em;
+    --ggrid-padding: calc(var(--thalia-global-margin-gallery) - var(--ggrid-gap));
     --ggrid-col-nb: 4;
     --ggrid-col-size: calc(((100vw - var(--scrollbar-width) - 4px) - (var(--ggrid-padding) * 2)) / var(--ggrid-col-nb));
 
-    overflow: hidden;
     padding: _ var(--ggrid-padding);
+    overflow: hidden;
 
     > .grid-muuri {
         transition: height 0.6s cubic-bezier(0.5, 0, 0.1, 1);
@@ -108,6 +108,7 @@
 
     .grid-muuri--item {
         box-sizing: border-box;
+        max-width: 100%;
         padding: var(--ggrid-gap);
         margin-bottom: 6em;
 
@@ -129,6 +130,25 @@
             }
             html:not([thalia-gallery-filter="false"])[thalia-gallery-filter-previous="false"] &.muuri-item-hidden .item-gallery {
                 transform: translateY(var(--thalia-gallery-item-shift, 0px));
+            }
+        }
+    }
+
+    @media (max-width: $size-square) {
+        --ggrid-col-nb: 3;
+    }
+    @media (max-width: $size-vertical) {
+        --ggrid-col-nb: 2;
+
+        .grid-muuri--item {
+            margin-bottom: 2.5em;
+
+            &.item-shift {
+                height: auto !important;
+
+                .item-gallery {
+                    transform: translateY(0) !important;
+                }
             }
         }
     }

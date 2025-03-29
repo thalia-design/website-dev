@@ -7,6 +7,17 @@
     --thalia-chara-stroke-width: 4.5;
     --thalia-chara-drag-hands-strength: 0.65;
     --thalia-chara-drag-direction: 1;
+
+    @media (max-width: $size-square) {
+        --thalia-chara-width: 30vw;
+        --thalia-chara-hand-width: 7vw;
+        --thalia-chara-hands-spacing: 10vw;
+    }
+    @media (max-width: $size-vertical) {
+        --thalia-chara-width: 64vw;
+        --thalia-chara-hand-width: 14vw;
+        --thalia-chara-hands-spacing: 20vw;
+    }
 }
 svg.thalia-chara {
     touch-action: none;

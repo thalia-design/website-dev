@@ -1,3 +1,5 @@
+@use 'utils' as *;
+
 html {
     --thalia-rgb-blue: 32, 78, 207;
     --thalia-rgb-lightblue: 143, 183, 255;
@@ -26,6 +28,18 @@ html {
     --thalia-tr-jump-quick: 0.35s cubic-bezier(0.5, 0, 0, 4.5);
 
     --thalia-v-radius-normal: 8px;
+
+    --thalia-global-margin-head: 5em;
+    --thalia-global-margin-gallery: 4em;
+
+    @media (max-width: $size-square) {
+        --thalia-global-margin-head: 2em;
+        --thalia-global-margin-gallery: 2em;
+    }
+    @media (max-width: $size-vertical) {
+        --thalia-global-margin-head: 2rem;
+        --thalia-global-margin-gallery: 2rem;
+    }
 }
 
 ::selection {
@@ -47,7 +61,7 @@ video, .video, img, .img {
 }
 
 video,
-img:not([src$=".png"]) {
+img:not([src$=".png"]):not([src$=".svg"]) {
     background: var(--thalia-c-bg2);
     background-color: var(--thalia-c-bg2);
 }
