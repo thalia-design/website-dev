@@ -131,6 +131,9 @@ p {
     align-items: center;
     gap: 1em;
 
+    @media (max-width: $size-vertical) {
+        gap: 0.8em;
+    }
 }
 
 .btn-simple,

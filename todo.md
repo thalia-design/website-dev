@@ -1,6 +1,8 @@
 ### todo list
 
-- [ ] mobile responsive
+- [-] mobile responsive
+    - [x] most of it
+    - [ ] sticky menu filters
 - [ ] swup projects transition
 - [ ] project tarot interactive cards
 - [ ] footer

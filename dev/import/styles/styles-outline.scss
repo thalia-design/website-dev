@@ -162,12 +162,21 @@ wrapper[menu-show-id] {
 
         span {
             display: inline-block;
+            text-wrap: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 100%;
         }
     }
     .text,
     .btn-simple,
     .btn-filter {
         padding: 0.5em 1.15em;
+    }
+    @media (max-width: $size-vertical) {
+        .text {
+            padding: _ 0.85em;
+        }
     }
 
     .grp .btn-filter-clear {
@@ -275,6 +284,21 @@ wrapper[menu-show-id] {
         .grp[menu-show-id="filters"] {
             > wrapper > *:not(:first-child):not(:last-child) {
                 margin-left: 0.5em;
+            }
+        }
+    }
+
+    @media (max-width: $size-vertical) {
+        font-size: 0.925em;
+
+        .grp[menu-show-id="project"] {
+            .text {
+                flex-shrink: 1;
+            }
+        }
+        .grp[menu-show-id="project"][menu-show-state="true"] {
+            > wrapper {
+                max-width: 100%;
             }
         }
     }
