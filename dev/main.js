@@ -803,6 +803,8 @@ let GALLERY_GRID = {
 
 
 // PROJECTS LAYOUT COMPONENTS
+
+//- CAROUSEL INFINITE
 window.addEventListener("scrollCarouselInfinite_call", (e) => {
     if (SCROLL.getScroll(ScrollMain) < 5) {
         carouselInfiniteGlobal.toggle(true, e.detail.target.getAttribute("data-carousel-infinite-index"));
@@ -823,7 +825,6 @@ let carouselInfiniteGlobal;
 class CarouselInfinite {
     constructor(options = {}) {
         this.options = {
-            scrollInstance : options.scrollInstance || ScrollMain, // locomotive v5
             initPosition : options.initPosition || -600,
             idleSpeed : options.idleSpeed || -60, // px per second
             scrollStrength : options.scrollStrength || -0.5,
@@ -834,23 +835,20 @@ class CarouselInfinite {
 
         this.data = {
             idleLoop : undefined,
+            elements : undefined,
             instances : {},
             eventListeners : {},
         };
-
-        this.elements = {
-            carousels : undefined,
-        }
     }
 
     init() {
-        this.elements.carousels = docHTML.querySelectorAll("*[data-carousel-infinite]");
+        this.data.elements = docHTML.querySelectorAll("*[data-carousel-infinite]");
 
-        if (this.elements.carousels.length <= 0) { return; }
+        if (this.data.elements.length <= 0) { return; }
 
         let countInstance = 0;
 
-        this.elements.carousels.forEach((targetEl) => {
+        this.data.elements.forEach((targetEl) => {
             targetEl.setAttribute("data-carousel-infinite-index", countInstance);
 
             targetEl.setAttribute("data-scroll", "");
@@ -920,7 +918,7 @@ class CarouselInfinite {
         }
 
         let count = 0;
-        this.elements.carousels.forEach((targetEl) => {
+        this.data.elements.forEach((targetEl) => {
             targetEl.querySelectorAll(".carousel-infinite--item > *").forEach((item) => {
                 item.addEventListener("load", this.updateSizes.bind(this));
             });
@@ -946,7 +944,7 @@ class CarouselInfinite {
             delete this.data.eventListeners.resize_updateSizes;
         }
 
-        this.elements.carousels.forEach(targetEl => {
+        this.data.elements.forEach(targetEl => {
             targetEl.onpointerdown = null;
             targetEl.onpointerup = null;
             targetEl.onpointerout = null;
@@ -980,7 +978,7 @@ class CarouselInfinite {
 
     updateSizes() {
         let count = 0;
-        this.elements.carousels.forEach(targetEl => {
+        this.data.elements.forEach(targetEl => {
             this.data.instances[count].loopEndPos = -targetEl.querySelector(".carousel-infinite--group").getBoundingClientRect().width;
             count += 1;
         });
@@ -1042,7 +1040,7 @@ class CarouselInfinite {
 
             if (this.data.idleLoop) {
                 let count = 0;
-                this.elements.carousels.forEach((_targetEl) => {
+                this.data.elements.forEach((_targetEl) => {
                     if (this.data.instances[count].active) { animate(_targetEl, count, deltaTime); }
                     count += 1;
                 });
@@ -1075,6 +1073,66 @@ class CarouselInfinite {
         }
     }
 }
+
+
+//- CAROUSEL PROGRESS
+let carouselProgressGlobal;
+class CarouselProgress {
+    constructor() {
+        this.data = {
+            elements : undefined,
+            eventListeners : {},
+        };
+    }
+
+    init() {
+        this.data.elements = docHTML.querySelectorAll("*[data-carousel-progress]");
+
+        if (this.data.elements.length <= 0) { return; }
+
+        this.data.elements.forEach((targetEl) => {
+            targetEl.setAttribute("data-scroll", "");
+            targetEl.setAttribute("data-scroll-repeat", "");
+            targetEl.setAttribute("data-scroll-position", "start,end");
+            targetEl.setAttribute("data-scroll-offset", "0,0");
+            targetEl.setAttribute("data-scroll-css-progress", "");
+
+            if (targetEl.hasAttribute("data-carousel-progress--scroll-length")) {
+                if (targetEl.getAttribute("data-carousel-progress--scroll-length").length > 0) {
+                    targetEl.style.setProperty("--carousel-scroll-length", targetEl.getAttribute("data-carousel-progress--scroll-length"));
+                }
+            }
+            if (targetEl.hasAttribute("data-carousel-progress--scroll-length-ratio")) {
+                if (targetEl.getAttribute("data-carousel-progress--scroll-length-ratio").length > 0) {
+                    targetEl.style.setProperty("--carousel-scroll-length-ratio", targetEl.getAttribute("data-carousel-progress--scroll-length-ratio"));
+                }
+            }
+
+            targetEl.querySelectorAll("img").forEach((item) => { item.addEventListener("load", this.updateSizes.bind(this)); });
+            targetEl.querySelectorAll("video").forEach((item) => { item.addEventListener("load", this.updateSizes.bind(this)); });
+        });
+
+        // global updates init
+        this.updateSizes();
+        if (!this.data.eventListeners.resize_updateSizes) {
+            this.data.eventListeners.resize_updateSizes = window.addEventListener("resize", this.updateSizes.bind(this));
+        }
+    }
+
+    clear() {
+        if (this.data.eventListeners.resize_updateSizes) {
+            window.removeEventListener("resize", this.updateSizes);
+            delete this.data.eventListeners.resize_updateSizes;
+        }
+    }
+
+    updateSizes() {
+        this.data.elements.forEach(targetEl => {
+            targetEl.style.setProperty("--carousel-track-width", Math.ceil(targetEl.firstElementChild.getBoundingClientRect().width) +"px");
+        });
+    }
+}
+
 
 
 // PAGES
@@ -1168,6 +1226,7 @@ const PAGES = {
         GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => { swup.navigate("/"); });
 
         carouselInfiniteGlobal.init();
+        carouselProgressGlobal.init();
 
         if (!firstInit) {
             ScrollMain.addScrollElements(pageContentEl);
@@ -1193,6 +1252,7 @@ const PAGES = {
         }
 
         if (carouselInfiniteGlobal) { carouselInfiniteGlobal.clear(); }
+        if (carouselProgressGlobal) { carouselProgressGlobal.clear(); }
 
         if (!firstInit) {
             ScrollMain.removeScrollElements(pageContentEl);
@@ -1399,9 +1459,8 @@ LOADING.init(() => {
 
     STICKY_MENU.init();
 
-    carouselInfiniteGlobal = new CarouselInfinite({
-        scrollInstance : ScrollMain,
-    });
+    carouselInfiniteGlobal = new CarouselInfinite();
+    carouselProgressGlobal = new CarouselProgress();
 
     THALIA_CHARA.interactions.init();
 
