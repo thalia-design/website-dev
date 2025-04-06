@@ -6,7 +6,7 @@ import Swup from "swup";
 import SwupPreloadPlugin from '@swup/preload-plugin';
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
-import anime from 'animejs/lib/anime.es.js';
+import {animate, createTimeline, onScroll, stagger, svg, utils,} from "animejs";
 import BezierEasing from "bezier-easing"
 
 
@@ -827,10 +827,10 @@ class CarouselInfinite {
         this.options = {
             initPosition : options.initPosition || -600,
             idleSpeed : options.idleSpeed || -60, // px per second
-            scrollStrength : options.scrollStrength || -0.5,
-            dragStrength : options.dragStrength || 2.5,
-            dragEasingDuration : options.dragEasingDuration || 1350,
-            dragEasingTiming : options.dragEasingTiming || "easeOutExpo",
+            scrollStrength : options.scrollStrength || -0.65,
+            dragStrength : options.dragStrength || 2.35,
+            dragEasingDuration : options.dragEasingDuration || 2000,
+            dragEasingTiming : options.dragEasingTiming || "outExpo",
         };
 
         this.data = {
@@ -1003,7 +1003,7 @@ class CarouselInfinite {
     idle() {
         if (this.data.idleLoop) { return; }
 
-        const animate = (targetEl, index, deltaTime) => {
+        const animateCarousel = (targetEl, index, deltaTime) => {
             const carouselData = this.data.instances[index];
 
             if (carouselData.drag.isDragging) {
@@ -1018,14 +1018,13 @@ class CarouselInfinite {
                 const posVar = {
                     move: this.data.instances[index].drag.posAnimated,
                 }
-                anime({
-                    targets: posVar,
-                    easing: this.options.dragEasingTiming,
+                animate(posVar, { // anime
+                    ease: this.options.dragEasingTiming,
                     duration: this.options.dragEasingDuration,
 
                     move: [this.data.instances[index].drag.posAnimated, this.data.instances[index].drag.posFrom],
 
-                    update: () => {
+                    onUpdate: () => {
                         this.data.instances[index].drag.posAnimated = posVar.move;
                     },
                 });
@@ -1041,7 +1040,7 @@ class CarouselInfinite {
             if (this.data.idleLoop) {
                 let count = 0;
                 this.data.elements.forEach((_targetEl) => {
-                    if (this.data.instances[count].active) { animate(_targetEl, count, deltaTime); }
+                    if (this.data.instances[count].active) { animateCarousel(_targetEl, count, deltaTime); }
                     count += 1;
                 });
 
@@ -1383,64 +1382,66 @@ const LOADING = {
         LOADING.data.events.introAnimStarted = true;
         LOADING.elements.container.classList.add("loading-animating");
 
-        let animElems_blink = LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim="blink"]');
-        animElems_blink.forEach((el) => {
-            el.classList.add("anim");
+        let animElems_blink = LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim-blink]');
+        animElems_blink.forEach((el) => { el.classList.add("anim") });
 
-            setTimeout(() => { el.classList.add("anim-blink")
-                setTimeout(() => { el.classList.remove("anim-blink")
-                    setTimeout(() => { el.classList.add("anim-blink")
-                    }, 150);
-                }, 300);
-            }, 1300);
-        });
-
-        const dataAnim = {
-            "circle" : {
-                delay : 500,
-                duration : 2300,
-                easing : 'cubicBezier(0.6, 0, 0.2, 0.95)',
-            },
-            "hair" : {
+        const loadingAnimTimeline = createTimeline({ // anime
+            defaults : {
                 delay : 0,
-                duration : 700,
-                easing : 'cubicBezier(0.7, 0.2, 0.4, 0.7)',
             },
-            "face" : {
-                delay : 700,
-                duration : 800,
-                easing : 'cubicBezier(0.2, 0.2, 0.2, 1)',
-            },
-            "throat" : {
-                delay : 1100,
-                duration : 800,
-                easing : 'cubicBezier(0.3, 0.2, 0.2, 0.9)',
-            },
-        };
-
-        anime({
-            targets: LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim="trim-path"]'),
-            strokeDashoffset: [anime.setDashoffset, 0],
-            delay: function(el, i) {
-                return (el.hasAttribute("data-name") && !!dataAnim[el.getAttribute("data-name")])
-                    ? dataAnim[el.getAttribute("data-name")].delay
-                    : 0;
-            },
-            duration: function(el, i) {
-                return (el.hasAttribute("data-name") && !!dataAnim[el.getAttribute("data-name")])
-                    ? dataAnim[el.getAttribute("data-name")].duration
-                    : 1000;
-            },
-            easing: function(el, i) {
-                return (el.hasAttribute("data-name") && !!dataAnim[el.getAttribute("data-name")])
-                    ? dataAnim[el.getAttribute("data-name")].easing
-                    : "easeInOutExpo";
-            },
-            complete: function(anim) {
+            onComplete: self => {
                 LOADING.data.events.introAnimFinished = true;
                 if (callbackHide) { callbackHide() };
             }
         });
+
+        const animDrawData = {
+            "hair" : {
+                timePosition : 0,
+                duration : 700,
+                ease : 'cubicBezier(0.7, 0.2, 0.4, 0.7)',
+            },
+            "face" : {
+                timePosition : '<',
+                duration : 800,
+                ease : 'cubicBezier(0.2, 0.2, 0.2, 1)',
+                onComplete: self => {
+                    animElems_blink.forEach((el) => {
+                        el.classList.add("anim-blink")
+                        setTimeout(() => { el.classList.remove("anim-blink")
+                            setTimeout(() => { el.classList.add("anim-blink")
+                            }, 150);
+                        }, 300);
+                    });
+                }
+            },
+            "throat" : {
+                timePosition : '<<+=400',
+                duration : 800,
+                ease : 'cubicBezier(0.3, 0.2, 0.2, 0.9)',
+            },
+            "circle" : {
+                timePosition : 500,
+                duration : 2300,
+                ease : 'cubicBezier(0.6, 0, 0.2, 0.95)',
+            },
+        }
+
+        LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim-draw]').forEach((elPath) => {
+            const animName = elPath.getAttribute("data-anim-draw");
+
+            loadingAnimTimeline.add(svg.createDrawable(elPath), {
+                draw : ['0 0', '0 1'],
+                duration : animDrawData[animName].duration,
+                ease : animDrawData[animName].ease,
+                onBegin: self => { self.targets.forEach((el) => { el.classList.add("anim") }); }, // stroke linecap round visible fix
+                onComplete: self => {
+                    if (animDrawData[animName].onComplete) {
+                        animDrawData[animName].onComplete();
+                    };
+                }
+            }, animDrawData[animName].timePosition)
+        })
     }
 }
 
