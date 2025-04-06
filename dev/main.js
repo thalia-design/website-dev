@@ -149,9 +149,9 @@ const SCROLL = {
             lenisOptions: {
                 smoothWheel: true,
                 smoothTouch: false,
-                wheelMultiplier: 0.9,
-                duration: 1,
-                easing: (x) => Math.min(1, 1.001 - Math.pow(5, -7 * x)), // https://www.desmos.com/calculator/brs54l4xou
+                wheelMultiplier: 0.775,
+                duration: 1.15,
+                easing: (x) => Math.min(1, 1.005 - Math.pow(5, -6.75 * x)), // https://www.desmos.com/calculator/brs54l4xou
                 orientation: 'vertical',
                 gestureOrientation: 'vertical',
             },
