@@ -343,7 +343,7 @@
         height: var(--carousel-scroll-length);
     }
 
-    user-select: none;
+    & { user-select: none; }
     & * { pointer-events: none !important; }
 
     > wrapper {
@@ -414,6 +414,206 @@
                     border-top-right-radius: var(--thalia-v-radius-normal);
                     border-bottom-right-radius: var(--thalia-v-radius-normal);
                 }
+            }
+        }
+    }
+}
+
+
+.cards-stack-interactive {
+    position: relative;
+
+    .cards-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+        height: 250vh;
+        min-height: 100vh;
+        border-top: 1px dotted var(--red);
+        border-bottom: 1px dotted var(--red);
+
+
+        * { pointer-events: none; }
+        .card { pointer-events: all !important; }
+
+        > wrapper {
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            padding-top: 5rem;
+            box-sizing: border-box;
+            perspective: 1000px;
+            perspective-origin: 50%;
+            transform-style: preserve-3d;
+
+            @media (max-width: $size-square) {
+                overflow: hidden;
+            }
+        }
+
+        .stack {
+            flex-grow: 0;
+            flex-shrink: 0;
+            position: relative;
+            transform-style: preserve-3d;
+            will-change: transform;
+
+            --card-w: clamp(10rem, 29vw, 25rem);
+            --card-h: calc(var(--card-w) * 1.41437);
+            width: calc(var(--card-w) * 1);
+            height: calc(var(--card-h) * 1);
+
+            .card {
+                transform-origin: 50% 105% 0px;
+
+                touch-action: manipulation;
+                * { touch-action: none !important; }
+
+                wrapper[data-w],
+                wrapper[data-w] > .fader {
+                    background-color: var(--thalia-c-accent, #FFFFFF);
+                }
+                .img, img,
+                wrapper[data-w],
+                wrapper[data-w] > .fader {
+                    border-radius: 0.65em;
+
+                    @media (max-width: $size-square) {
+                        border-radius: 0.45em;
+                    }
+                    @media (max-width: $size-vertical) {
+                        border-radius: 0.3em;
+                    }
+                }
+
+                &,
+                wrapper,
+                .front, .back {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    transform-style: preserve-3d;
+                }
+                .back {
+                    z-index: 0;
+                    transform: rotateY(180deg);
+                    transition: opacity 0.3s ease;
+                }
+                .front {
+                    z-index: 1;
+                    backface-visibility: hidden;
+                }
+                wrapper[data-w] > .fader {
+                    z-index: 2;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                    transition: opacity 1.5s ease;
+                }
+
+                wrapper[data-drag] {
+                    cursor: grab;
+                }
+                &.is-hovering {
+                    cursor: pointer;
+                }
+                &.is-disabled {
+                    &, * { pointer-events: none !important; }
+
+                    wrapper[data-w] > .fader {
+                        opacity: 0.4 !important;
+                        transition-delay: 0.5s;
+                    }
+                }
+                &.is-active {
+                    pointer-events: none !important;
+                    wrapper[data-drag] { pointer-events: all; }
+
+                    .back {
+                        opacity: 1 !important;
+                    }
+
+                    &.is-grabbing wrapper[data-w] > .fader {
+                        transition: opacity 0s;
+                    }
+                    &:not(.is-grabbing) wrapper[data-w] > .fader {
+                        transition: opacity 0.65s ease;
+                    }
+                }
+                &.is-click-timeout {
+                    &, * { pointer-events: none !important; }
+                }
+            }
+        }
+
+        .cards-global-fader {
+            touch-action: manipulation;
+            user-select: none;
+            z-index: 9999;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate3D(-50%, -50%, 100px);
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(closest-side, rgba(255,255,255, 0.9), cubic-bezier(0.4, 0, 0.3, 1), transparent);
+
+            pointer-events: none !important;
+            opacity: 0;
+            transition: opacity 1.15s ease;
+
+            &.is-active {
+                pointer-events: all !important;
+                opacity: 1;
+                transition: opacity 1.5s ease;
+            }
+        }
+        /*.card.is-grabbing ~ */.cards-global-fader {
+            touch-action: none !important;
+        }
+    }
+
+    .cards-infos-container {
+        position: absolute;
+        width: 100%;
+        height: 100vh;
+        bottom: 0;
+        left: 0;
+
+        > wrapper {
+            position: absolute;
+            width: 80%;
+            height: 100%;
+            top: 0;
+            right: 0;
+        }
+
+        .card-infos {
+            .bg {
+                position: absolute;
+                top: 50%;
+                right: 0;
+                transform: translate(35%, -50%) scale(1.2);
+                width: 130%;
+                height: 150%;
+                background: radial-gradient(closest-side, rgba(32, 78, 207, 0.7), cubic-bezier(0.5, 0, 0.6, 1), transparent);;
+            }
+
+            & {
+                opacity: 0;
+            }
+            &.is-active {
+                opacity: 1;
             }
         }
     }

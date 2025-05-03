@@ -17,7 +17,7 @@
             <import-html src="import/html/section-main-gallery--head.html"/>
 
             <wrapper class="page-content-container">
-                <div id="swup" class="page-content swup-transition--project">
+                <div id="swup" class="page-content swup-transition--project project-immersive">
                     <wrapper>
 
                         <h1 class="project-title" hidden>{p%title%}</h1>
@@ -26,10 +26,38 @@
 
                             <wrapper class="content-head">
 
-                                <import-html src="import/html/p/head-image.html"
+                                <div class="cards-stack-interactive">
+                                    <div class="cards-container">
+                                        <wrapper>
+                                            <div class="stack">
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="19-soleil"/>
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="18-lune"/>
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="17-etoile"/>
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="15-diable"/>
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="8-justice"/>
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="6-amoureux"/>
+                                                <import-html src="import/html/p/special/card-stack-interactive--card.html" cardName="3-imperatrice"/>
+                                                <div class="cards-global-fader"></div>
+                                            </div>
+                                        </wrapper>
+                                    </div>
+                                    <!-- <div class="cards-infos-container">
+                                        <wrapper>
+                                            <div class="card-infos is-active" data-card-info="18-lune">
+                                                <div class="bg"></div>
+                                                <div class="content">
+                                                    <span>text</span>
+                                                </div>
+                                            </div>
+                                        </wrapper>
+                                    </div> -->
+                                </div>
+
+
+                                <!-- <import-html src="import/html/p/head-image.html"
                                     projectValue="assets/placeholder.mp4"
                                     projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
-                                />
+                                /> -->
 
                                 <div thalia-p-section-name="edito" class="width-simple space">
                                     <div class="desc">
@@ -50,7 +78,7 @@
                             </wrapper>
                             <wrapper class="content-body">
 
-                                <div data-carousel-infinite>
+                                <!-- <div data-carousel-infinite>
                                     <wrapper><wrapper>
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carte-dos.png"/>
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carte-3-imperatrice.png"/>
@@ -61,7 +89,7 @@
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carte-18-lune.png"/>
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carte-19-soleil.png"/>
                                     </wrapper></wrapper>
-                                </div>
+                                </div> -->
 
                             </wrapper>
 

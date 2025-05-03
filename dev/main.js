@@ -6,7 +6,7 @@ import Swup from "swup";
 import SwupPreloadPlugin from '@swup/preload-plugin';
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
-import {animate, createTimeline, onScroll, stagger, svg, utils,} from "animejs";
+import {animate, createTimeline, createAnimatable, createDraggable, onScroll, createScope, stagger, svg, utils,} from "animejs";
 import BezierEasing from "bezier-easing"
 
 
@@ -57,6 +57,11 @@ const _GET = {
             });
         });
         return elements;
+    },
+    removeAllChildNodes : (parent) => {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+        }
     }
 }
 
@@ -1227,6 +1232,8 @@ const PAGES = {
         carouselInfiniteGlobal.init();
         carouselProgressGlobal.init();
 
+        PROJECTS.projectSpecificEvents(true, (visit == null) ? swup.location.pathname : visit.to.url);
+
         if (!firstInit) {
             ScrollMain.addScrollElements(pageContentEl);
         }
@@ -1253,12 +1260,438 @@ const PAGES = {
         if (carouselInfiniteGlobal) { carouselInfiniteGlobal.clear(); }
         if (carouselProgressGlobal) { carouselProgressGlobal.clear(); }
 
+        PROJECTS.projectSpecificEvents(false, (visit == null) ? swup.location.pathname : visit.from.url);
+
         if (!firstInit) {
             ScrollMain.removeScrollElements(pageContentEl);
         }
     },
 }
 
+
+const PROJECTS = {
+    projectSpecificEvents : (enterOrExit = true, projectURL) => {
+        switch (projectURL) {
+            case "/p/cartes-tarot-garou/":
+                if (enterOrExit) { PROJECTS.special.cardsStackInteractive(); }
+                else { PROJECTS.special.cardsStackInteractive_destroy(); }
+                break;
+        }
+    },
+    special : {
+        cardsStackInteractive_destroy : () => {
+            const cardsStackInteractiveElems = utils.$('.cards-stack-interactive');
+            if (cardsStackInteractiveElems.length <= 0) { return; }
+
+            cardsStackInteractiveElems.forEach((mainContainer) => {
+                _GET.removeAllChildNodes(mainContainer);
+            });
+        },
+
+        cardsStackInteractive : () => {
+            const cardsStackInteractiveElems = utils.$('.cards-stack-interactive');
+            if (cardsStackInteractiveElems.length <= 0) { return; }
+
+            const cardStackAnim = {
+                initOffsetY: 25,
+                initRandomRotate : 1,
+                initScale : 1.5,
+                initStaggerY : -2.5,
+                staggerDepth : 15,
+                staggerDepthOffset : -75,
+                accentDepthFadeOpacity : 0.8,
+                initRotateX : 0,
+                finalRotateX : -6,
+
+                radius : 60,
+                cardHoverJump : 7.5,
+                cardClickPush : 4,
+
+                cardsEnabledProgressThreshold : 0.75,
+            };
+
+            cardsStackInteractiveElems.forEach((mainContainer) => {
+                let cardsData = {
+                    nb : undefined,
+                    rotateSlice : undefined,
+                    maxZDepth : undefined,
+                    isOpening : false,
+                    isOpened : false,
+                    instances : [],
+                };
+
+                const elemStack = mainContainer.querySelector('.stack'),
+                      elemsCards = mainContainer.querySelectorAll('.stack .card'),
+                      $cardsGlobalFader = elemStack.querySelector('.cards-global-fader');
+
+                cardsData.nb = elemsCards.length;
+                cardsData.rotateSlice = (360 / cardsData.nb);
+                cardsData.maxZDepth = cardStackAnim.staggerDepth * cardsData.nb;
+
+                // cards stack rotation : Julian Garnier https://codepen.io/juliangarnier/pen/RNwvWGe
+                utils.set(elemsCards, {
+                    rotate: () => utils.random(-cardStackAnim.initRandomRotate, cardStackAnim.initRandomRotate, 2),
+                    rotateZ: () => utils.random(-cardStackAnim.initRandomRotate, cardStackAnim.initRandomRotate, 2),
+                    rotateX: () => cardStackAnim.initRotateX,
+                    y: stagger(cardStackAnim.initStaggerY, { from: 'last' }),
+                    z: stagger(cardStackAnim.staggerDepth, { start: cardStackAnim.staggerDepthOffset }),
+                });
+
+                // utils.set('.stack .card .front', { opacity: stagger([cardStackAnim.accentDepthFadeOpacity, 1]) });
+                utils.set('.stack .card .back', { opacity: stagger([1, cardStackAnim.accentDepthFadeOpacity]) });
+
+                const timelineCardsStack = createTimeline({
+                    defaults: {
+                        ease: 'linear',
+                        duration: 500,
+                        composition: 'blend',
+                    },
+                    autoplay: onScroll({
+                        target: '.cards-container',
+                        enter: '40% top',
+                        leave: 'bottom bottom',
+                        sync: .5,
+                        onUpdate: (self) => { if(self.progress < 0.96 ) closeOpenedCards() }
+                        // debug: true,
+                    }),
+                })
+                .add(elemStack, {
+                    rotateY: [-180, 0],
+                    y: {
+                        from: `${cardStackAnim.initOffsetY}%`,
+                        to: 0,
+                        ease: 'inOutQuad',
+                    },
+                    ease: 'in(2)',
+                }, 0)
+                .add(elemsCards, {
+                    scale: {
+                        from : cardStackAnim.initScale,
+                        to: 1,
+                        ease: 'inOutQuad',
+                    },
+                    rotate: 0,
+                    rotateZ: {
+                        to: stagger([0, (-360 + cardsData.rotateSlice)], { from: 'last' }),
+                        ease: 'inOut(3)'
+                    },
+                    rotateX: [cardStackAnim.initRotateX, cardStackAnim.finalRotateX, cardStackAnim.finalRotateX],
+                    y: {
+                        to: `-${cardStackAnim.radius}%`,
+                        duration: 400
+                    },
+                    transformOrigin: ['50% 100%', '50% 50%'],
+                    delay: stagger(1, { from: 'first' }),
+                }, 0)
+                .init()
+
+                // CARDS EVENTS
+                elemsCards.forEach(($card, $index) => {
+                    cardsData.instances[$index] = {
+                        isActive: false,
+                        doAnimSpin : true,
+                        rotations : 0,
+                        isCardInLeftHalf : !!($index > cardsData.nb / 2 - 1),
+                        isCardTop : $index + 1 == cardsData.nb,
+                    }
+
+                    const $cardWDrag = $card.firstElementChild,
+                            $cardWSpin = $card.firstElementChild.firstElementChild,
+                            $cardFader = $card.querySelector(".fader");
+
+                        cardsData.instances[$index].cardDraggableX = createDraggable($cardWDrag, {
+                        x: {
+                            mapTo: 'rotateY',
+                            modifier: utils.wrap(-360, 360),
+                            snap: [0, 180, -180, 359.5, -359.5],
+                        },
+                        y: false,
+                        dragSpeed: (THALIA_GLOBALS.vpSizeBreakpoints.current.w == "vpWidthVertical") ? 1 : 0.5,
+                        releaseMass: 0.1,
+                        releaseStiffness: 5,
+                        releaseDamping: 15,
+                        maxVelocity: 1000,
+
+                        scrollThreshold: false,
+                        scrollSpeed: 0,
+
+                        onDrag: (self) => { cardsData.instances[$index].doAnimSpin = false; },
+                        onUpdate: (self) => {
+                            const rotation = Math.abs((self.coords[0]) % 360), edgeThreshold = 45;
+                            utils.set($cardFader, {
+                                opacity: ((rotation > (90 - edgeThreshold) && rotation < (90 + edgeThreshold))
+                                        || (rotation > (270 - edgeThreshold) && rotation < (270 + edgeThreshold)))
+                                            ? Math.max(0, Math.min(1, 1 - (Math.min(Math.abs(rotation - 90), Math.abs(rotation - 270)) / edgeThreshold))) * 0.5
+                                            : 0,
+                            });
+
+                            if (!self.grabbed) { utils.set($cardFader, { opacity: 0, }) };
+                        },
+                        onGrab: (self) => {
+                            $card.classList.add("is-grabbing");
+                        },
+                        onRelease: (self) => {
+                            $card.classList.remove("is-grabbing");
+
+                            setTimeout(() => { cardsData.instances[$index].doAnimSpin = true; }, 100);
+                        },
+                        onResize: () => {
+                            if (!cardsData.instances[$index].isActive) {
+                                cardsData.instances[$index].cardDraggableX.setX(0);
+                                cardsData.instances[$index].cardDraggableX.refresh();
+                            }
+                        }
+                    });
+                    cardsData.instances[$index].cardDraggableY = createDraggable($cardWDrag, {
+                        x: false,
+                        y: {
+                            mapTo: 'rotateX',
+                            modifier: v => v * -1,
+                            snap: [0],
+                        },
+                        dragSpeed: .1,
+                        releaseMass: 0.7,
+                        releaseStiffness: 60,
+
+                        scrollThreshold: false,
+                        scrollSpeed: 0,
+                    });
+
+                    const cardWSpinAnimatable = createAnimatable($cardWSpin, {
+                        y: {
+                            unit: "%",
+                            duration: 1000,
+                            ease: "outElastic(1.2, .7)",
+                        },
+                        rotateY: {
+                            duration: 2300,
+                            ease: "cubicBezier(0.2, 0.5, 0, 1)",
+                        },
+                        z: {
+                            duration: 300,
+                            ease: "cubicBezier(0.2, 0.5, 0, 1)",
+                        },
+                        scale: 100,
+                        ease: 'out(5)',
+                    });
+
+                    $card.addEventListener("pointerenter", () => {
+                        cardsData.instances[$index].cardDraggableY.setY(0).refresh();
+                        if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold && (!cardsData.isOpening && !cardsData.isOpened)) {
+                            $card.classList.add("is-hovering");
+                            cardWSpinAnimatable.y(-10);
+                        }
+                    });
+                    $card.addEventListener("pointerleave", () => {
+                        $card.classList.remove("is-hovering");
+                        cardWSpinAnimatable.y(0);
+                    });
+                    $card.addEventListener("pointerdown", () => {
+                        if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold && (!cardsData.isOpening && !cardsData.isOpened)) {
+                            cardWSpinAnimatable.y(cardWSpinAnimatable.y() + cardStackAnim.cardClickPush);
+                        }
+                    });
+
+                    $cardWDrag.addEventListener("mousemove", () => {
+                        cardWSpinAnimatable.scale(1.03, 400, "cubicBezier(0.1, 0.3, 0.2, 1)");
+                    });
+                    $cardWDrag.addEventListener("mouseleave", () => {
+                        cardWSpinAnimatable.scale(1, 400, "cubicBezier(0.3, 0.1, 0.2, 1)");
+                    });
+                    $cardWDrag.addEventListener("pointerdown", () => {
+                        cardWSpinAnimatable.scale(0.98, 80, "ease");
+                    });
+
+                    $card.addEventListener("click", (e) => {
+                        if (cardsData.isOpening || cardsData.isOpened) {
+                            if (cardsData.instances[$index].doAnimSpin) {
+                                const cardRect = $card.getBoundingClientRect();
+                                cardsData.instances[$index].rotations += (cardRect.left + cardRect.width / 2 > e.clientX) ? -1 : 1;
+                                cardWSpinAnimatable
+                                    .rotateY(cardsData.instances[$index].rotations * 360)
+                                    .scale(1.1, 250, "inOut(1)");
+                                    setTimeout(() => { cardWSpinAnimatable.scale(1, 1600, 'outElastic(1.2, .6)'); }, 300);
+                            }
+                        }
+                        else {
+                            if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold) {
+                                cardsData.isOpening = true;
+                                cardsData.instances[$index].isActive = true;
+                                cardWSpinAnimatable.y(0);
+                                $card.classList.add("is-click-timeout"); setTimeout(() => { $card.classList.remove("is-click-timeout"); }, 500);
+                                setTimeout(() => { $card.classList.add("is-active"); $cardsGlobalFader.classList.add("is-active"); }, 1000);
+                                $card.classList.remove("is-hovering");
+
+                                ScrollMain.scrollTo(
+                                    SCROLL.getScroll(ScrollMain) + mainContainer.getBoundingClientRect().bottom - THALIA_GLOBALS.vpSize[1]
+                                    , {
+                                    ...SCROLL.options.scrollTo,
+                                    lock: true, offset: -2,
+                                    onComplete: () => {
+                                        SCROLL.resize(ScrollMain);
+                                        setTimeout(() => {
+                                            cardsData.isOpening = false;
+                                            cardsData.isOpened = true;
+                                        }, 1500);
+                                    }
+                                });
+
+                                cardsData.instances[$index].cardDraggableX.enable().setX(0).refresh();
+                                cardsData.instances[$index].cardDraggableY.enable().setY(0).refresh();
+
+                                animate($card, {
+                                    z: {
+                                        to: cardsData.maxZDepth + 250,
+                                        delay : 300,
+                                        duration: 700,
+                                        ease: 'ease',
+                                    },
+
+                                    rotateZ: {
+                                        to: cardsData.instances[$index].isCardInLeftHalf ? 0 : -360,
+                                        delay : 0,
+                                        duration: 2000,
+                                        ease: (cardsData.instances[$index].isCardInLeftHalf) ? 'cubicBezier(0.6, 0, 0.2, 1)' : 'cubicBezier(0.7, 0, 0, 1)',
+                                    },
+                                    rotateX: 0,
+
+                                    x: {
+                                        // to: "-100%",
+                                        to: "0%",
+                                        delay : 200,
+                                    },
+                                    y: [
+                                        {
+                                            to: (cardsData.instances[$index].isCardTop) ? `-90%` : "-140%",
+                                            duration : (cardsData.instances[$index].isCardTop) ? 200 : 500,
+                                            ease: 'cubicBezier(0.2, 0.2, 0.6, 1)',
+                                        },
+                                        {
+                                            to: "0",
+                                            duration : (cardsData.instances[$index].isCardTop) ? 2000 : 1500,
+                                            ease: 'cubicBezier(0.5, 0, 0, 1)',
+                                        },
+                                    ],
+                                    rotateY: {
+                                        to: [0, cardsData.instances[$index].isCardInLeftHalf ? 360 : -360],
+                                        delay : 150,
+                                        duration: 2200,
+                                        ease: 'cubicBezier(0.5, 0, 0, 1)',
+                                    },
+
+                                    duration: 1000,
+                                    ease: 'cubicBezier(0.5, 0.1, 0, 1)',
+                                    composition: 'blend',
+                                });
+
+                                elemsCards.forEach(($c, $i) => {
+                                    if ($i == $index) { return; }
+                                    $c.classList.add("is-disabled");
+                                    animate($c.querySelector("wrapper[data-drag]"), {
+                                        scale: ["1", "0.835"],
+                                        y: ["0%", "4%"],
+                                        duration: 2200,
+                                        ease: 'cubicBezier(0.5, 0, 0.4, 1)',
+                                        composition: 'blend',
+                                    });
+                                });
+                            }
+                        }
+                    });
+
+                })
+
+
+                function closeOpenedCards() {
+                    if (cardsData.isOpened) {
+                        elemsCards.forEach(($card, $index) => {
+                            if (cardsData.instances[$index].isActive) {
+                                triggerCardClose($card, $index);
+                            }
+                        })
+                    }
+                }
+                $cardsGlobalFader.addEventListener("click", closeOpenedCards);
+
+                function triggerCardClose($card, $index) {
+                    $card.classList.add("is-click-timeout"); setTimeout(() => { $card.classList.remove("is-click-timeout"); }, 500);
+                    cardsData.instances[$index].isActive = false;
+                    $card.classList.remove("is-active");
+                    $cardsGlobalFader.classList.remove("is-active");
+
+                    animate($card, {
+                        z: {
+                            to: (cardStackAnim.staggerDepth * $index + cardStackAnim.staggerDepthOffset),
+                            delay : 300,
+                            duration: 700,
+                            ease: 'ease',
+                        },
+
+                        rotateZ: {
+                            to: -360 + cardsData.rotateSlice * ($index + 1),
+                            delay : 0,
+                            duration: 1500,
+                            ease: 'cubicBezier(0.6, 0, 0, 1)',
+                        },
+                        rotateX: cardStackAnim.finalRotateX,
+
+                        x: {
+                            to: "0%",
+                            delay : 200,
+                        },
+                        y: [
+                            {
+                                to: (cardsData.instances[$index].isCardTop) ? `-90%` : `-140%`,
+                                duration : 900,
+                                ease: 'cubicBezier(0.4, 0, 0.6, 1)',
+                            },
+                            {
+                                to: `-${cardStackAnim.radius}%`,
+                                duration : 1000,
+                                ease: 'cubicBezier(0.3, 0, 0, 1)',
+                            },
+                        ],
+                        rotateY: {
+                            to: 0,
+                            delay : 250,
+                            duration: 1100,
+                            ease: 'cubicBezier(0.3, 0.2, 0, 1)',
+                        },
+
+                        duration: 1000,
+                        ease: 'cubicBezier(0.5, 0.1, 0, 1)',
+                        composition: 'blend',
+                    });
+                    cardsData.instances[$index].cardDraggableX.disable();
+                    cardsData.instances[$index].cardDraggableY.disable();
+                    setTimeout(() => {
+                        cardsData.instances[$index].cardDraggableX.setX(0).refresh();
+                        cardsData.instances[$index].cardDraggableY.setY(0).refresh();
+                    }, 600);
+                    utils.set($card.querySelector(".fader"), { opacity: 0, });
+
+                    elemsCards.forEach(($c, $i) => {
+                        if ($index == $i) { return; }
+                        animate($c.querySelector("wrapper[data-drag]"), {
+                            scale: "1",
+                            y: "0%",
+                            delay: 200,
+                            duration: 2200,
+                            ease: 'cubicBezier(0.5, 0, 0.3, 1)',
+                            composition: 'blend',
+                        });
+                    });
+                    setTimeout(() => {
+                        cardsData.isOpened = false;
+                        elemsCards.forEach(($c, $i) => {
+                            $c.classList.remove("is-disabled");
+                        });
+                    }, 800);
+                }
+            })
+        },
+    },
+}
 
 
 //- SWUP

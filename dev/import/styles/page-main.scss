@@ -314,6 +314,9 @@
             padding-top: 3em;
         }
     }
+    &.project-immersive > * {
+        padding-top: 0;
+    }
 }
 .page-content-container {
     html:not([thalia-loading-state="hidden-fully"])[thalia-loading-state] & {
