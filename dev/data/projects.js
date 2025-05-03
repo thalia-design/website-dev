@@ -80,6 +80,28 @@ const THALIA_PROJECTS = {
         itemSize : [1, 1],
         itemType : "img",
     },
+
+    "webdesign-ecf" : {
+        documentTitle : "Maquette Web Design · ECF Occitanie",
+        title : "ECF Occitanie",
+        filters : [
+            "web design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "webdesign-nosotros" : {
+        documentTitle : "Maquette Web Design · Nosotros",
+        title : "Nosotros",
+        filters : [
+            "web design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
 }
 
 export {

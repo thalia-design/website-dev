@@ -4,7 +4,8 @@
     - [x] most of it
     - [ ] sticky menu filters
 - [ ] swup projects transition
-- [ ] project tarot interactive cards
+- [ ] add all current projects
+- [x] project tarot interactive cards
 - [ ] footer
     - [ ] cta contact
     - [ ] interactive thalia small profile

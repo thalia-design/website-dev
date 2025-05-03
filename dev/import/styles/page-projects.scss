@@ -131,6 +131,7 @@
     }
 
     .images-column {
+        overflow: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -140,6 +141,22 @@
         > * {
             width: 100%;
             flex: 1;
+        }
+
+        &.hug-height {
+            .img, img, .video, video {
+                height: auto;
+                max-height: none !important;
+            }
+        }
+
+        &.seamless {
+            gap: 0;
+            border-radius: var(--thalia-v-radius-normal);
+
+            * {
+                border-radius: 0;
+            }
         }
     }
 

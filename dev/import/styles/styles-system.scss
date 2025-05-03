@@ -230,6 +230,11 @@ p {
     }
 }
 
+.lift-shadow {
+    filter: drop-shadow(0px 5px 45px rgba(var(--thalia-rgb-accent), 0.15))
+            drop-shadow(0px 4px 5px rgba(var(--thalia-rgb-accent), 0.05));
+}
+
 
 /* THALIA */
 .thalia-small-profile {
