@@ -16,7 +16,6 @@ const THALIA_PROJECTS = {
         title : "Belmont",
         filters : [
             "branding",
-            "print",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
@@ -48,8 +47,8 @@ const THALIA_PROJECTS = {
     },
 
     "cartes-tarot-garou" : {
-        documentTitle : "Tarot X Loup Garou",
-        title : "Tarot X Loup Garou",
+        documentTitle : "Tarot X Loup-Garou",
+        title : "Tarot X Loup-Garou",
         filters : [
             "illustration",
             "print",
