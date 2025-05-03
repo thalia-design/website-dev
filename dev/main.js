@@ -62,6 +62,10 @@ const _GET = {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
         }
+    },
+    isChildOf : (el, elParent) => {
+        while ((el = el.parentNode) && el !== elParent) ;
+        return !!el;
     }
 }
 
@@ -1729,6 +1733,10 @@ const LOADING = {
         thaliaSmallProfile : document.querySelector(".thalia-loading-screen .thalia-small-profile"),
     },
     data : {
+        skipLoadingAnimation : false,
+        skipLoadingAnimationDevMode : true,
+        devMode : import.meta.env.DEV,
+
         events: {
             pageLoaded: false,
             introAnimStarted : false,
@@ -1740,6 +1748,7 @@ const LOADING = {
     init: (callbackInit) => {
         if (!LOADING.elements.container) { callbackInit(); console.error("[LOADING] no container found"); return; }
         LOADING.setState("init");
+        LOADING.data.skipLoadingAnimation = (LOADING.data.devMode && LOADING.data.skipLoadingAnimationDevMode);
 
         // simple page loading callback
         window.addEventListener("load", () => {
@@ -1750,7 +1759,7 @@ const LOADING = {
 
             if (callbackInit) { callbackInit() };
 
-            if (LOADING.data.events.introAnimFinished) {
+            if (LOADING.data.events.introAnimFinished || LOADING.data.skipLoadingAnimation) {
                 LOADING.hide();
             };
             setTimeout(() => {
@@ -1806,8 +1815,8 @@ const LOADING = {
             setTimeout(() => {
                 LOADING.setState("hidden-fully");
                 SCROLL.resize(ScrollMain);
-            }, 2500);
-        }, 600);
+            }, LOADING.data.skipLoadingAnimation ? 10 : 2500);
+        }, LOADING.data.skipLoadingAnimation ? 0 : 600);
     },
 
     introAnim: (callbackHide) => {
