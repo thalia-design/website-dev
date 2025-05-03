@@ -33,8 +33,6 @@
                 transition: transform 0.4s cubic-bezier(0.15, 1, 0, 1.65);
             }
         }
-
-        *[data-anim-draw]:not(.anim) { opacity: 0; } // stroke linecap round visible fix
     }
 
     & {

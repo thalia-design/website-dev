@@ -1867,7 +1867,6 @@ const LOADING = {
                 draw : ['0 0', '0 1'],
                 duration : animDrawData[animName].duration,
                 ease : animDrawData[animName].ease,
-                onBegin: self => { self.targets.forEach((el) => { el.classList.add("anim") }); }, // stroke linecap round visible fix
                 onComplete: self => {
                     if (animDrawData[animName].onComplete) {
                         animDrawData[animName].onComplete();
