@@ -1355,7 +1355,15 @@ const PROJECTS = {
                         enter: '40% top',
                         leave: 'bottom bottom',
                         sync: .5,
-                        onUpdate: (self) => { if(self.progress < 0.96 ) closeOpenedCards() }
+                        onUpdate: (self) => {
+                            if(self.progress < 0.96 ) {
+                                closeOpenedCards();
+                                mainContainer.classList.remove("reached-end");
+                            }
+                            else {
+                                mainContainer.classList.add("reached-end");
+                            }
+                        }
                         // debug: true,
                     }),
                 })
@@ -1392,6 +1400,7 @@ const PROJECTS = {
                 // CARDS EVENTS
                 elemsCards.forEach(($card, $index) => {
                     cardsData.instances[$index] = {
+                        cardName : $card.getAttribute("data-card-name"),
                         isActive: false,
                         doAnimSpin : true,
                         rotations : 0,
@@ -1400,8 +1409,9 @@ const PROJECTS = {
                     }
 
                     const $cardWDrag = $card.firstElementChild,
-                            $cardWSpin = $card.firstElementChild.firstElementChild,
-                            $cardFader = $card.querySelector(".fader");
+                          $cardWSpin = $card.firstElementChild.firstElementChild,
+                          $cardFader = $card.querySelector(".fader"),
+                          $cardInfos = mainContainer.querySelector('.card-infos[data-card-info="'+ cardsData.instances[$index].cardName +'"]');
 
                         cardsData.instances[$index].cardDraggableX = createDraggable($cardWDrag, {
                         x: {
@@ -1480,7 +1490,6 @@ const PROJECTS = {
                     });
 
                     $card.addEventListener("pointerenter", () => {
-                        cardsData.instances[$index].cardDraggableY.setY(0).refresh();
                         if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold && (!cardsData.isOpening && !cardsData.isOpened)) {
                             $card.classList.add("is-hovering");
                             cardWSpinAnimatable.y(-10);
@@ -1497,7 +1506,9 @@ const PROJECTS = {
                     });
 
                     $cardWDrag.addEventListener("mousemove", () => {
-                        cardWSpinAnimatable.scale(1.03, 400, "cubicBezier(0.1, 0.3, 0.2, 1)");
+                        if (cardsData.isOpened) {
+                            cardWSpinAnimatable.scale(1.03, 400, "cubicBezier(0.1, 0.3, 0.2, 1)");
+                        }
                     });
                     $cardWDrag.addEventListener("mouseleave", () => {
                         cardWSpinAnimatable.scale(1, 400, "cubicBezier(0.3, 0.1, 0.2, 1)");
@@ -1525,6 +1536,7 @@ const PROJECTS = {
                                 $card.classList.add("is-click-timeout"); setTimeout(() => { $card.classList.remove("is-click-timeout"); }, 500);
                                 setTimeout(() => { $card.classList.add("is-active"); $cardsGlobalFader.classList.add("is-active"); }, 1000);
                                 $card.classList.remove("is-hovering");
+                                if($cardInfos) { $cardInfos.classList.add("is-active") };
 
                                 ScrollMain.scrollTo(
                                     SCROLL.getScroll(ScrollMain) + mainContainer.getBoundingClientRect().bottom - THALIA_GLOBALS.vpSize[1]
@@ -1602,7 +1614,6 @@ const PROJECTS = {
                             }
                         }
                     });
-
                 })
 
 
@@ -1622,6 +1633,9 @@ const PROJECTS = {
                     cardsData.instances[$index].isActive = false;
                     $card.classList.remove("is-active");
                     $cardsGlobalFader.classList.remove("is-active");
+
+                    const $cardInfos = mainContainer.querySelector('.card-infos[data-card-info="'+ cardsData.instances[$index].cardName +'"]');
+                    if($cardInfos) { $cardInfos.classList.remove("is-active") };
 
                     animate($card, {
                         z: {

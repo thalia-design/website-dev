@@ -1,5 +1,9 @@
 @use 'utils' as *;
 
+html {
+    --sticky-menu-height: 64px;
+}
+
 body {
     overflow-x: hidden;
 }
