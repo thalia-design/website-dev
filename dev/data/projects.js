@@ -46,6 +46,18 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
+    "packaging-ice" : {
+        documentTitle : "Packaging · ICE",
+        title : "Packaging ICE",
+        filters : [
+            "illustration",
+            "print",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
+
     "cartes-tarot-garou" : {
         documentTitle : "Tarot X Loup-Garou",
         title : "Tarot X Loup-Garou",
@@ -62,18 +74,6 @@ const THALIA_PROJECTS = {
         documentTitle : "Affiche · Mobilité douce",
         title : "Mobilité douce",
         filters : [
-            "print",
-        ],
-        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
-        itemSize : [1, 1],
-        itemType : "img",
-    },
-
-    "packaging-ice" : {
-        documentTitle : "Packaging · ICE",
-        title : "Packaging ICE",
-        filters : [
-            "illustration",
             "print",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
