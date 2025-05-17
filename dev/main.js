@@ -1777,11 +1777,11 @@ const LOADING = {
                 LOADING.hide();
             };
             setTimeout(() => {
-                if (!LOADING.data.events.introAnimFinished) {
-                    LOADING.data.events.introAnimFinished = true;
-                    console.warn("[LOADING] automatically dismissed, took too long");
-                    LOADING.hide();
-                }
+                if (LOADING.data.events.introAnimFinished) { return };
+                LOADING.data.events.introAnimFinished = true;
+
+                console.warn("[LOADING] automatically dismissed, anim took too long");
+                LOADING.hide();
             }, 8000);
         })
 
@@ -1798,6 +1798,15 @@ const LOADING = {
                 };
             });
         }, 300);
+
+        setTimeout(() => {
+            if (LOADING.data.events.pageLoaded && LOADING.data.events.introAnimFinished) { return };
+            LOADING.data.events.pageLoaded = true;
+            LOADING.data.events.introAnimFinished = true;
+
+            console.warn("[LOADING] automatically dismissed, loading took too long");
+            LOADING.hide();
+        }, 12000);
     },
 
     setState: (state) => {
