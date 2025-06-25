@@ -296,9 +296,9 @@
         left: 0;
         transform: translateY(-100%);
         width: 100%;
-        height: 5em;
-        background: linear-gradient(to top, rgb(32, 78, 207), ease-out, transparent);
-        opacity: 0.25;
+        height: 4em;
+        background: var(--section-depth-shadow-gradient);
+        opacity: 0.175;
         @include usn;
     }
 
