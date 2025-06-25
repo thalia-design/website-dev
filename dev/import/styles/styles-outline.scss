@@ -122,6 +122,13 @@ wrapper[menu-show-id] {
         background-color: transparent;
         overflow: hidden;
 
+        @media (max-width: $size-vertical) {
+            &[menu-show-state="true"],
+            &[menu-show-state="transition-false"] {
+                overflow-x: auto;
+            }
+        }
+
         & > wrapper {
             @include dflex($d: row);
             gap: 0;
