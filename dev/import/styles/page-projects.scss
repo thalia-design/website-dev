@@ -14,9 +14,9 @@
     }
 
     // small layout components
-    .space {
-        margin: 8em _;
-    }
+    .space { margin: 8em _; }
+    .space-top { margin-top: 8em; }
+    .space-bottom { margin-bottom: 8em; }
 
     *[class*="width-"] {
         height: auto;

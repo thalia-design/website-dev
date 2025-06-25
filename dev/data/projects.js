@@ -92,6 +92,17 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
+    "carrousel-recrutement-account-on-me" : {
+        documentTitle : "Carrousel Recrutement · Account On Me",
+        title : "Recrutement Account On Me",
+        filters : [
+            "réseaux sociaux",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
+
     "branding-les-rives-bleues" : {
         documentTitle : "Branding · Les Rives Bleues",
         title : "Les Rives Bleues",
