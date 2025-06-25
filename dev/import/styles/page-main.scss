@@ -14,7 +14,8 @@
             width: auto;
             gap: 1.65em;
             font-size: 2rem;
-            transform: translateY(2vw);
+            //transform: translateY(2vw);
+            padding-bottom: 5rem;
         }
 
         * {
@@ -35,10 +36,10 @@
         }
 
         svg.title-thalia {
-            height: 16vw;
+            height: 12vw;
             overflow: visible;
 
-            --svg-w: 26px;
+            --svg-w: 24px;
         }
 
         .title-thalia {
@@ -66,7 +67,7 @@
             transform: translateX(-6px);
 
             h2 {
-                font-size: 1.25em;
+                font-size: 1em;
                 line-height: 1.35;
             }
         }
@@ -177,6 +178,11 @@
 
             .title-secondary-thalia {
                 transform: translateX(-4px);
+
+                h2 {
+                    font-size: 1.15em;
+                    text-align: center;
+                }
             }
         }
         .decorations {
