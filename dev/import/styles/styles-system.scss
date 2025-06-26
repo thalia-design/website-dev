@@ -240,7 +240,10 @@ p {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    gap: 0.65em;
 
+    width: 100%;
+    height: auto;
     border-radius: var(--thalia-v-radius-normal);
     border: 2px solid var(--thalia-c-accent);
     padding: 1em 1.25em;

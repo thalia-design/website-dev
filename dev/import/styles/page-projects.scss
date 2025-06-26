@@ -73,6 +73,12 @@
         pointer-events: none;
     }
 
+    .no-radius {
+        &, * {
+            border-radius: 0px;
+        }
+    }
+
     p {
         text-wrap: initial;
         text-wrap: pretty;
@@ -190,6 +196,32 @@
         }
     }
 
+    .iframes-linkedin {
+        > wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75em;
+
+            @media (max-width: $size-vertical) {
+                &:not(:first-child) {
+                    margin-top: 3em;
+                }
+            }
+        }
+
+        iframe {
+            width: 100%;
+            min-height: 70vh;
+
+            @media (max-width: $size-vertical) {
+                width: 75%;
+            }
+        }
+
+    }
+
 
     // specific
     *[thalia-p-section-name="project"] {
@@ -240,17 +272,24 @@
         .project-attachments {
             display: flex;
             flex-direction: row;
-            flex-wrap: wrap;
             gap: 0.8em;
 
             > * {
                 flex-grow: 1;
                 flex-shrink: 1;
-                min-width: 200px;
+                //min-width: 200px;
+            }
 
-                @media (min-width: $size-square) {
-                    &:first-child:last-child,
-                    &:not(:first-child):not(:last-child) {
+            @media (max-width: $size-square) {
+                flex-wrap: wrap;
+
+                > * {
+                    min-width: 50%;
+                }
+            }
+            @media (min-width: $size-square-min) {
+                > * {
+                    &:first-child:last-child {
                         max-width: 50%;
                     }
                 }
@@ -420,11 +459,11 @@
 
         transform: translateX(calc(var(--carousel-track-width) * var(--progress) * -1));
 
-        padding-left: 100vw;
-        padding-right: 33vw;
+        padding-left: 85vw;
+        padding-right: 20vw;
         @media (max-width: $size-square) {
-            padding-left: 100vh;
-            padding-right: 75vh;
+            padding-left: 90vh;
+            padding-right: 50vh;
         }
 
         > * {

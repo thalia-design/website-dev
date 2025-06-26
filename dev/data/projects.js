@@ -47,11 +47,11 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "webdesign-nosotros" : {
-        documentTitle : "Maquette Web Design · Nosotros",
-        title : "Nosotros",
+    "carrousel-recrutement-account-on-me" : {
+        documentTitle : "Carrousel Recrutement · Account On Me",
+        title : "Recrutement Account On Me",
         filters : [
-            "web design",
+            "réseaux sociaux",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
@@ -92,9 +92,9 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "carrousel-recrutement-account-on-me" : {
-        documentTitle : "Carrousel Recrutement · Account On Me",
-        title : "Recrutement Account On Me",
+    "carrousels-cote-tribu" : {
+        documentTitle : "Carrousels Narratifs · Côté Tribu",
+        title : "Carrousels Narratifs Côté Tribu",
         filters : [
             "réseaux sociaux",
         ],
@@ -111,6 +111,72 @@ const THALIA_PROJECTS = {
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "webdesign-nosotros" : {
+        documentTitle : "Maquette Web Design · Nosotros",
+        title : "Nosotros",
+        filters : [
+            "web design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
+
+    "posts-instagram-ocampo" : {
+        documentTitle : "Posts Instagram · Ocampo France",
+        title : "+80 Posts Instagram Ocampo France",
+        filters : [
+            "réseaux sociaux",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "reels-instagram-ocampo" : {
+        documentTitle : "Reels Instagram · Ocampo France",
+        title : "Reels Instagram Ocampo France",
+        filters : [
+            "réseaux sociaux",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "interviews-bni-montpellier" : {
+        documentTitle : "Motion Interviews · BNI Montpellier",
+        title : "Interviews BNI Montpellier",
+        filters : [
+            "réseaux sociaux",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "motion-spiruline-cevenn-algues" : {
+        documentTitle : "Motion design · Cevenn' Algues",
+        title : "Motion Spiruline Cevenn' Algues",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "motion-le-chocolat-des-francais" : {
+        documentTitle : "Motion design · Le Chocolat des Français",
+        title : "Motion Tablette Le Chocolat des Français",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
         itemType : "img",
     },
 
