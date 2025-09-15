@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <title>{p%documentTitle%}</title>
+    <script type="module" src="{%dirDepth%}main.js"></script>
+</head>
+
+<body>
+
+    <main>
+
+        <import-html src="import/html/section-main-head.html"/>
+
+        <div class="section-main-gallery">
+
+            <import-html src="import/html/section-main-gallery--head.html"/>
+
+            <wrapper class="page-content-container">
+                <div id="swup" class="page-content swup-transition--project">
+                    <wrapper>
+
+                        <h1 class="project-title" hidden>{p%title%}</h1>
+
+                        <div class="project-layout">
+
+                            <wrapper class="content-head">
+
+                                <import-html src="import/html/p/head-video-yt.html"
+                                    videoID="KfolkP8VYjM"
+                                />
+
+                                <div thalia-p-section-name="edito" class="width-simple space">
+                                    <div class="desc">
+                                        <p>
+                                            Dans le cadre d'un exercice scolaire, nous devions créer le cycle de marche d'un animal, sans utiliser de plug-ins et uniquement avec des éléments visuels issus de notre propre création.
+                                        </p>
+                                        <p>
+                                            Passionnée par cet exercice, j'en ai profité pour explorer d'autres types de cycles, comme le saut des lapins ou le vol des papillons.
+                                        </p>
+                                        <p>
+                                            À travers ces animations, j'ai souhaité transmettre un univers doux et enfantin.
+                                        </p>
+                                    </div>
+
+                                    <div class="filters" thalia-gallery-filters--insert="{p%filters%}"></div>
+                                </div>
+
+                            </wrapper>
+                            <wrapper class="content-body">
+
+                            </wrapper>
+
+                        </div>
+
+                    </wrapper>
+                </div>
+            </wrapper>
+
+        </div>
+
+        <import-html src="import/html/section-footer.html"/>
+
+    </main>
+
+</body>
+</html>

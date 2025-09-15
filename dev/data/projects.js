@@ -23,12 +23,12 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "packaging-ice" : {
-        documentTitle : "Packaging · ICE",
-        title : "Packaging ICE",
+    "campagne-le-monde-nouveau-2025" : {
+        documentTitle : "Campagne · Le Monde Nouveau 2025",
+        title : "Campagne Le Monde Nouveau 2025",
         filters : [
-            //"illustration",
             "print",
+            "branding",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
@@ -169,6 +169,40 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
+    "packaging-ice" : {
+        documentTitle : "Packaging · ICE",
+        title : "Packaging ICE",
+        filters : [
+            //"illustration",
+            "print",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
+
+    "motion-cinemed-2024" : {
+        documentTitle : "Motion design · Cinemed 2024",
+        title : "Motion Cinemed 2024",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
+
+    "motion-cycle-de-marche-2024" : {
+        documentTitle : "Motion design · Cycle de marche",
+        title : "Motion Cycle de marche",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
     "motion-le-chocolat-des-francais" : {
         documentTitle : "Motion design · Le Chocolat des Français",
         title : "Motion Tablette Le Chocolat des Français",
@@ -179,6 +213,7 @@ const THALIA_PROJECTS = {
         itemSize : [2, 1],
         itemType : "img",
     },
+
 
 }
 

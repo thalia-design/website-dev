@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <title>{p%documentTitle%}</title>
+    <script type="module" src="{%dirDepth%}main.js"></script>
+</head>
+
+<body>
+
+    <main>
+
+        <import-html src="import/html/section-main-head.html"/>
+
+        <div class="section-main-gallery">
+
+            <import-html src="import/html/section-main-gallery--head.html"/>
+
+            <wrapper class="page-content-container">
+                <div id="swup" class="page-content swup-transition--project">
+                    <wrapper>
+
+                        <h1 class="project-title" hidden>{p%title%}</h1>
+
+                        <div class="project-layout">
+
+                            <wrapper class="content-head">
+
+                                <import-html src="import/html/p/head-image.html"
+                                    projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
+                                />
+
+                                <div class="section">
+                                    <div thalia-p-section-name="edito" class="width-simple space">
+                                        <div class="desc">
+                                            <p>
+                                                J'ai eu l'immense honneur de travailler sur l'édition 2025 de la campagne du Monde Nouveau.
+                                            </p>
+                                            <p>
+                                                Le Midi Libre a contacté l'école Brassart afin de renouveler un partenariat déjà fructueux l'année précédente : nous confier le brief du festival et permettre à chacun des 20 étudiants de ma classe de proposer une campagne complète.
+                                            </p>
+                                            <p>
+                                                Chaque projet devait inclure :
+                                                <br>• une affiche 4x3,
+                                                <br>• une affiche « sucette »,
+                                                <br>• une affiche A3,
+                                                <br>• un format presse,
+                                                <br>• un format digital,
+                                                <br>• ainsi qu'un covering intégral d'un tramway de Montpellier.
+                                            </p>
+                                            <p>
+                                                <br>
+                                                Après avoir présenté nos projets devant une représentante du Midi Libre et du Monde Nouveau, j'ai eu l'immense honneur de voir ma proposition sélectionnée
+                                            </p>
+                                            <p>
+                                                Aujourd'hui, une ligne de tramway circulant à Montpellier arbore mon covering.<br>Toute la campagne n'étant pas encore lancée, je ne peux cependant pas divulguer certaines réalisations pour le moment.
+                                            </p>
+                                        </div>
+
+                                        <div class="filters" thalia-gallery-filters--insert="{p%filters%}"></div>
+                                    </div>
+
+                                    <div class="floating-element style-right" style="right: -2vw;">
+                                        <img src="{%dirDepth%}{%ap%}/{%p%}/asset-main-fleur.png">
+                                    </div>
+                                </div>
+
+                            </wrapper>
+                            <wrapper class="content-body">
+
+                                <div data-carousel-infinite class="style-seamless">
+                                    <wrapper><wrapper>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/tram-1.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/tram-2.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/tram-3.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/tram-4.jpg"/>
+                                    </wrapper></wrapper>
+                                </div>
+
+                            </wrapper>
+
+                        </div>
+
+                    </wrapper>
+                </div>
+            </wrapper>
+
+        </div>
+
+        <import-html src="import/html/section-footer.html"/>
+
+    </main>
+
+</body>
+</html>

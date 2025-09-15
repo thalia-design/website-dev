@@ -7,6 +7,11 @@
     width: 100%;
     height: auto;
 
+    .section,
+    .desc {
+        position: relative;
+    }
+
     .content-body {
         > *:not(:first-child):not([class*="space"]) {
             margin-top: var(--margin-global) !important;
@@ -19,6 +24,7 @@
     .space-bottom { margin-bottom: 8em; }
 
     *[class*="width-"] {
+        position: relative;
         height: auto;
         box-sizing: border-box;
 
@@ -222,6 +228,40 @@
 
     }
 
+    .floating-element {
+        z-index: -1;
+        user-select: none;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: auto;
+        height: 60vh;
+
+        &.style-right {
+            right: -3px;
+        }
+        &.style-left {
+            left: -3px;
+        }
+
+        > img {
+            width: auto;
+            height: 100%;
+        }
+
+        @media (max-width: $size-vertical) {
+            & {
+                opacity: 0.5;
+
+                &.style-right {
+                    transform: translateX(20%);
+                }
+                &.style-left {
+                    transform: translateX(-20%);
+                }
+            }
+        }
+    }
 
     // specific
     *[thalia-p-section-name="project"] {
