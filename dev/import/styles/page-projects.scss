@@ -23,6 +23,8 @@
     .space-top { margin-top: 8em; }
     .space-bottom { margin-bottom: 8em; }
 
+    .spacer { padding-top: 4em; }
+
     *[class*="width-"] {
         position: relative;
         height: auto;
@@ -139,6 +141,12 @@
             > *:hover {
                 flex-grow: 3.5;
             }
+        }
+    }
+    .justify-between {
+        img, video {
+            max-width: 70%;
+            margin: 0 auto;
         }
     }
 
