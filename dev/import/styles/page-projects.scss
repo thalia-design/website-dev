@@ -7,6 +7,13 @@
     width: 100%;
     height: auto;
 
+    .media-height-small {
+        --media-height: 45vh;
+    }
+    .media-height-large {
+        --media-height: 85vh;
+    }
+
     .section,
     .desc {
         position: relative;
@@ -40,6 +47,10 @@
             max-width: 100rem;
         }
         &fill {
+            padding: _ var(--margin-global);
+        }
+        &halffill {
+            max-width: 85%;
             padding: _ var(--margin-global);
         }
         &full {
@@ -79,6 +90,12 @@
         height: 100%;
         user-select: none;
         pointer-events: none;
+    }
+
+    .crop-mobile-screenrecording-ui {
+        img, video {
+            clip-path: rect(6.25% 100% 88.2% 0% round var(--thalia-v-radius-normal));
+        }
     }
 
     .no-radius {
@@ -147,6 +164,13 @@
         img, video {
             max-width: 70%;
             margin: 0 auto;
+        }
+    }
+
+    .media-contain {
+        img, video {
+            width: auto;
+            object-fit: contain;
         }
     }
 
