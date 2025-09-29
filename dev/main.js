@@ -574,6 +574,7 @@ let GALLERY_GRID = {
     },
     elements : {
         section : document.querySelector(".section-main-gallery"),
+        gallerySectionTopAnchor : document.querySelector(".section-main-gallery .anchor-top"),
         gallerySectionScrollToAnchor : document.querySelector(".section-main-gallery .scroll-to-anchor"),
         galleryItemsFiltersContainers : undefined,
         filtersBarBtns : document.querySelectorAll(".sticky-menu wrapper[menu-show-id='filters'] .btn-filter"),
@@ -1181,27 +1182,42 @@ const PAGES = {
 
             if (visit.from.url === "/") {
                 PAGES.data.homePrevScrollPos = SCROLL.getScroll(ScrollMain);
-                PAGES.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top;
+                PAGES.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top;
             }
 
             if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top > 1) {
                 if (visit.to.url !== "/") {
+                    ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionTopAnchor, {
+                        ...SCROLL.options.scrollTo,
+                        lock: true,
+                        offset: 5,
+                        onComplete: () => { SCROLL.resize(ScrollMain); }
+                    });
+                }
+                else {
                     ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
                         ...SCROLL.options.scrollTo,
                         lock: true,
-                        offset: 0,
+                        offset: 5,
                         onComplete: () => { SCROLL.resize(ScrollMain); }
                     });
                 }
             }
             else {
                 swup.hooks.on('content:replace', () => {
-                    if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top < 1) {
-                        ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionScrollToAnchor), {
+                    if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < 1) {
+                        ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
                             immediate: true,
                             lock: true,
-                            offset: 0,
-                            onComplete: () => { SCROLL.resize(ScrollMain); }
+                            offset: 300,
+                            onComplete: () => {
+                                ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
+                                ...SCROLL.options.scrollTo,
+                                    lock: true,
+                                    offset: 5,
+                                    onComplete: () => { SCROLL.resize(ScrollMain); }
+                                });
+                            }
                         });
 
                         // home scroll restoration

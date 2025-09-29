@@ -22,13 +22,15 @@
 
                         <h1 class="project-title" hidden>{p%title%}</h1>
 
-                        <div class="project-layout">
+                        <div class="project-layout span-to-top">
 
                             <wrapper class="content-head">
 
-                                <import-html src="import/html/p/head-image.html"
-                                    projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
-                                />
+                                <div thalia-p-section-name="project" thalia-p-section-type="image" class="width-fill media-fill-width media-height-large">
+                                    <wrapper>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/thumbnail.jpg"/>
+                                    </wrapper>
+                                </div>
 
                                 <div thalia-p-section-name="edito" class="width-simple space">
                                     <div class="desc">
@@ -43,10 +45,14 @@
                             </wrapper>
                             <wrapper class="content-body">
 
-
                                 <div class="width-simple images-column hug-height">
                                     <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/packaging-box.jpg"/>
-                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/packaging-pot-joconde.jpg"/>
+                                </div>
+
+                                <div data-carousel-infinite class="style-seamless">
+                                    <wrapper><wrapper>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/packaging-pots-collection.jpg"/>
+                                    </wrapper></wrapper>
                                 </div>
 
                                 <div class="width-simple space">
@@ -59,10 +65,9 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div data-carousel-infinite class="style-seamless">
-                                    <wrapper><wrapper>
-                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/packaging-pots-collection.jpg"/>
-                                    </wrapper></wrapper>
+
+                                <div class="width-half images-column hug-height">
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/packaging-pot-joconde.jpg"/>
                                 </div>
 
                             </wrapper>

@@ -25,6 +25,11 @@
         }
     }
 
+    &.span-to-top {
+        margin-top: -8.75em;
+    }
+
+
     // small layout components
     .space { margin: 8em _; }
     .space-top { margin-top: 8em; }
@@ -46,6 +51,10 @@
             width: 60%;
             max-width: 100rem;
         }
+        &half {
+            max-width: 75%;
+            padding: _ var(--margin-global);
+        }
         &fill {
             padding: _ var(--margin-global);
         }
@@ -63,7 +72,8 @@
             }
         }
         @media (max-width: $size-vertical) {
-            &simple {
+            &simple,
+            &halffill {
                 width: 100%;
                 max-width: 100%;
                 padding: _ var(--margin-global);
@@ -90,6 +100,53 @@
         height: 100%;
         user-select: none;
         pointer-events: none;
+    }
+
+    .media-hug-height {
+        &,
+        .img, img, .video, video {
+            height: auto;
+            max-height: none;
+        }
+    }
+    .media-force-height {
+        &,
+        .img, img, .video, video {
+            height: var(--media-height);
+            max-height: var(--media-height);
+            object-fit: cover;
+        }
+    }
+    .media-fill-width {
+        &, *,
+        .img, img, .video, video {
+            width: 100% !important;
+            max-width: 100% !important;
+            object-fit: cover;
+        }
+    }
+
+    .video-resize {
+        --aspect-x: 16;
+        --aspect-y: 9;
+        --inner-width: 100%;
+        --bg: var(--thalia-c-bg);
+
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: calc((var(--aspect-y) / var(--aspect-x)) * 100%);
+        border-radius: var(--thalia-v-radius-normal);
+        background-color: var(--bg);
+
+        > * {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: var(--inner-width);
+            height: auto;
+            transform: translate(-50%, -50%);
+        }
     }
 
     .crop-mobile-screenrecording-ui {

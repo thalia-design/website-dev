@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <title>{p%documentTitle%}</title>
+    <script type="module" src="{%dirDepth%}main.js"></script>
+</head>
+
+<body>
+
+    <main>
+
+        <import-html src="import/html/section-main-head.html"/>
+
+        <div class="section-main-gallery">
+
+            <import-html src="import/html/section-main-gallery--head.html"/>
+
+            <wrapper class="page-content-container">
+                <div id="swup" class="page-content swup-transition--project">
+                    <wrapper>
+
+                        <h1 class="project-title" hidden>{p%title%}</h1>
+
+                        <div class="project-layout">
+
+                            <wrapper class="content-head">
+
+                                <import-html src="import/html/p/head-video-yt.html"
+                                    videoID="nAsrzKHDhNY"
+                                />
+
+                                <div thalia-p-section-name="edito" class="width-simple space">
+                                    <div class="desc">
+                                        <p>
+                                            Dans le cadre d'un projet de communication 360° initié par Brut auprès de mon école, j'ai participé à un travail en groupe. Ma contribution s'est concentrée sur diverses tâches, l'une des principales étant la création d'une typographie originale ainsi que le motion design.
+                                        </p>
+                                        <p>
+                                            Les clients, deux associés, souhaitaient une animation de leur logo, une présentation claire de leur concept, la mise en avant de la venue d'un DJ et l'intégration d'un QR code.
+                                        </p>
+                                        <p>
+                                            <br>
+                                            Pour répondre à cette demande, j'ai respecté la direction artistique définie collectivement avec mon équipe avant de passer à la phase de production.
+                                        </p>
+                                    </div>
+
+                                    <div class="filters" thalia-gallery-filters--insert="{p%filters%}"></div>
+                                </div>
+
+                            </wrapper>
+                            <wrapper class="content-body">
+
+                                <div class="width-simple images-column hug-height lift-shadow">
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/storyboard-1.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/storyboard-2.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/storyboard-3.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/storyboard-4.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/storyboard-5.jpg"/>
+                                    <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/storyboard-6.jpg"/>
+                                </div>
+
+                            </wrapper>
+
+                        </div>
+
+                    </wrapper>
+                </div>
+            </wrapper>
+
+        </div>
+
+        <import-html src="import/html/section-footer.html"/>
+
+    </main>
+
+</body>
+</html>

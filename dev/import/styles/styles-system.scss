@@ -125,6 +125,50 @@ p {
     }
 }
 
+/* utilities */
+.wrapper {
+    display: block;
+    position: relative;
+    width: auto;
+    height: auto;
+}
+.static {
+    position: static;
+    width: auto;
+    height: auto;
+}
+
+/* flexbox */
+*[class*="flex-"] {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+.flex- {
+	&d-row { flex-direction: row; }
+	&d-col { flex-direction: column; }
+	&start {
+		&.flex-d-row { justify-content: flex-start; };
+		&.flex-d-col { align-items: flex-start; };
+	}
+	&end {
+		&.flex-d-row { justify-content: flex-end; };
+		&.flex-d-col { align-items: flex-end; };
+	}
+	&start-alt {
+		&.flex-d-row { align-items: flex-start; };
+		&.flex-d-col { justify-content: flex-start; };
+	}
+	&end-alt {
+		&.flex-d-row { align-items: flex-end; };
+		&.flex-d-col { justify-content: flex-end; };
+	}
+	&space-between { justify-content: space-between; }
+	&space-around { justify-content: space-around; }
+	&wrap { flex-wrap: wrap; }
+}
+
 
 /* COMPONENTS */
 .btn-simple {

@@ -136,7 +136,7 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "reels-instagram-ocampo" : {
+    /*"reels-instagram-ocampo" : {
         documentTitle : "Reels Instagram · Ocampo France",
         title : "Reels Instagram Ocampo France",
         filters : [
@@ -145,9 +145,9 @@ const THALIA_PROJECTS = {
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
         itemType : "img",
-    },
+    },*/
 
-    "interviews-bni-montpellier" : {
+    /*"interviews-bni-montpellier" : {
         documentTitle : "Motion Interviews · BNI Montpellier",
         title : "Interviews BNI Montpellier",
         filters : [
@@ -156,11 +156,33 @@ const THALIA_PROJECTS = {
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
         itemType : "img",
+    },*/
+
+    "motion-brut" : {
+        documentTitle : "Motion design · Brut",
+        title : "Motion Brut",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
     },
 
     "motion-spiruline-cevenn-algues" : {
         documentTitle : "Motion design · Cevenn' Algues",
         title : "Motion Spiruline Cevenn' Algues",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "motion-cycle-de-marche-2024" : {
+        documentTitle : "Motion design · Cycle de marche",
+        title : "Motion Cycle de marche",
         filters : [
             "motion design",
         ],
@@ -192,17 +214,6 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "motion-cycle-de-marche-2024" : {
-        documentTitle : "Motion design · Cycle de marche",
-        title : "Motion Cycle de marche",
-        filters : [
-            "motion design",
-        ],
-        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
-        itemSize : [1, 1],
-        itemType : "img",
-    },
-
     "motion-le-chocolat-des-francais" : {
         documentTitle : "Motion design · Le Chocolat des Français",
         title : "Motion Tablette Le Chocolat des Français",
@@ -214,6 +225,16 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
+    /*"compilation-animations-logo" : {
+        documentTitle : "Animations de Logo",
+        title : "Compilation Animations de Logo",
+        filters : [
+            "motion design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },*/
 
 }
 
