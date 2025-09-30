@@ -1185,8 +1185,75 @@ const PAGES = {
                 PAGES.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top;
             }
 
-            if (GALLERY_GRID.elements.gallerySectionScrollToAnchor.getBoundingClientRect().top > 1) {
-                if (visit.to.url !== "/") {
+            /**
+             * going to home from project
+             * - if above gallerySectionScrollToAnchor, do nothing
+             * - else (if below gallerySectionScrollToAnchor)
+             * - - if homePrevScrollPos, restore it
+             * - - else scroll to gallerySectionTopAnchor
+             *
+             * going to project from home
+             * - if below gallerySectionTopAnchor more than 150px, instant scroll to 150px below, then continue
+             * - always animate scroll to gallerySectionScrollToAnchor
+             */
+
+            if (visit.to.url === "/") {
+                if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top > 1) {
+                    // do nothing
+                }
+                else {
+                    if (
+                        PAGES.data.homePrevScrollPos != null
+                        && PAGES.data.homePrevFilter == docHTML.getAttribute("thalia-gallery-filter") // if the filters state has not changed
+                        // && (THALIA_GLOBALS.vpSize[1] * 1.35) < GALLERY_GRID.data.maxSize // if 135vh is < grid height
+                        && PAGES.data.homePrevScrollPos > THALIA_GLOBALS.vpSize[1] * 0.5
+                    ) {
+                        swup.hooks.on('content:replace', () => {
+                            setTimeout(() => {
+                                ScrollMain.scrollTo((PAGES.data.homePrevScrollPos), {
+                                    ...SCROLL.options.scrollTo,
+                                    lock: true,
+                                    offset: 0,
+                                    onComplete: () => { SCROLL.resize(ScrollMain); }
+                                });
+                            }, 150);
+                        }, { once : true, before: true });
+                    }
+                    else {
+                        ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
+                            ...SCROLL.options.scrollTo,
+                            lock: true,
+                            offset: 5,
+                            onComplete: () => { SCROLL.resize(ScrollMain); }
+                        });
+                    }
+                }
+            }
+            else {
+                if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < 1) {
+                    swup.hooks.on('content:replace', () => {
+                        const animateScroll = () => {
+                            ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
+                                ...SCROLL.options.scrollTo,
+                                lock: true,
+                                offset: 5,
+                                onComplete: () => { SCROLL.resize(ScrollMain); }
+                            });
+                        }
+                        if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < -100) {
+                            ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
+                                immediate: true,
+                                lock: true,
+                                offset: 100,
+                                onComplete: () => animateScroll()
+                            });
+                        }
+                        else {
+                            animateScroll();
+                        }
+                    }, { once : true, before: true });
+                }
+                else {
                     ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionTopAnchor, {
                         ...SCROLL.options.scrollTo,
                         lock: true,
@@ -1194,52 +1261,6 @@ const PAGES = {
                         onComplete: () => { SCROLL.resize(ScrollMain); }
                     });
                 }
-                else {
-                    ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
-                        ...SCROLL.options.scrollTo,
-                        lock: true,
-                        offset: 5,
-                        onComplete: () => { SCROLL.resize(ScrollMain); }
-                    });
-                }
-            }
-            else {
-                swup.hooks.on('content:replace', () => {
-                    if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < 1) {
-                        ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
-                            immediate: true,
-                            lock: true,
-                            offset: 300,
-                            onComplete: () => {
-                                ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
-                                ...SCROLL.options.scrollTo,
-                                    lock: true,
-                                    offset: 5,
-                                    onComplete: () => { SCROLL.resize(ScrollMain); }
-                                });
-                            }
-                        });
-
-                        // home scroll restoration
-                        if (
-                            visit.to.url === "/"
-                         && PAGES.data.homePrevScrollPos != null
-                         // && (THALIA_GLOBALS.vpSize[1] * 1.35) < GALLERY_GRID.data.maxSize // yes if 135vh is < grid height
-                         && PAGES.data.homePrevFilter == docHTML.getAttribute("thalia-gallery-filter") // yes if the filters state has not changed
-                        ) {
-                            if (PAGES.data.homePrevScrollPos > (THALIA_GLOBALS.vpSize[1] * 1.3) && PAGES.data.homePrevAnchorPos < 0) {
-                                setTimeout(() => {
-                                    ScrollMain.scrollTo((PAGES.data.homePrevScrollPos), {
-                                        ...SCROLL.options.scrollTo,
-                                        lock: true,
-                                        offset: 0,
-                                        onComplete: () => { SCROLL.resize(ScrollMain); }
-                                    });
-                                }, 300);
-                            }
-                        }
-                    }
-                }, { once : true, before: true });
             }
         });
     },
