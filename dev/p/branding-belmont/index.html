@@ -22,13 +22,15 @@
 
                         <h1 class="project-title" hidden>{p%title%}</h1>
 
-                        <div class="project-layout">
+                        <div class="project-layout span-to-top">
 
                             <wrapper class="content-head">
 
-                                <import-html src="import/html/p/head-image.html"
-                                    projectThumbnail="{%ap%}/{%p%}/thumbnail.jpg"
-                                />
+                                <div thalia-p-section-name="project" thalia-p-section-type="image" class="width-fill media-fill-width media-force-height">
+                                    <wrapper>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/thumbnail.jpg"/>
+                                    </wrapper>
+                                </div>
 
                                 <div thalia-p-section-name="edito" class="width-simple space">
                                     <div class="desc">
@@ -52,7 +54,7 @@
 
                                 <div data-carousel-infinite>
                                     <wrapper><wrapper>
-                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/thumbnail.jpg"/>
+                                        <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-0.jpg"/>
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-1.jpg"/>
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-2.jpg"/>
                                         <import-html src="import/html/p/img.html" mediaURL="{%ap%}/{%p%}/carousel-3.jpg"/>
