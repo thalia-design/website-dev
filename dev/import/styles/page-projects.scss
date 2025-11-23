@@ -19,6 +19,12 @@
         position: relative;
     }
 
+    .content-head {
+        > .section {
+            overflow: hidden;
+        }
+    }
+
     .content-body {
         > *:not(:first-child):not([class*="space"]) {
             margin-top: var(--margin-global) !important;
