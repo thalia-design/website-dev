@@ -47,11 +47,11 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "carrousel-recrutement-account-on-me" : {
-        documentTitle : "Carrousel Recrutement · Account On Me",
-        title : "Recrutement Account On Me",
+    "motion-stranger-things-generique-s4" : {
+        documentTitle : "Motion design · Stranger Things Générique S4",
+        title : "Stranger Things Générique Saison 4",
         filters : [
-            "réseaux sociaux",
+            "motion design",
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
@@ -92,9 +92,9 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "carrousels-cote-tribu" : {
-        documentTitle : "Carrousels Narratifs · Côté Tribu",
-        title : "Carrousels Narratifs Côté Tribu",
+    "carrousel-recrutement-account-on-me" : {
+        documentTitle : "Carrousel Recrutement · Account On Me",
+        title : "Recrutement Account On Me",
         filters : [
             "réseaux sociaux",
         ],
@@ -111,6 +111,17 @@ const THALIA_PROJECTS = {
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "carrousels-cote-tribu" : {
+        documentTitle : "Carrousels Narratifs · Côté Tribu",
+        title : "Carrousels Narratifs Côté Tribu",
+        filters : [
+            "réseaux sociaux",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
         itemType : "img",
     },
 
@@ -160,7 +171,7 @@ const THALIA_PROJECTS = {
 
     "motion-brut" : {
         documentTitle : "Motion design · Brut",
-        title : "Motion Brut",
+        title : "Brut",
         filters : [
             "motion design",
         ],
@@ -171,7 +182,7 @@ const THALIA_PROJECTS = {
 
     "motion-spiruline-cevenn-algues" : {
         documentTitle : "Motion design · Cevenn' Algues",
-        title : "Motion Spiruline Cevenn' Algues",
+        title : "Spiruline Cevenn' Algues",
         filters : [
             "motion design",
         ],
@@ -182,7 +193,7 @@ const THALIA_PROJECTS = {
 
     "motion-cycle-de-marche-2024" : {
         documentTitle : "Motion design · Cycle de marche",
-        title : "Motion Cycle de marche",
+        title : "Cycle de marche",
         filters : [
             "motion design",
         ],
@@ -205,7 +216,7 @@ const THALIA_PROJECTS = {
 
     "motion-cinemed-2024" : {
         documentTitle : "Motion design · Cinemed 2024",
-        title : "Motion Cinemed 2024",
+        title : "Cinemed 2024",
         filters : [
             "motion design",
         ],
@@ -216,7 +227,7 @@ const THALIA_PROJECTS = {
 
     "motion-le-chocolat-des-francais" : {
         documentTitle : "Motion design · Le Chocolat des Français",
-        title : "Motion Tablette Le Chocolat des Français",
+        title : "Tablette Le Chocolat des Français",
         filters : [
             "motion design",
         ],
