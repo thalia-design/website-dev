@@ -81,7 +81,7 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "webdesign-ecf" : {
+    /*"webdesign-ecf" : {
         documentTitle : "Maquette Web Design · ECF Occitanie",
         title : "ECF Occitanie",
         filters : [
@@ -90,7 +90,7 @@ const THALIA_PROJECTS = {
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [1, 1],
         itemType : "img",
-    },
+    },*/
 
     "carrousel-recrutement-account-on-me" : {
         documentTitle : "Carrousel Recrutement · Account On Me",
