@@ -1,15 +1,19 @@
 ### todo list
 
-- [-] mobile responsive
-    - [x] most of it
-    - [ ] sticky menu filters
+- [x] mobile responsive
+  - [x] most of it
+  - [x] sticky menu filters
 - [ ] swup projects transition
 - [ ] add all current projects
 - [x] project tarot interactive cards
+- [ ] infinite carousel enable mobile scroll vertical
 - [ ] footer
-    - [ ] cta contact
-    - [ ] interactive thalia small profile
-    - [ ] "website made from scratch" notice
+  - [ ] social networks
+  - [ ] animated thalia small profile
+    - [ ] back to top link
+- [ ] loading
+  - [ ] faster initial loading
+  - [ ] preload important assets
 
 <br>
 
@@ -17,8 +21,8 @@ safari :
 - [x] thalia title svg needs "width: auto;"
 - [x] background blur not working
 - [-] inline videos not autoplaying, and since no poster : video is transparent
-    - [ ] -> make them always have a backup poster => fix : "background:color;" ?
-    - [-] -> fix the no autoplay issue
+  - [ ] -> make them always have a backup poster => fix : "background:color;" ?
+  - [-] -> fix the no autoplay issue
 - [-] transition timing function linear still read by safari but is jittery, either fix or disable for safari only
 
 to be tested
