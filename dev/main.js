@@ -1971,6 +1971,73 @@ const DEFERRED_IMAGES = {
     },
 };
 
+const PRELOADER = {
+    alwaysPreload: [],
+    preloadOnHover: [
+        {
+            selector: '.item-gallery a[href="/p/cartes-tarot-garou/"]',
+            urls: [
+                "/assets/projets/cartes-tarot-garou/carte-dos.png",
+                "/assets/projets/cartes-tarot-garou/carte-3-imperatrice.png",
+                "/assets/projets/cartes-tarot-garou/carte-6-amoureux.png",
+                "/assets/projets/cartes-tarot-garou/carte-8-justice.png",
+                "/assets/projets/cartes-tarot-garou/carte-15-diable.png",
+                "/assets/projets/cartes-tarot-garou/carte-17-etoile.png",
+                "/assets/projets/cartes-tarot-garou/carte-18-lune.png",
+                "/assets/projets/cartes-tarot-garou/carte-19-soleil.png",
+            ]
+        },
+    ],
+    data: {
+        preloadedUrls: new Set(),
+    },
+    normalizeUrl: (url) => {
+        try {
+            return new URL(url, window.location.href).href;
+        } catch {
+            return url;
+        }
+    },
+    preloadUrls: (urls = []) => {
+        if (!Array.isArray(urls) || urls.length <= 0) return;
+
+        urls.forEach((url) => {
+            if (!url || typeof url !== "string") return;
+
+            const normalizedUrl = PRELOADER.normalizeUrl(url);
+            if (PRELOADER.data.preloadedUrls.has(normalizedUrl)) return;
+
+            const img = new Image();
+            img.decoding = "async";
+            img.src = normalizedUrl;
+
+            PRELOADER.data.preloadedUrls.add(normalizedUrl);
+        });
+    },
+    initAlwaysPreload: () => {
+        PRELOADER.preloadUrls(PRELOADER.alwaysPreload);
+    },
+    initPreloadOnHover: (container = document) => {
+        PRELOADER.preloadOnHover.forEach((group, groupIndex) => {
+            if (!group || !group.selector || !Array.isArray(group.urls) || group.urls.length <= 0) return;
+
+            const boundAttr = `data-preloader-bound-${groupIndex}`;
+            container.querySelectorAll(group.selector).forEach((el) => {
+                if (el.hasAttribute(boundAttr)) return;
+                el.setAttribute(boundAttr, "true");
+
+                el.addEventListener("mouseenter", () => {
+                    PRELOADER.preloadUrls(group.urls);
+                }, { passive: true, once: true });
+            });
+        });
+    },
+    init: (container = document) => {
+        PRELOADER.initAlwaysPreload();
+        PRELOADER.initPreloadOnHover(container);
+    },
+};
+
 
 //- RUN
 LOADING.init(() => {
@@ -1980,8 +2047,10 @@ LOADING.init(() => {
     _GET.scrollbarWidth(true);
     swup.hooks.on('content:replace', () => {
         DEFERRED_IMAGES.loadIn();
+        PRELOADER.initPreloadOnHover();
         _GET.scrollbarWidth(true);
     });
+    PRELOADER.init();
 
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     SCROLL.initEvents();
