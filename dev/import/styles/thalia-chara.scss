@@ -89,7 +89,7 @@ svg.thalia-chara {
     html[thalia-chara-state="resting"] &.looking {
         .eye-follow,
         .face-follow {
-            transition: transform 0.09s ease;
+            transition: transform 0.08s ease;
         }
         .eye-follow {
             transform: rotateX(0.01deg) translate3d(var(--pointer-follow-look-x), var(--pointer-follow-look-y), 0);
@@ -115,12 +115,20 @@ svg.thalia-chara {
             transition: transform 0.165s ease;
         }
     }
-    &.looking:hover,
-    html[thalia-social-hover="true"] &.looking {
+    &.looking:not(.grabbing):hover > g {
+        transition: transform 0.4s cubic-bezier(0.2, 0.4, 0, 0.9);
+        transform: rotateX(0.01deg) translate3d(0, -5%, 0);
+    }
+    &.looking:not(.grabbing):hover,
+    html[thalia-social-hover^="true"] &.looking:not(.grabbing) {
         .state--resting g[data-name="sourcils"] {
             > [data-name="L"] { transform: rotateZ(8deg) translate3d(1%, -5%, 0); }
             > [data-name="R"] { transform: rotateZ(-8deg) translate3d(-1%, -5%, 0); }
         }
+    }
+    html[thalia-chara-blink="true"]:not([thalia-chara-state="grabbing"]) .interactive-chara-thalia & > g {
+        transition: transform 0.2s cubic-bezier(0.2, 0.4, 0, 0.9);
+        transform: rotateX(0.01deg) translate3d(0, 2%, 0);
     }
 
     .state--grabbing g[data-name="eyes"] {
@@ -261,9 +269,15 @@ html[thalia-chara-state="grabbing"] * {
         }
     }
 }
-html[thalia-social-hover="true"]:not([thalia-chara-state="grabbing"]) .interactive-chara-thalia svg.thalia-chara.looking > g {
-    transition: transform 0.4s cubic-bezier(0.2, 0.4, 0, 0.9);
-    transform: rotateX(0.01deg) translate3d(0, -3.5%, 0);
+html[thalia-social-hover="true-1"] { --thalia-chara-social-hover-transform: rotateZ(-3deg) translate3d(-5%, 0%, 0); }
+html[thalia-social-hover="true-2"] { --thalia-chara-social-hover-transform: rotateZ(0deg) translate3d(0, -8%, 0); }
+html[thalia-social-hover="true-3"] { --thalia-chara-social-hover-transform: rotateZ(3deg) translate3d(4%, -12%, 0); }
+@media (max-width: $size-vertical) {
+    html[thalia-social-hover^="true"] { --thalia-chara-social-hover-transform: rotateZ(-3deg) translate3d(-5%, 0%, 0); }
+}
+html[thalia-social-hover^="true"]:not([thalia-chara-state="grabbing"]) .interactive-chara-thalia svg.thalia-chara.looking > g {
+    transition: transform 0.3s cubic-bezier(0.2, 0.4, 0, 0.9);
+    transform: rotateX(0.01deg) var(--thalia-chara-social-hover-transform, translate3d(0, -4%, 0));
 
     [data-name="bouche"] { transform: translateY(3%); }
 }

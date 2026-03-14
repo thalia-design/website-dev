@@ -66,7 +66,8 @@ const _GET = {
     isChildOf : (el, elParent) => {
         while ((el = el.parentNode) && el !== elParent) ;
         return !!el;
-    }
+    },
+    float : (value, decimals = 2) => parseFloat(value.toFixed(decimals)),
 }
 
 window.requestAnimationFrame = (() => {
@@ -159,7 +160,7 @@ const SCROLL = {
                 smoothWheel: true,
                 smoothTouch: false,
                 wheelMultiplier: 0.775,
-                duration: 1.15,
+                duration: 0.9,
                 easing: (x) => Math.min(1, 1.005 - Math.pow(5, -6.75 * x)), // https://www.desmos.com/calculator/brs54l4xou
                 orientation: 'vertical',
                 gestureOrientation: 'vertical',
@@ -295,9 +296,9 @@ let THALIA_CHARA = {
             damping : [20, 15]
         },
         blink : {
-            startTimeout : 2000,
-            interval : 4000,
-            randomIntervalAdd : 10000,
+            startTimeout : 2200,
+            interval : 3500,
+            randomIntervalAdd : 8000,
             speed : 190,
         }
     },
@@ -349,13 +350,14 @@ let THALIA_CHARA = {
                 docHTML.setAttribute("thalia-social-hover", "false");
                 if(THALIA_CHARA.elements.socialBtns.length > 0 && !THALIA_GLOBALS.isTouch) {
                     THALIA_CHARA.interactions.socialBtnHover = (e) => {
-                        docHTML.setAttribute("thalia-social-hover", "true");
+                        docHTML.setAttribute("thalia-social-hover", "true-"+ e.currentTarget.getAttribute("data-social-index"));
                     }
                     THALIA_CHARA.interactions.socialBtnOut = (e) => {
                         docHTML.setAttribute("thalia-social-hover", "false");
                     }
 
-                    THALIA_CHARA.elements.socialBtns.forEach((sBtn) => {
+                    THALIA_CHARA.elements.socialBtns.forEach((sBtn, index) => {
+                        sBtn.setAttribute("data-social-index", index + 1);
                         sBtn.addEventListener("pointerenter", THALIA_CHARA.interactions.socialBtnHover);
                         sBtn.addEventListener("pointerleave", THALIA_CHARA.interactions.socialBtnOut);
                     });
@@ -473,8 +475,8 @@ let THALIA_CHARA = {
                     ];
                 }
 
-                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-x", THALIA_CHARA.data.look.posFromCenter[0] +"px");
-                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-y", THALIA_CHARA.data.look.posFromCenter[1] +"px");
+                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-x", _GET.float(THALIA_CHARA.data.look.posFromCenter[0]) +"px");
+                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-y", _GET.float(THALIA_CHARA.data.look.posFromCenter[1]) +"px");
             }
         },
         toggleHands: (active) => {
@@ -491,6 +493,7 @@ let THALIA_CHARA = {
         },
         blinkHit: (active) => {
             docHTML.setAttribute("thalia-chara-state", (active) ? "grabbing" : "resting");
+            THALIA_CHARA.elements.main.classList.toggle("grabbing", active);
             THALIA_CHARA.data.dragPos = [0,0];
             docHTML.style.setProperty("--thalia-chara-drag-x", "0px");
             docHTML.style.setProperty("--thalia-chara-drag-y", "0px");
@@ -1786,7 +1789,7 @@ const LOADING = {
     data : {
         skipLoadingAnimation : false,
         skipLoadingAnimationDevMode : true,
-        devMode : false, //import.meta.env.DEV,
+        devMode : import.meta.env.DEV,
 
         events: {
             domReady: false,
