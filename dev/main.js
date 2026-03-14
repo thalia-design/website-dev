@@ -10,6 +10,10 @@ import {animate, createTimeline, createAnimatable, createDraggable, onScroll, cr
 import BezierEasing from "bezier-easing"
 
 
+//- DATA
+import { THALIA_PROJECTS } from "./data/projects.js";
+
+
 //- VARS
 const docHTML = document.documentElement;
 
@@ -117,6 +121,23 @@ function atTransitionEnd(el, callback, options = {property : false, once : true,
     }
 } let atTransitionEnd_Array = [];
 
+const registerCustomElemTags = {
+    registerTag: (tagName) => {
+        if (window.customElements && tagName.includes("-") && !window.customElements.get(tagName)) {
+            try {
+                window.customElements.define(tagName, class extends HTMLElement {});
+                return;
+            } catch {}
+        }
+
+        document.createElement(tagName);
+    },
+    init: (tags = []) => {
+        if (tags.length < 1) return;
+        tags.forEach(registerCustomElemTags.registerTag);
+    },
+};
+registerCustomElemTags.init(["wrapper"]);
 
 
 //- OPTIONS
@@ -1313,8 +1334,106 @@ const PAGES = {
 }
 
 
+const PROJECTS_NAV = {
+    selectors: {
+        root: "*[data-project-prev-next]",
+        prevBtn: '*[data-project-nav-btn="prev"]',
+        nextBtn: '*[data-project-nav-btn="next"]',
+    },
+    data: {
+        projectsList: Object.entries(THALIA_PROJECTS).map(([slug, projectData]) => ({
+            slug,
+            title: projectData.title || slug,
+            filters: Array.isArray(projectData.filters) ? projectData.filters : [],
+        })),
+    },
+    init: (pathname = "") => {
+        const root = document.querySelector(PROJECTS_NAV.selectors.root);
+        if (!root) { return; }
+
+        const currentSlug = PROJECTS_NAV.getCurrentSlug(pathname);
+        if (!currentSlug) {
+            root.setAttribute("hidden", "");
+            return;
+        }
+
+        const currentFilter = PROJECTS_NAV.getCurrentFilter();
+        const { prev, next } = PROJECTS_NAV.getPrevNextProjects(currentSlug, currentFilter);
+
+        PROJECTS_NAV.setButton(root.querySelector(PROJECTS_NAV.selectors.prevBtn), prev);
+        PROJECTS_NAV.setButton(root.querySelector(PROJECTS_NAV.selectors.nextBtn), next);
+
+        if (!prev && !next) {
+            root.setAttribute("hidden", "");
+        } else {
+            root.removeAttribute("hidden");
+        }
+    },
+    getCurrentSlug: (pathname = "") => {
+        const path = pathname.split("?")[0];
+        const parts = path.split("/").filter(Boolean);
+
+        if (parts.length !== 2 || parts[0] !== "p") { return null; }
+        return parts[1];
+    },
+    getCurrentFilter: () => {
+        const currentFilter = docHTML.getAttribute("thalia-gallery-filter");
+        return (!currentFilter || currentFilter === "false") ? null : currentFilter;
+    },
+    getProjectsByFilter: (filterName) => {
+        if (!filterName) { return PROJECTS_NAV.data.projectsList; }
+        return PROJECTS_NAV.data.projectsList.filter((project) => project.filters.includes(filterName));
+    },
+    getPrevNextProjects: (currentSlug, filterName) => {
+        const globalProjects = PROJECTS_NAV.data.projectsList;
+        if (!currentSlug || globalProjects.length <= 1) {
+            return { prev: null, next: null };
+        }
+
+        let targetProjects = PROJECTS_NAV.getProjectsByFilter(filterName);
+        const currentInFilteredList = targetProjects.some((project) => project.slug === currentSlug);
+        if (!currentInFilteredList || targetProjects.length <= 1) {
+            targetProjects = globalProjects;
+        }
+
+        const currentIndex = targetProjects.findIndex((project) => project.slug === currentSlug);
+        if (currentIndex < 0 || targetProjects.length <= 1) {
+            return { prev: null, next: null };
+        }
+
+        const prevProject = targetProjects[(currentIndex - 1 + targetProjects.length) % targetProjects.length];
+        let nextProject = targetProjects[(currentIndex + 1) % targetProjects.length];
+
+        if (prevProject.slug === nextProject.slug) {
+            nextProject = null;
+        }
+
+        return { prev: prevProject, next: nextProject };
+    },
+    setButton: (btn, projectData) => {
+        if (!btn) { return; }
+
+        if (!projectData) {
+            btn.setAttribute("hidden", "");
+            btn.removeAttribute("href");
+            return;
+        }
+
+        btn.removeAttribute("hidden");
+        btn.setAttribute("href", `/p/${projectData.slug}/`);
+
+        const titleEl = btn.querySelector(".title");
+        if (titleEl) {
+            titleEl.innerText = projectData.title;
+        }
+    },
+};
+
+
 const PROJECTS = {
     projectSpecificEvents : (enterOrExit = true, projectURL) => {
+        if (enterOrExit) PROJECTS_NAV.init(projectURL);
+
         switch (projectURL) {
             case "/p/cartes-tarot-garou/":
                 if (enterOrExit) { PROJECTS.special.cardsStackInteractive(); }
