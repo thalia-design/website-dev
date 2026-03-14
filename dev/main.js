@@ -1786,13 +1786,14 @@ const LOADING = {
     data : {
         skipLoadingAnimation : false,
         skipLoadingAnimationDevMode : true,
-        devMode : import.meta.env.DEV,
+        devMode : false, //import.meta.env.DEV,
 
         events: {
-            pageLoaded: false,
+            domReady: false,
             introAnimStarted : false,
             introAnimFinished : false,
             hiding : false,
+            callbackInitDone : false,
         },
     },
 
@@ -1800,15 +1801,19 @@ const LOADING = {
         if (!LOADING.elements.container) { callbackInit(); console.error("[LOADING] no container found"); return; }
         LOADING.setState("init");
         LOADING.data.skipLoadingAnimation = (LOADING.data.devMode && LOADING.data.skipLoadingAnimationDevMode);
+        requestAnimationFrame(() => { DEFERRED_IMAGES.loadIn(); });
 
-        // simple page loading callback
-        window.addEventListener("load", () => {
-            if (LOADING.data.events.pageLoaded) { return; }
-            LOADING.data.events.pageLoaded = true;
+        // start app on DOM readiness only (do not wait for all images/videos)
+        const onDomReady = () => {
+            if (LOADING.data.events.domReady) { return; }
+            LOADING.data.events.domReady = true;
 
             LOADING.setState("page-loaded");
 
-            if (callbackInit) { callbackInit() };
+            if (callbackInit && !LOADING.data.events.callbackInitDone) {
+                LOADING.data.events.callbackInitDone = true;
+                callbackInit();
+            }
 
             if (LOADING.data.events.introAnimFinished || LOADING.data.skipLoadingAnimation) {
                 LOADING.hide();
@@ -1820,15 +1825,21 @@ const LOADING = {
                 console.warn("[LOADING] automatically dismissed, anim took too long");
                 LOADING.hide();
             }, 8000);
-        })
+        };
+
+        if (document.readyState === "loading") {
+            window.addEventListener("DOMContentLoaded", onDomReady, { once: true });
+        } else {
+            onDomReady();
+        }
 
         // intro anim
         setTimeout(() => {
             LOADING.introAnim(() => {
-                if (!LOADING.data.events.pageLoaded) {
-                    window.addEventListener("load", () => {
+                if (!LOADING.data.events.domReady) {
+                    window.addEventListener("DOMContentLoaded", () => {
                         LOADING.hide();
-                    });
+                    }, { once: true });
                 }
                 else {
                     LOADING.hide();
@@ -1837,8 +1848,8 @@ const LOADING = {
         }, 300);
 
         setTimeout(() => {
-            if (LOADING.data.events.pageLoaded && LOADING.data.events.introAnimFinished) { return };
-            LOADING.data.events.pageLoaded = true;
+            if (LOADING.data.events.domReady && LOADING.data.events.introAnimFinished) { return };
+            LOADING.data.events.domReady = true;
             LOADING.data.events.introAnimFinished = true;
 
             console.warn("[LOADING] automatically dismissed, loading took too long");
@@ -1946,6 +1957,20 @@ const LOADING = {
     }
 }
 
+const DEFERRED_IMAGES = {
+    loadIn: (attr = "data-src", container = document) => {
+        container.querySelectorAll(`img[${attr}]`).forEach((img) => {
+            if (img.getAttribute("src")) { return; }
+
+            const mediaSrc = img.getAttribute(attr);
+            if (!mediaSrc) { return; }
+
+            img.setAttribute("src", mediaSrc);
+            img.removeAttribute(attr);
+        });
+    },
+};
+
 
 //- RUN
 LOADING.init(() => {
@@ -1953,7 +1978,10 @@ LOADING.init(() => {
     if (THALIA_GLOBALS.isTouch) { docHTML.classList.add("deviceIsTouch"); }
 
     _GET.scrollbarWidth(true);
-    swup.hooks.on('content:replace', () => { _GET.scrollbarWidth(true); });
+    swup.hooks.on('content:replace', () => {
+        DEFERRED_IMAGES.loadIn();
+        _GET.scrollbarWidth(true);
+    });
 
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     SCROLL.initEvents();
