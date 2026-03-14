@@ -6,9 +6,7 @@
     "dev": "vite --config ./config/vite.config.js",
     "o": "vite --open --config ./config/vite.config.js",
     "build": "vite build --config ./config/vite.config.js",
-    "builddev": "vite build --config ./config/vite.config.js --mode development",
-    "preview": "vite preview --open --config ./config/vite.config.js",
-    "previewdev": "vite preview --open --config ./config/vite.config.js --mode development"
+    "preview": "vite preview --open --config ./config/vite.config.js"
   },
   "devDependencies": {
     "@swup/preload-plugin": "^3.2.11",

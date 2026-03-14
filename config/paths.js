@@ -7,9 +7,7 @@ let PATHS = {
 	dirNames : {
 		devRoot : "dev",
 		assets: "assets",
-		buildRoot: "build",
-		buildProd: "production",
-		buildDev: "development",
+		build: "thalia-design.github.io",
 	},
 
     configDirDepth : "../",
@@ -19,9 +17,7 @@ let PATHS = {
 
 PATHS.dev = normalizePath(resolve(__dirname, PATHS.configDirDepth + PATHS.dirNames.devRoot));
 PATHS.assets = normalizePath(resolve(PATHS.dev + "/" + PATHS.dirNames.assets));
-PATHS.build = normalizePath(resolve(__dirname, PATHS.configDirDepth + PATHS.dirNames.buildRoot));
-PATHS.buildProd = normalizePath(resolve(PATHS.build + "/" + PATHS.dirNames.buildProd));
-PATHS.buildDev = normalizePath(resolve(PATHS.build + "/" + PATHS.dirNames.buildDev));
+PATHS.build = normalizePath(resolve(__dirname, "../" + PATHS.configDirDepth + PATHS.dirNames.build));
 
 globSync([PATHS.dev + "/**/*index.html"]).forEach(filePath => {
 	PATHS.pageCount += 1;

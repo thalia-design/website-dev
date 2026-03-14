@@ -1,4 +1,6 @@
 import { defineConfig } from "vite";
+import { existsSync, readdirSync, rmSync } from "fs";
+import { join } from "path";
 
 //-- PLUGINS
 import * as PLUGINS from "./plugins.js";
@@ -36,10 +38,7 @@ let OPTIONS = {
 		"production" : false,
 		"development" : true
 	},
-	buildDir : {
-		"production" : PATHS.buildProd,
-		"development" : PATHS.buildDev
-	},
+	buildDir : PATHS.build,
 }
 
 
@@ -112,6 +111,27 @@ const thaliaAutoFillProjects = (options, enforceOrder = "pre") => {
 	};
 };
 
+const cleanProdOutputTarget = (outDir) => {
+	return {
+		name: "cleanProdOutputTarget",
+		apply: "build",
+		buildStart() {
+			if (!existsSync(outDir)) return;
+
+			rmSync(join(outDir, "index.html"), { force: true });
+			rmSync(join(outDir, "p"), { recursive: true, force: true });
+
+			readdirSync(outDir, { withFileTypes: true }).forEach((entry) => {
+				if (!entry.isFile()) return;
+
+				if (/^scripts-.*\.js$/.test(entry.name) || /^styles-.*\.css$/.test(entry.name)) {
+					rmSync(join(outDir, entry.name), { force: true });
+				}
+			});
+		},
+	};
+};
+
 //-- CONFIG
 export default defineConfig(({ mode }) => {
 	OPTIONS.bundleMoreFiles_insertLinkTags = []; OPTIONS.bundleMoreFiles_inputAssets = {};
@@ -135,10 +155,10 @@ export default defineConfig(({ mode }) => {
 		},
 
 		build: {
-			outDir: OPTIONS.buildDir[mode],
+			outDir: OPTIONS.buildDir,
 			assetsDir : "",
 			assetsInlineLimit : 0,
-			emptyOutDir : true,
+			emptyOutDir : false,
 			copyPublicDir : false,
 
 			target: "es2015",
@@ -222,6 +242,8 @@ export default defineConfig(({ mode }) => {
 		},
 
 		plugins: [
+			cleanProdOutputTarget(OPTIONS.buildDir),
+
 			/*{ enforce: "pre", ...PLUGINS.replaceToAllPagesHTML([
 				{
 					targetRegex : /({%dirDepth%})/g,
