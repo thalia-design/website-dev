@@ -1871,6 +1871,136 @@ const PROJECTS = {
 }
 
 
+const THALIA_SMALL_PROFILE_ANIMATOR = {
+    animDrawData : {
+        "hair" : {
+            timePosition : 0,
+            duration : 700,
+            ease : 'cubicBezier(0.7, 0.2, 0.4, 0.7)',
+        },
+        "face" : {
+            timePosition : '<',
+            duration : 800,
+            ease : 'cubicBezier(0.2, 0.2, 0.2, 1)',
+            onComplete: (self, animElems_blink) => {
+                animElems_blink.forEach((el) => {
+                    el.classList.add("anim-blink")
+                    setTimeout(() => { el.classList.remove("anim-blink")
+                        setTimeout(() => { el.classList.add("anim-blink")
+                        }, 150);
+                    }, 300);
+                });
+            }
+        },
+        "throat" : {
+            timePosition : '<<+=400',
+            duration : 800,
+            ease : 'cubicBezier(0.3, 0.2, 0.2, 0.9)',
+        },
+        "circle" : {
+            timePosition : 500,
+            duration : 2300,
+            ease : 'cubicBezier(0.6, 0, 0.2, 0.95)',
+        },
+    },
+
+    run: (profileEl, callbackDone) => {
+        if (!profileEl) {
+            if (callbackDone) callbackDone();
+            return;
+        }
+
+        const animElemsBlink = profileEl.querySelectorAll('*[data-anim-blink]');
+        animElemsBlink.forEach((el) => { el.classList.add("anim"); });
+
+        const animDrawData = THALIA_SMALL_PROFILE_ANIMATOR.animDrawData;
+
+        const timeline = createTimeline({
+            defaults : {
+                delay : 0,
+            },
+            onComplete: () => {
+                if (callbackDone) callbackDone();
+            }
+        });
+
+        profileEl.querySelectorAll('*[data-anim-draw]').forEach((elPath) => {
+            const animName = elPath.getAttribute("data-anim-draw");
+            const animData = animDrawData[animName];
+
+            timeline.call(() => {
+                animElemsBlink.forEach((el) => {
+                    el.classList.remove("anim-blink");
+                    el.style.transition = "none";
+                    requestAnimationFrame(() => {
+                        el.style.transition = null;
+                    });
+                });
+            }, 0)
+            timeline.add(svg.createDrawable(elPath), {
+                draw : ['0 0', '0 1'],
+                duration : animData.duration,
+                ease : animData.ease,
+                onComplete: (self) => {
+                    if (animData.onComplete) animData.onComplete(self, animElemsBlink);
+                }
+            }, animData.timePosition);
+        });
+
+        return timeline;
+    },
+};
+
+const FOOTER_SMALL_PROFILE = {
+    selectors : {
+        homeLink : "footer.section-footer .thalia-small-profile-link",
+        profile : "footer.section-footer .thalia-small-profile",
+    },
+    data : {
+        eventsBound : false,
+        timeline : null,
+    },
+    init : () => {
+        if (!FOOTER_SMALL_PROFILE.data.eventsBound) {
+            FOOTER_SMALL_PROFILE.data.eventsBound = true;
+
+            window.addEventListener("scrollFooterSmallProfile", (e) => {
+                if (!e.detail || e.detail.way !== "enter") { return; }
+                FOOTER_SMALL_PROFILE.animate();
+            });
+
+            const profileEl = document.querySelector(FOOTER_SMALL_PROFILE.selectors.profile);
+            if (profileEl) {
+                FOOTER_SMALL_PROFILE.data.timeline = THALIA_SMALL_PROFILE_ANIMATOR.run(profileEl);
+            }
+        }
+
+        FOOTER_SMALL_PROFILE.initHomeLink();
+    },
+    initHomeLink : () => {
+        const homeLinkEl = document.querySelector(FOOTER_SMALL_PROFILE.selectors.homeLink);
+        if (!homeLinkEl || homeLinkEl.hasAttribute("data-footer-home-link-bound")) return;
+        homeLinkEl.setAttribute("data-footer-home-link-bound", "true");
+
+        homeLinkEl.addEventListener("click", (e) => {
+            if (window.location.pathname !== "/") { return; }
+
+            e.preventDefault();
+            ScrollMain.scrollTo(0, {
+                ...SCROLL.options.scrollTo,
+                lock: false,
+                onComplete: () => { SCROLL.resize(ScrollMain); }
+            });
+        });
+    },
+    animate : () => {
+        if (FOOTER_SMALL_PROFILE.data.timeline) {
+            FOOTER_SMALL_PROFILE.data.timeline.restart();
+        }
+    },
+};
+
+
 //- SWUP
 const swup = new Swup({
     animateHistoryBrowsing: true,
@@ -1908,7 +2038,7 @@ const LOADING = {
     data : {
         skipLoadingAnimation : false,
         skipLoadingAnimationDevMode : true,
-        devMode : import.meta.env.DEV,
+        devMode : false && import.meta.env.DEV,
 
         events: {
             domReady: false,
@@ -2017,65 +2147,10 @@ const LOADING = {
         LOADING.data.events.introAnimStarted = true;
         LOADING.elements.container.classList.add("loading-animating");
 
-        let animElems_blink = LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim-blink]');
-        animElems_blink.forEach((el) => { el.classList.add("anim") });
-
-        const loadingAnimTimeline = createTimeline({ // anime
-            defaults : {
-                delay : 0,
-            },
-            onComplete: self => {
-                LOADING.data.events.introAnimFinished = true;
-                if (callbackHide) { callbackHide() };
-            }
+        THALIA_SMALL_PROFILE_ANIMATOR.run(LOADING.elements.thaliaSmallProfile, () => {
+            LOADING.data.events.introAnimFinished = true;
+            if (callbackHide) { callbackHide(); }
         });
-
-        const animDrawData = {
-            "hair" : {
-                timePosition : 0,
-                duration : 700,
-                ease : 'cubicBezier(0.7, 0.2, 0.4, 0.7)',
-            },
-            "face" : {
-                timePosition : '<',
-                duration : 800,
-                ease : 'cubicBezier(0.2, 0.2, 0.2, 1)',
-                onComplete: self => {
-                    animElems_blink.forEach((el) => {
-                        el.classList.add("anim-blink")
-                        setTimeout(() => { el.classList.remove("anim-blink")
-                            setTimeout(() => { el.classList.add("anim-blink")
-                            }, 150);
-                        }, 300);
-                    });
-                }
-            },
-            "throat" : {
-                timePosition : '<<+=400',
-                duration : 800,
-                ease : 'cubicBezier(0.3, 0.2, 0.2, 0.9)',
-            },
-            "circle" : {
-                timePosition : 500,
-                duration : 2300,
-                ease : 'cubicBezier(0.6, 0, 0.2, 0.95)',
-            },
-        }
-
-        LOADING.elements.thaliaSmallProfile.querySelectorAll('*[data-anim-draw]').forEach((elPath) => {
-            const animName = elPath.getAttribute("data-anim-draw");
-
-            loadingAnimTimeline.add(svg.createDrawable(elPath), {
-                draw : ['0 0', '0 1'],
-                duration : animDrawData[animName].duration,
-                ease : animDrawData[animName].ease,
-                onComplete: self => {
-                    if (animDrawData[animName].onComplete) {
-                        animDrawData[animName].onComplete();
-                    };
-                }
-            }, animDrawData[animName].timePosition)
-        })
     }
 }
 
@@ -2170,12 +2245,14 @@ LOADING.init(() => {
     swup.hooks.on('content:replace', () => {
         DEFERRED_IMAGES.loadIn();
         PRELOADER.initPreloadOnHover();
+        FOOTER_SMALL_PROFILE.initHomeLink();
         _GET.scrollbarWidth(true);
     });
     PRELOADER.init();
 
     ScrollMain = new LocomotiveScroll(SCROLL.options.scroll);
     SCROLL.initEvents();
+    FOOTER_SMALL_PROFILE.init();
     //ScrollMain_onScroll({});
 
     STICKY_MENU.init();
