@@ -6,7 +6,7 @@ import Swup from "swup";
 import SwupPreloadPlugin from '@swup/preload-plugin';
 import LocomotiveScroll from "locomotive-scroll/packages/lib";
 import Muuri from 'muuri';
-import {animate, createTimeline, createAnimatable, createDraggable, onScroll, createScope, stagger, cubicBezier, svg, utils,} from "animejs";
+import {animate, createTimeline, createAnimatable, createDraggable, onScroll, createScope, stagger, svg, utils,} from "animejs";
 import BezierEasing from "bezier-easing"
 
 
@@ -1644,11 +1644,11 @@ const PROJECTS = {
                         },
                         rotateY: {
                             duration: 2300,
-                            ease: cubicBezier(0.2, 0.5, 0, 1),
+                            ease: "cubicBezier(0.2, 0.5, 0, 1)",
                         },
                         z: {
                             duration: 300,
-                            ease: cubicBezier(0.2, 0.5, 0, 1),
+                            ease: "cubicBezier(0.2, 0.5, 0, 1)",
                         },
                         scale: 100,
                         ease: 'out(5)',
@@ -1672,11 +1672,11 @@ const PROJECTS = {
 
                     $cardWDrag.addEventListener("mousemove", () => {
                         if (cardsData.isOpened) {
-                            cardWSpinAnimatable.scale(1.03, 400, cubicBezier(0.1, 0.3, 0.2, 1));
+                            cardWSpinAnimatable.scale(1.03, 400, "cubicBezier(0.1, 0.3, 0.2, 1)");
                         }
                     });
                     $cardWDrag.addEventListener("mouseleave", () => {
-                        cardWSpinAnimatable.scale(1, 400, cubicBezier(0.3, 0.1, 0.2, 1));
+                        cardWSpinAnimatable.scale(1, 400, "cubicBezier(0.3, 0.1, 0.2, 1)");
                     });
                     $cardWDrag.addEventListener("pointerdown", () => {
                         cardWSpinAnimatable.scale(0.98, 80, "ease");
@@ -1732,7 +1732,7 @@ const PROJECTS = {
                                         to: cardsData.instances[$index].isCardInLeftHalf ? 0 : -360,
                                         delay : 0,
                                         duration: 2000,
-                                        ease: (cardsData.instances[$index].isCardInLeftHalf) ? cubicBezier(0.6, 0, 0.2, 1) : cubicBezier(0.7, 0, 0, 1),
+                                        ease: (cardsData.instances[$index].isCardInLeftHalf) ? "cubicBezier(0.6, 0, 0.2, 1)" : "cubicBezier(0.7, 0, 0, 1)",
                                     },
                                     rotateX: 0,
 
@@ -1745,23 +1745,23 @@ const PROJECTS = {
                                         {
                                             to: (cardsData.instances[$index].isCardTop) ? `-90%` : "-140%",
                                             duration : (cardsData.instances[$index].isCardTop) ? 200 : 500,
-                                            ease: cubicBezier(0.2, 0.2, 0.6, 1),
+                                            ease: "cubicBezier(0.2, 0.2, 0.6, 1)",
                                         },
                                         {
                                             to: "0",
                                             duration : (cardsData.instances[$index].isCardTop) ? 2000 : 1500,
-                                            ease: cubicBezier(0.5, 0, 0, 1),
+                                            ease: "cubicBezier(0.5, 0, 0, 1)",
                                         },
                                     ],
                                     rotateY: {
                                         to: [0, cardsData.instances[$index].isCardInLeftHalf ? 360 : -360],
                                         delay : 150,
                                         duration: 2200,
-                                        ease: cubicBezier(0.5, 0, 0, 1),
+                                        ease: "cubicBezier(0.5, 0, 0, 1)",
                                     },
 
                                     duration: 1000,
-                                    ease: cubicBezier(0.5, 0.1, 0, 1),
+                                    ease: "cubicBezier(0.5, 0.1, 0, 1)",
                                     composition: 'blend',
                                 });
 
@@ -1772,7 +1772,7 @@ const PROJECTS = {
                                         scale: ["1", "0.835"],
                                         y: ["0%", "4%"],
                                         duration: 2200,
-                                        ease: cubicBezier(0.5, 0, 0.4, 1),
+                                        ease: "cubicBezier(0.5, 0, 0.4, 1)",
                                         composition: 'blend',
                                     });
                                 });
@@ -1814,7 +1814,7 @@ const PROJECTS = {
                             to: -360 + cardsData.rotateSlice * ($index + 1),
                             delay : 0,
                             duration: 1500,
-                            ease: cubicBezier(0.6, 0, 0, 1),
+                            ease: "cubicBezier(0.6, 0, 0, 1)",
                         },
                         rotateX: cardStackAnim.finalRotateX,
 
@@ -1826,23 +1826,23 @@ const PROJECTS = {
                             {
                                 to: (cardsData.instances[$index].isCardTop) ? `-90%` : `-140%`,
                                 duration : 900,
-                                ease: cubicBezier(0.4, 0, 0.6, 1),
+                                ease: "cubicBezier(0.4, 0, 0.6, 1)",
                             },
                             {
                                 to: `-${cardStackAnim.radius}%`,
                                 duration : 1000,
-                                ease: cubicBezier(0.3, 0, 0, 1),
+                                ease: "cubicBezier(0.3, 0, 0, 1)",
                             },
                         ],
                         rotateY: {
                             to: 0,
                             delay : 250,
                             duration: 1100,
-                            ease: cubicBezier(0.3, 0.2, 0, 1),
+                            ease: "cubicBezier(0.3, 0.2, 0, 1)",
                         },
 
                         duration: 1000,
-                        ease: cubicBezier(0.5, 0.1, 0, 1),
+                        ease: "cubicBezier(0.5, 0.1, 0, 1)",
                         composition: 'blend',
                     });
                     cardsData.instances[$index].cardDraggableX.disable();
@@ -1860,7 +1860,7 @@ const PROJECTS = {
                             y: "0%",
                             delay: 200,
                             duration: 2200,
-                            ease: cubicBezier(0.5, 0, 0.3, 1),
+                            ease: "cubicBezier(0.5, 0, 0.3, 1)",
                             composition: 'blend',
                         });
                     });
@@ -1882,12 +1882,12 @@ const THALIA_SMALL_PROFILE_ANIMATOR = {
         "hair" : {
             timePosition : 0,
             duration : 700,
-            ease : cubicBezier(0.7, 0.2, 0.4, 0.7),
+            ease : "cubicBezier(0.7, 0.2, 0.4, 0.7)",
         },
         "face" : {
             timePosition : '<',
             duration : 800,
-            ease : cubicBezier(0.2, 0.2, 0.2, 1),
+            ease : "cubicBezier(0.2, 0.2, 0.2, 1)",
             onComplete: (self, animElems_blink) => {
                 animElems_blink.forEach((el) => {
                     el.classList.add("anim-blink")
@@ -1901,12 +1901,12 @@ const THALIA_SMALL_PROFILE_ANIMATOR = {
         "throat" : {
             timePosition : '<<+=400',
             duration : 800,
-            ease : cubicBezier(0.3, 0.2, 0.2, 0.9),
+            ease : "cubicBezier(0.3, 0.2, 0.2, 0.9)",
         },
         "circle" : {
             timePosition : 500,
             duration : 2300,
-            ease : cubicBezier(0.6, 0, 0.2, 0.95),
+            ease : "cubicBezier(0.6, 0, 0.2, 0.95)",
         },
     },
 
