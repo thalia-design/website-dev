@@ -273,7 +273,13 @@ let STICKY_MENU = {
             }
             else {
                 STICKY_MENU.elements.projectNameSpan.parentElement.classList.remove("hide");
+                STICKY_MENU.elements.projectNameSpan.style.opacity = 0;
+                STICKY_MENU.elements.projectNameSpan.style.transition = "none";
                 STICKY_MENU.elements.projectNameSpan.innerText = STICKY_MENU.elements.projectH1.innerText;
+                setTimeout(() => {
+                    STICKY_MENU.elements.projectNameSpan.style.transition = null;
+                    STICKY_MENU.elements.projectNameSpan.style.opacity = 1;
+                }, 50);
             }
         }
 
