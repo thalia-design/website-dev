@@ -697,6 +697,10 @@
             }
         }
 
+        html:not(.browserIsFirefox) & .comp {
+            transform-style: preserve-3d;
+        }
+
         .stack {
             flex-grow: 0;
             flex-shrink: 0;

@@ -21,6 +21,9 @@ const docHTML = document.documentElement;
 
 // HELPER FUNCTIONS
 const _GET = {
+    isBrowser: {
+        firefox: () => navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+    },
     isTouchDevice: () => {
         var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
         var mq = function(query) { return window.matchMedia(query).matches };
@@ -142,6 +145,8 @@ registerCustomElemTags.init(["wrapper"]);
 
 //- OPTIONS
 let THALIA_GLOBALS = {
+    isTouch : _GET.isTouchDevice(),
+    isFirefox : _GET.isBrowser.firefox(),
     vpSizeBreakpoints : {
         current : {
             w : "",
@@ -2244,8 +2249,8 @@ const PRELOADER = {
 
 //- RUN
 LOADING.init(() => {
-    THALIA_GLOBALS.isTouch = _GET.isTouchDevice();
     if (THALIA_GLOBALS.isTouch) { docHTML.classList.add("deviceIsTouch"); }
+    if (THALIA_GLOBALS.isFirefox) { docHTML.classList.add("browserIsFirefox"); }
 
     _GET.scrollbarWidth(true);
     swup.hooks.on('content:replace', () => {
