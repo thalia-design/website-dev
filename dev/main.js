@@ -1499,10 +1499,18 @@ const CAROUSEL_DOCS = {
         },
 
         updateSelectedSnapDisplay: (emblaApi, snapDisplay) => {
+            let valueNode = snapDisplay.querySelector('.embla__selected-snap-value');
+            if (!valueNode) {
+                valueNode = document.createElement('span');
+                valueNode.className = 'embla__selected-snap-value';
+                snapDisplay.replaceChildren(valueNode);
+            }
+
             const updateSnapDisplay = (emblaApi) => {
                 const selectedSnap = emblaApi.selectedSnap();
                 const snapCount = emblaApi.snapList().length;
-                snapDisplay.innerHTML = `${selectedSnap + 1} / ${snapCount}`;
+                snapDisplay.setAttribute('data-max-display', `${snapCount} / ${snapCount}`);
+                valueNode.textContent = `${selectedSnap + 1} / ${snapCount}`;
             };
 
             emblaApi.on('select', updateSnapDisplay).on('reinit', updateSnapDisplay);

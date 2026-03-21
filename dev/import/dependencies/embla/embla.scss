@@ -127,11 +127,26 @@
 }
 
 .embla__selected-snap-display {
+    display: inline-grid;
+    grid-template-areas: 'stack';
     align-self: center;
     justify-self: flex-end;
     color: var(--embla-c-accent);
     font-weight: 500;
+    text-align: right;
+    white-space: nowrap;
     opacity: 0.75;
+
+    &::after {
+        visibility: hidden;
+        grid-area: stack;
+        content: attr(data-max-display);
+        pointer-events: none;
+    }
+
+    > .embla__selected-snap-value {
+        grid-area: stack;
+    }
 }
 
 .embla__scrollbar-shell {
