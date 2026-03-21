@@ -1429,8 +1429,8 @@ const CAROUSEL_DOCS = {
 
         addScrollBarListener: (emblaApi, scrollBarNode) => {
             if (!emblaApi || !scrollBarNode) return;
-
-            let value = 0;
+            const scrollBarShell = scrollBarNode.closest('.embla__scrollbar-shell');
+            if (!scrollBarShell) return;
 
             const scrollToProgress = (progress) => {
                 const { animation, limit, target, scrollProgress, scrollBody, scrollTo } = emblaApi.internalEngine();
@@ -1447,18 +1447,21 @@ const CAROUSEL_DOCS = {
             };
 
             const onScrollBarChange = (event) => {
-                const target = event.target;
-                const newProgress = parseFloat(target.value);
-                value = newProgress;
+                const newProgress = parseFloat(event.target.value);
+                scrollBarShell.style.setProperty('--embla-progress', newProgress.toString());
                 scrollToProgress(newProgress);
             };
 
-            const setValue = (value) => {
-                value = emblaApi.scrollProgress();
-                scrollBarNode.value = value.toString();
+            const setValue = (progress) => {
+                const clampedProgress = Math.min(Math.max(progress, 0), 1);
+                scrollBarNode.value = clampedProgress.toString();
+                scrollBarShell.style.setProperty('--embla-progress', clampedProgress.toString());
             };
 
             emblaApi.on('scroll', (emblaApi) => {
+                setValue(emblaApi.scrollProgress());
+            });
+            emblaApi.on('reinit', (emblaApi) => {
                 setValue(emblaApi.scrollProgress());
             });
 
