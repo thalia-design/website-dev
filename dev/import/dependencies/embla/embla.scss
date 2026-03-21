@@ -148,14 +148,16 @@
     touch-action: manipulation;
 
     &::-webkit-slider-runnable-track,
-    &::-moz-range-track {
+    &::-moz-range-track,
+    &::-ms-track {
         height: 2px;
         border-radius: 1.8rem;
         background: rgba(var(--thalia-rgb-accent), 0.4);
     }
 
     &::-webkit-slider-thumb,
-    &::-moz-range-thumb {
+    &::-moz-range-thumb,
+    &::-ms-thumb {
         -webkit-appearance: none;
         width: 1.4rem;
         height: 1.4rem;
@@ -170,7 +172,8 @@
     @media (hover: hover) {
         &:hover {
             &::-webkit-slider-thumb,
-            &::-moz-range-thumb {
+            &::-moz-range-thumb,
+            &::-ms-thumb {
                 width: 0.7rem;
                 height: 2rem;
             }
@@ -178,7 +181,8 @@
     }
     &:active {
         &::-webkit-slider-thumb,
-        &::-moz-range-thumb {
+        &::-moz-range-thumb,
+        &::-ms-thumb {
             width: 1rem;
             height: 1.8rem;
             opacity: 0.75;
