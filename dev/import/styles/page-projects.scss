@@ -931,7 +931,7 @@
         row-gap: 1em;
 
         @media (max-width: $size-vertical) {
-            flex-direction: column;
+            flex-direction: column-reverse;
         }
     }
 

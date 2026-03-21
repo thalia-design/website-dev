@@ -140,6 +140,7 @@
     &::after {
         visibility: hidden;
         grid-area: stack;
+        padding-left: 0.35em;
         content: attr(data-max-display);
         pointer-events: none;
     }
