@@ -6,6 +6,7 @@ import Swup from 'swup';
 import SwupPreloadPlugin from '@swup/preload-plugin';
 import LocomotiveScroll from 'locomotive-scroll/packages/lib';
 import Muuri from 'muuri';
+import EmblaCarousel from 'embla-carousel';
 import {
     animate,
     createTimeline,
@@ -90,6 +91,11 @@ const _GET = {
         return !!el;
     },
     float: (value, decimals = 2) => parseFloat(value.toFixed(decimals)),
+};
+
+const $$ = (selector, container) => {
+    const c = container || $$.context || document;
+    return Array.from(c.querySelectorAll(selector));
 };
 
 window.requestAnimationFrame = (() => {
@@ -1357,6 +1363,123 @@ class CarouselProgress {
     }
 }
 
+//- EMBLA CAROUSEL
+const CAROUSEL_DOCS = {
+    options: {
+        dragFree: false,
+    },
+    init: () => {
+        $$('.embla').forEach((mainEl) => {
+            const carouselData = {
+                elements: {
+                    main: mainEl,
+                    viewport: mainEl.querySelector('.embla__viewport'),
+                    prevBtn: mainEl.querySelector('.embla__button--prev'),
+                    nextBtn: mainEl.querySelector('.embla__button--next'),
+                    snapDisplay: mainEl.querySelector('.embla__selected-snap-display'),
+                    scrollBar: mainEl.querySelector('.embla__scrollbar'),
+                },
+                emblaApi: null,
+            };
+            carouselData.emblaApi = EmblaCarousel(carouselData.elements.viewport, CAROUSEL_DOCS.options);
+
+            CAROUSEL_DOCS.utils.addPrevNextButtonClickHandlers(
+                carouselData.emblaApi,
+                carouselData.elements.prevBtn,
+                carouselData.elements.nextBtn
+            );
+            CAROUSEL_DOCS.utils.updateSelectedSnapDisplay(carouselData.emblaApi, carouselData.elements.snapDisplay);
+            CAROUSEL_DOCS.utils.addScrollBarListener(carouselData.emblaApi, carouselData.elements.scrollBar);
+        });
+    },
+
+    utils: {
+        addPrevNextButtonClickHandlers: (emblaApi, prevBtn, nextBtn) => {
+            const addTogglePrevNextButtonsActive = (emblaApi, prevBtn, nextBtn) => {
+                const togglePrevNextButtonsState = () => {
+                    if (emblaApi.canGoToPrev()) {
+                        prevBtn.classList.remove('embla__button--disabled');
+                    } else {
+                        prevBtn.classList.add('embla__button--disabled');
+                    }
+
+                    if (emblaApi.canGoToNext()) {
+                        nextBtn.classList.remove('embla__button--disabled');
+                    } else {
+                        nextBtn.classList.add('embla__button--disabled');
+                    }
+                };
+
+                togglePrevNextButtonsState();
+
+                emblaApi.on('select', togglePrevNextButtonsState).on('reinit', togglePrevNextButtonsState);
+            };
+
+            const scrollPrev = () => {
+                emblaApi.goToPrev();
+            };
+            const scrollNext = () => {
+                emblaApi.goToNext();
+            };
+            prevBtn.addEventListener('click', scrollPrev, false);
+            nextBtn.addEventListener('click', scrollNext, false);
+
+            addTogglePrevNextButtonsActive(emblaApi, prevBtn, nextBtn);
+        },
+
+        addScrollBarListener: (emblaApi, scrollBarNode) => {
+            if (!emblaApi || !scrollBarNode) return;
+
+            let value = 0;
+
+            const scrollToProgress = (progress) => {
+                const { animation, limit, target, scrollProgress, scrollBody, scrollTo } = emblaApi.internalEngine();
+
+                animation.stop();
+
+                const currentProgress = scrollProgress.get(target);
+                const allowedProgress = Math.min(Math.max(progress, 0), 1);
+                const progressToTarget = allowedProgress - currentProgress;
+                const distance = progressToTarget * limit.length * -1;
+
+                scrollBody.useDuration(0);
+                scrollTo.distance(distance, false);
+            };
+
+            const onScrollBarChange = (event) => {
+                const target = event.target;
+                const newProgress = parseFloat(target.value);
+                value = newProgress;
+                scrollToProgress(newProgress);
+            };
+
+            const setValue = (value) => {
+                value = emblaApi.scrollProgress();
+                scrollBarNode.value = value.toString();
+            };
+
+            emblaApi.on('scroll', (emblaApi) => {
+                setValue(emblaApi.scrollProgress());
+            });
+
+            scrollBarNode.addEventListener('input', onScrollBarChange);
+            setValue(emblaApi.scrollProgress());
+        },
+
+        updateSelectedSnapDisplay: (emblaApi, snapDisplay) => {
+            const updateSnapDisplay = (emblaApi) => {
+                const selectedSnap = emblaApi.selectedSnap();
+                const snapCount = emblaApi.snapList().length;
+                snapDisplay.innerHTML = `${selectedSnap + 1} / ${snapCount}`;
+            };
+
+            emblaApi.on('select', updateSnapDisplay).on('reinit', updateSnapDisplay);
+
+            updateSnapDisplay(emblaApi);
+        },
+    },
+};
+
 // PAGES
 const PAGES = {
     data: {
@@ -1502,6 +1625,7 @@ const PAGES = {
 
         carouselInfiniteGlobal.init();
         carouselProgressGlobal.init();
+        CAROUSEL_DOCS.init();
 
         PROJECTS.projectSpecificEvents(true, visit == null ? swup.location.pathname : visit.to.url);
 

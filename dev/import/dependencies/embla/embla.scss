@@ -1,0 +1,190 @@
+.embla {
+    max-width: 100%;
+    margin: auto;
+    padding-block: 1rem;
+
+    --slide-height: 70vh;
+    --slide-spacing: 1rem;
+    --slide-size: 100%;
+
+    --embla-rgb-accent: var(--thalia-rgb-accent);
+    --embla-c-accent: rgb(var(--embla-rgb-accent));
+}
+
+.embla__viewport {
+    overflow: visible;
+}
+
+.embla__container {
+    display: flex;
+    align-items: center;
+    margin-left: calc(var(--slide-spacing) * -1);
+    cursor: grab;
+    touch-action: pan-y pinch-zoom;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.embla__slide {
+    z-index: 0;
+    position: relative;
+    flex: 0 0 var(--slide-size);
+    min-width: 0;
+    padding-left: var(--slide-spacing);
+    overflow: hidden;
+    border-radius: var(--thalia-v-radius-normal);
+
+    &::after {
+        z-index: 1;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: calc(100% - var(--slide-spacing));
+        height: 100%;
+        border: 1px solid rgba(var(--thalia-rgb-accent), 0.2);
+        border-radius: var(--thalia-v-radius-normal);
+        content: '';
+    }
+}
+
+.embla__controls {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.8rem;
+    gap: 2.5rem;
+}
+
+.embla__buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.embla__button {
+    -webkit-appearance: none;
+    display: inline-flex;
+    display: flex;
+    appearance: none;
+
+    z-index: 1;
+    align-items: center;
+    justify-content: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    margin: 0;
+    padding: 0;
+    transform: rotate(0deg);
+    border: 0;
+    border: 2px solid var(--embla-c-accent);
+    border-radius: 50%;
+    background-color: transparent;
+    color: var(--embla-c-accent);
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+
+    svg {
+        transition: transform 0.25s ease;
+    }
+    &:active {
+        svg {
+            transition: transform 0s ease;
+        }
+    }
+    &--prev {
+        svg {
+            transform: translateX(-1px);
+        }
+        &:active svg {
+            transform: translateX(-4px);
+        }
+    }
+    &--next {
+        svg {
+            transform: translateX(1px);
+        }
+        &:active svg {
+            transform: translateX(4px);
+        }
+    }
+
+    &--disabled {
+        opacity: 0.4 !important;
+        pointer-events: none;
+    }
+}
+
+.embla__button__svg {
+    width: 50%;
+    height: 50%;
+    --svg-w: 8px;
+}
+
+.embla__selected-snap-display {
+    align-self: center;
+    justify-self: flex-end;
+    color: var(--embla-c-accent);
+    font-weight: 500;
+    opacity: 0.75;
+}
+
+.embla__scrollbar {
+    display: inline-flex;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+
+    &::-webkit-slider-runnable-track,
+    &::-moz-range-track {
+        height: 2px;
+        border-radius: 1.8rem;
+        background: rgba(var(--thalia-rgb-accent), 0.4);
+    }
+
+    &::-webkit-slider-thumb,
+    &::-moz-range-thumb {
+        -webkit-appearance: none;
+        width: 1.4rem;
+        height: 1.4rem;
+        border: 0;
+        border-radius: 99px;
+        background: var(--embla-c-accent);
+        transition:
+            opacity 0.3s ease,
+            width 0.2s cubic-bezier(0.4, 0, 0, 1),
+            height 0.2s cubic-bezier(0.4, 0, 0, 1);
+    }
+    @media (hover: hover) {
+        &:hover {
+            &::-webkit-slider-thumb,
+            &::-moz-range-thumb {
+                width: 0.7rem;
+                height: 2rem;
+            }
+        }
+    }
+    &:active {
+        &::-webkit-slider-thumb,
+        &::-moz-range-thumb {
+            width: 1rem;
+            height: 1.8rem;
+            opacity: 0.75;
+            transition:
+                opacity 0.05s linear,
+                width 0.05s linear,
+                height 0.05s linear;
+        }
+    }
+}
