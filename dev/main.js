@@ -1367,6 +1367,7 @@ class CarouselProgress {
 const CAROUSEL_DOCS = {
     options: {
         dragFree: false,
+        duration: 20,
     },
     init: () => {
         $$('.embla').forEach((mainEl) => {
@@ -1378,6 +1379,7 @@ const CAROUSEL_DOCS = {
                     nextBtn: mainEl.querySelector('.embla__button--next'),
                     snapDisplay: mainEl.querySelector('.embla__selected-snap-display'),
                     scrollBar: mainEl.querySelector('.embla__scrollbar'),
+                    scrollBarShell: mainEl.querySelector('.embla__scrollbar-shell'),
                 },
                 emblaApi: null,
             };
@@ -1389,84 +1391,111 @@ const CAROUSEL_DOCS = {
                 carouselData.elements.nextBtn
             );
             CAROUSEL_DOCS.utils.updateSelectedSnapDisplay(carouselData.emblaApi, carouselData.elements.snapDisplay);
-            CAROUSEL_DOCS.utils.addScrollBarListener(carouselData.emblaApi, carouselData.elements.scrollBar);
+            CAROUSEL_DOCS.utils.addScrollBarListener(carouselData.emblaApi, carouselData.elements);
         });
     },
 
     utils: {
         addPrevNextButtonClickHandlers: (emblaApi, prevBtn, nextBtn) => {
-            const addTogglePrevNextButtonsActive = (emblaApi, prevBtn, nextBtn) => {
-                const togglePrevNextButtonsState = () => {
-                    if (emblaApi.canGoToPrev()) {
-                        prevBtn.classList.remove('embla__button--disabled');
-                    } else {
-                        prevBtn.classList.add('embla__button--disabled');
-                    }
-
-                    if (emblaApi.canGoToNext()) {
-                        nextBtn.classList.remove('embla__button--disabled');
-                    } else {
-                        nextBtn.classList.add('embla__button--disabled');
-                    }
-                };
-
-                togglePrevNextButtonsState();
-
-                emblaApi.on('select', togglePrevNextButtonsState).on('reinit', togglePrevNextButtonsState);
+            const togglePrevNextButtonsState = () => {
+                prevBtn.classList.toggle('embla__button--disabled', !emblaApi.canGoToPrev());
+                nextBtn.classList.toggle('embla__button--disabled', !emblaApi.canGoToNext());
             };
 
-            const scrollPrev = () => {
-                emblaApi.goToPrev();
-            };
-            const scrollNext = () => {
-                emblaApi.goToNext();
-            };
-            prevBtn.addEventListener('click', scrollPrev, false);
-            nextBtn.addEventListener('click', scrollNext, false);
+            prevBtn.addEventListener('click', () => emblaApi.goToPrev(), false);
+            nextBtn.addEventListener('click', () => emblaApi.goToNext(), false);
 
-            addTogglePrevNextButtonsActive(emblaApi, prevBtn, nextBtn);
+            togglePrevNextButtonsState();
+            emblaApi.on('select', togglePrevNextButtonsState).on('reinit', togglePrevNextButtonsState);
         },
 
-        addScrollBarListener: (emblaApi, scrollBarNode) => {
-            if (!emblaApi || !scrollBarNode) return;
-            const scrollBarShell = scrollBarNode.closest('.embla__scrollbar-shell');
-            if (!scrollBarShell) return;
+        addScrollBarListener: (emblaApi, elements) => {
+            let isRangeInteracting = false;
+            let lastRequestedSnapIndex = emblaApi.selectedSnap();
+            let lockRangeSyncToUser = false;
 
-            const scrollToProgress = (progress) => {
-                const { animation, limit, target, scrollProgress, scrollBody, scrollTo } = emblaApi.internalEngine();
+            const clampProgress = (progress) => Math.min(Math.max(progress, 0), 1);
 
-                animation.stop();
-
-                const currentProgress = scrollProgress.get(target);
-                const allowedProgress = Math.min(Math.max(progress, 0), 1);
-                const progressToTarget = allowedProgress - currentProgress;
-                const distance = progressToTarget * limit.length * -1;
-
-                scrollBody.useDuration(0);
-                scrollTo.distance(distance, false);
+            const setRangeFromProgress = (progress) => {
+                const clampedProgress = clampProgress(progress);
+                elements.scrollBar.value = clampedProgress.toString();
+                elements.scrollBarShell.style.setProperty('--embla-progress', clampedProgress.toString());
             };
 
-            const onScrollBarChange = (event) => {
-                const newProgress = parseFloat(event.target.value);
-                scrollBarShell.style.setProperty('--embla-progress', newProgress.toString());
-                scrollToProgress(newProgress);
+            const getClosestSnapIndex = (progress) => {
+                const snapList = emblaApi.snapList();
+                let closestSnapIndex = 0;
+                let smallestDelta = Infinity;
+                const clampedProgress = clampProgress(progress);
+
+                snapList.forEach((snapProgress, snapIndex) => {
+                    const delta = Math.abs(snapProgress - clampedProgress);
+                    if (delta < smallestDelta) {
+                        smallestDelta = delta;
+                        closestSnapIndex = snapIndex;
+                    }
+                });
+
+                return closestSnapIndex;
             };
 
-            const setValue = (progress) => {
-                const clampedProgress = Math.min(Math.max(progress, 0), 1);
-                scrollBarNode.value = clampedProgress.toString();
-                scrollBarShell.style.setProperty('--embla-progress', clampedProgress.toString());
+            const goToClosestSnapFromProgress = (progress) => {
+                const targetSnapIndex = getClosestSnapIndex(progress);
+                if (targetSnapIndex === lastRequestedSnapIndex && targetSnapIndex === emblaApi.selectedSnap()) return;
+
+                lastRequestedSnapIndex = targetSnapIndex;
+                emblaApi.internalEngine().animation.stop();
+                emblaApi.goTo(targetSnapIndex);
             };
 
-            emblaApi.on('scroll', (emblaApi) => {
-                setValue(emblaApi.scrollProgress());
+            const syncRangeFromEmbla = () => {
+                if (isRangeInteracting || lockRangeSyncToUser) return;
+                setRangeFromProgress(emblaApi.scrollProgress());
+            };
+
+            const unlockRangeSyncToUser = () => {
+                lockRangeSyncToUser = false;
+                isRangeInteracting = false;
+                elements.scrollBarShell.classList.remove('is-user-dragging');
+                syncRangeFromEmbla();
+            };
+
+            const onRangeInput = (event) => {
+                isRangeInteracting = true;
+                lockRangeSyncToUser = true;
+                elements.scrollBarShell.classList.add('is-user-dragging');
+
+                const targetProgress = clampProgress(event.target.valueAsNumber);
+                setRangeFromProgress(targetProgress);
+                goToClosestSnapFromProgress(targetProgress);
+            };
+
+            const onRangeChange = () => {
+                if (!isRangeInteracting) return;
+                isRangeInteracting = false;
+                elements.scrollBarShell.classList.remove('is-user-dragging');
+
+                const targetProgress = clampProgress(elements.scrollBar.valueAsNumber);
+                goToClosestSnapFromProgress(targetProgress);
+            };
+
+            emblaApi.on('scroll', syncRangeFromEmbla);
+            emblaApi.on('reinit', syncRangeFromEmbla);
+            emblaApi.on('settle', () => {
+                lastRequestedSnapIndex = emblaApi.selectedSnap();
+                syncRangeFromEmbla();
             });
-            emblaApi.on('reinit', (emblaApi) => {
-                setValue(emblaApi.scrollProgress());
-            });
 
-            scrollBarNode.addEventListener('input', onScrollBarChange);
-            setValue(emblaApi.scrollProgress());
+            elements.scrollBar.addEventListener('input', onRangeInput);
+            elements.scrollBar.addEventListener('change', onRangeChange);
+            elements.scrollBar.addEventListener('blur', onRangeChange);
+            elements.scrollBar.addEventListener('pointercancel', onRangeChange);
+
+            elements.prevBtn.addEventListener('click', unlockRangeSyncToUser);
+            elements.nextBtn.addEventListener('click', unlockRangeSyncToUser);
+            elements.viewport.addEventListener('pointerdown', unlockRangeSyncToUser);
+
+            syncRangeFromEmbla();
         },
 
         updateSelectedSnapDisplay: (emblaApi, snapDisplay) => {

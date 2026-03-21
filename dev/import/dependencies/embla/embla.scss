@@ -56,7 +56,7 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 1.8rem;
-    gap: 2.5rem;
+    gap: 1rem;
 }
 
 .embla__buttons {
@@ -144,7 +144,10 @@
     --embla-thumb-size-hover-h: 2.1rem;
     --embla-thumb-w: var(--embla-thumb-size);
     --embla-thumb-h: var(--embla-thumb-size);
-    --embla-thumb-left: calc(var(--embla-progress) * 100%);
+    --embla-thumb-left: calc(
+        var(--embla-progress) * (100% - var(--embla-input-padding) * 2) + var(--embla-input-padding)
+    );
+    --embla-input-padding: 1.5rem;
 
     display: inline-flex;
     position: relative;
@@ -152,6 +155,22 @@
     height: 2rem;
     margin: 0;
     padding: 0;
+
+    input {
+        z-index: 1;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        padding-inline: var(--embla-input-padding);
+        border: 0;
+        outline: none;
+        cursor: pointer;
+        opacity: 0 !important;
+        pointer-events: auto;
+        touch-action: manipulation;
+    }
 
     &::before,
     &::after {
@@ -164,7 +183,8 @@
     }
 
     &::before {
-        width: 100%;
+        left: var(--embla-input-padding);
+        width: calc(100% - var(--embla-input-padding) * 2);
         height: var(--embla-track-height);
         transform: translateY(-50%);
         border-radius: 999px;
@@ -182,6 +202,10 @@
             opacity 0.3s ease,
             width 0.2s cubic-bezier(0.4, 0, 0, 1),
             height 0.2s cubic-bezier(0.4, 0, 0, 1);
+    }
+
+    &.is-user-dragging::after {
+        transition: none !important;
     }
 
     @media (hover: hover) {
@@ -202,19 +226,4 @@
                 height 0.05s linear;
         }
     }
-}
-
-.embla__scrollbar {
-    z-index: 1;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: none;
-    cursor: pointer;
-    opacity: 0 !important;
-    pointer-events: auto;
-    touch-action: manipulation;
 }
