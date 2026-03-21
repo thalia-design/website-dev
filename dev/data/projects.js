@@ -23,18 +23,6 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "cartes-tarot-garou" : {
-        documentTitle : "Tarot X Loup-Garou",
-        title : "Tarot X Loup-Garou",
-        filters : [
-            //"illustration",
-            "print",
-        ],
-        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
-        itemSize : [1, 1],
-        itemType : "img",
-    },
-
     "motion-stranger-things-generique-s4" : {
         documentTitle : "Motion design · Stranger Things Générique S4",
         title : "Stranger Things Générique Saison 4",
@@ -65,6 +53,18 @@ const THALIA_PROJECTS = {
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
+        itemType : "img",
+    },
+
+    "cartes-tarot-garou" : {
+        documentTitle : "Tarot X Loup-Garou",
+        title : "Tarot X Loup-Garou",
+        filters : [
+            //"illustration",
+            "print",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
         itemType : "img",
     },
 
