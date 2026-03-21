@@ -11,18 +11,6 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },*/
 
-    "branding-calenton" : {
-        documentTitle : "Branding · Calentón",
-        title : "Calentón",
-        filters : [
-            "branding",
-            "print",
-        ],
-        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
-        itemSize : [1, 1],
-        itemType : "img",
-    },
-
     "campagne-le-monde-nouveau-2025" : {
         documentTitle : "Campagne · Le Monde Nouveau 2025",
         title : "Campagne Le Monde Nouveau 2025",
@@ -58,7 +46,41 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "branding-belmont" : {
+    "branding-les-rives-bleues" : {
+        documentTitle : "Branding · Les Rives Bleues",
+        title : "Les Rives Bleues",
+        filters : [
+            "branding",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    "webdesign-dashboard-inside" : {
+        documentTitle : "Web Design · Dashboard Inside",
+        title : "Dashboard Inside",
+        filters : [
+            "web design",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [2, 1],
+        itemType : "img",
+    },
+
+    "branding-calenton" : {
+        documentTitle : "Branding · Calentón",
+        title : "Calentón",
+        filters : [
+            "branding",
+            "print",
+        ],
+        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
+        itemSize : [1, 1],
+        itemType : "img",
+    },
+
+    /*"branding-belmont" : {
         documentTitle : "Branding · Belmont",
         title : "Belmont",
         filters : [
@@ -68,7 +90,7 @@ const THALIA_PROJECTS = {
         itemSize : [1, 1],
         itemType : "img",
         //itemShift : true,
-    },
+    },*/
 
     "print-mobilite-douce" : {
         documentTitle : "Affiche · Mobilité douce",
@@ -100,17 +122,6 @@ const THALIA_PROJECTS = {
         ],
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
-        itemType : "img",
-    },
-
-    "branding-les-rives-bleues" : {
-        documentTitle : "Branding · Les Rives Bleues",
-        title : "Les Rives Bleues",
-        filters : [
-            "branding",
-        ],
-        itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
-        itemSize : [1, 1],
         itemType : "img",
     },
 
@@ -214,7 +225,7 @@ const THALIA_PROJECTS = {
         itemType : "img",
     },
 
-    "motion-cinemed-2024" : {
+    /*"motion-cinemed-2024" : {
         documentTitle : "Motion design · Cinemed 2024",
         title : "Cinemed 2024",
         filters : [
@@ -223,9 +234,9 @@ const THALIA_PROJECTS = {
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
         itemType : "img",
-    },
+    },*/
 
-    "motion-le-chocolat-des-francais" : {
+    /*"motion-le-chocolat-des-francais" : {
         documentTitle : "Motion design · Le Chocolat des Français",
         title : "Tablette Le Chocolat des Français",
         filters : [
@@ -234,7 +245,7 @@ const THALIA_PROJECTS = {
         itemThumbnailURL : "{%ap%}/{p%key%}/thumbnail.jpg",
         itemSize : [2, 1],
         itemType : "img",
-    },
+    },*/
 
     /*"compilation-animations-logo" : {
         documentTitle : "Animations de Logo",
