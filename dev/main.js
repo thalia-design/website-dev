@@ -1456,14 +1456,14 @@ const CAROUSEL_DOCS = {
             const unlockRangeSyncToUser = () => {
                 lockRangeSyncToUser = false;
                 isRangeInteracting = false;
-                elements.scrollBarShell.classList.remove('is-user-dragging');
+                elements.scrollBarShell.classList.remove('is-range-dragging');
                 syncRangeFromEmbla();
             };
 
             const onRangeInput = (event) => {
                 isRangeInteracting = true;
                 lockRangeSyncToUser = true;
-                elements.scrollBarShell.classList.add('is-user-dragging');
+                elements.scrollBarShell.classList.add('is-range-dragging');
 
                 const targetProgress = clampProgress(event.target.valueAsNumber);
                 setRangeFromProgress(targetProgress);
@@ -1473,7 +1473,7 @@ const CAROUSEL_DOCS = {
             const onRangeChange = () => {
                 if (!isRangeInteracting) return;
                 isRangeInteracting = false;
-                elements.scrollBarShell.classList.remove('is-user-dragging');
+                elements.scrollBarShell.classList.remove('is-range-dragging');
 
                 const targetProgress = clampProgress(elements.scrollBar.valueAsNumber);
                 goToClosestSnapFromProgress(targetProgress);

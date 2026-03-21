@@ -204,7 +204,7 @@
             height 0.2s cubic-bezier(0.4, 0, 0, 1);
     }
 
-    &.is-user-dragging::after {
+    &.is-range-dragging::after {
         transition: none !important;
     }
 
@@ -214,6 +214,7 @@
             --embla-thumb-h: var(--embla-thumb-size-hover-h);
         }
     }
+    &.is-range-dragging,
     &:active {
         --embla-thumb-w: var(--embla-thumb-size-active-w);
         --embla-thumb-h: var(--embla-thumb-size-active-h);
