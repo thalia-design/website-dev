@@ -1,23 +1,29 @@
-import "./main.scss";
-import "./import/dependencies/postcss-vh-correction/postcss-vh-correction.js";
+import './main.scss';
+import './import/dependencies/postcss-vh-correction/postcss-vh-correction.js';
 
 //- LIBRARIES
-import Swup from "swup";
+import Swup from 'swup';
 import SwupPreloadPlugin from '@swup/preload-plugin';
-import LocomotiveScroll from "locomotive-scroll/packages/lib";
+import LocomotiveScroll from 'locomotive-scroll/packages/lib';
 import Muuri from 'muuri';
-import {animate, createTimeline, createAnimatable, createDraggable, onScroll, createScope, stagger, svg, utils,} from "animejs";
-import BezierEasing from "bezier-easing"
-
+import {
+    animate,
+    createTimeline,
+    createAnimatable,
+    createDraggable,
+    onScroll,
+    createScope,
+    stagger,
+    svg,
+    utils,
+} from 'animejs';
+import BezierEasing from 'bezier-easing';
 
 //- DATA
-import { THALIA_PROJECTS } from "./data/projects.js";
-
+import { THALIA_PROJECTS } from './data/projects.js';
 
 //- VARS
 const docHTML = document.documentElement;
-
-
 
 // HELPER FUNCTIONS
 const _GET = {
@@ -26,64 +32,75 @@ const _GET = {
     },
     isTouchDevice: () => {
         var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
-        var mq = function(query) { return window.matchMedia(query).matches };
-        if ('ontouchstart' in window) { return true };
+        var mq = function (query) {
+            return window.matchMedia(query).matches;
+        };
+        if ('ontouchstart' in window) {
+            return true;
+        }
         var query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
         return mq(query);
     },
-    viewportSize : () => {
+    viewportSize: () => {
         return [
-            window.innerWidth  || docHTML.clientWidth  || document.body.clientWidth,
-            window.innerHeight || docHTML.clientHeight || document.body.clientHeight
-        ]
+            window.innerWidth || docHTML.clientWidth || document.body.clientWidth,
+            window.innerHeight || docHTML.clientHeight || document.body.clientHeight,
+        ];
     },
-    elementCenterPos : (el) => {
+    elementCenterPos: (el) => {
         const elRect = el.getBoundingClientRect();
         return [
-            elRect.left + (elRect.width / 2),
-            elRect.top + (elRect.height / 2)
-        ]
+            elRect.left + elRect.width / 2,
+            elRect.top + elRect.height / 2,
+        ];
     },
-    scrollbarWidth : (forceNewBigger = false) => {
+    scrollbarWidth: (forceNewBigger = false) => {
         let sw = window.innerWidth - docHTML.clientWidth;
-        if(forceNewBigger) {
-            const swCurrent = parseFloat(window.getComputedStyle(docHTML).getPropertyValue('--scrollbar-width').replace("px", ""));
-            sw = (swCurrent > sw) ? swCurrent : sw;
+        if (forceNewBigger) {
+            const swCurrent = parseFloat(
+                window.getComputedStyle(docHTML).getPropertyValue('--scrollbar-width').replace('px', '')
+            );
+            sw = swCurrent > sw ? swCurrent : sw;
         }
-        docHTML.style.setProperty('--scrollbar-width', ((sw > 0) ? sw : 0) + 'px');
+        docHTML.style.setProperty('--scrollbar-width', (sw > 0 ? sw : 0) + 'px');
         return sw;
     },
-    randomIntFromInterval : (min, max) => { // min and max included
-        return Math.floor(Math.random() * (max - min + 1) + min)
+    randomIntFromInterval: (min, max) => {
+        // min and max included
+        return Math.floor(Math.random() * (max - min + 1) + min);
     },
-    arrayOfElements : (selectors = [], container = document) => {
+    arrayOfElements: (selectors = [], container = document) => {
         let elements = [];
         selectors.forEach((sel) => {
             container.querySelectorAll(sel).forEach((el) => {
-                if(!elements.includes(el)) { elements.push(el); }
+                if (!elements.includes(el)) {
+                    elements.push(el);
+                }
             });
         });
         return elements;
     },
-    removeAllChildNodes : (parent) => {
+    removeAllChildNodes: (parent) => {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
         }
     },
-    isChildOf : (el, elParent) => {
-        while ((el = el.parentNode) && el !== elParent) ;
+    isChildOf: (el, elParent) => {
+        while ((el = el.parentNode) && el !== elParent);
         return !!el;
     },
-    float : (value, decimals = 2) => parseFloat(value.toFixed(decimals)),
-}
+    float: (value, decimals = 2) => parseFloat(value.toFixed(decimals)),
+};
 
 window.requestAnimationFrame = (() => {
     return (
         window.requestAnimationFrame
-     || window.mozRequestAnimationFrame
-     || window.webkitRequestAnimationFrame
-     || window.msRequestAnimationFrame
-     || function (callback) { window.setTimeout(callback, 1000 / 60) }
+        || window.mozRequestAnimationFrame
+        || window.webkitRequestAnimationFrame
+        || window.msRequestAnimationFrame
+        || function (callback) {
+            window.setTimeout(callback, 1000 / 60);
+        }
     );
 })();
 
@@ -91,42 +108,64 @@ window.performance = window.performance || {};
 performance.now = (() => {
     return (
         performance.now
-     || performance.webkitNow
-     || function () { return new Date().getTime() }
+        || performance.webkitNow
+        || function () {
+            return new Date().getTime();
+        }
     );
 })();
 
-function lerp (start, end, amt) { return (1 - amt) * start + amt * end; }
+function lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end;
+}
 
-function atTransitionEnd(el, callback, options = {property : false, once : true, debug : false}) {
-    if (!options.property) { // all css properties
-        el.addEventListener("transitionend", () => {
-            callback();
-        }, { once : options.once });
-    }
-    else { // only for specified css property
-        el.addEventListener("transitionend", (ev) => {
-            if (ev.propertyName == options.property) { callback(); }
-        }, { once : options.once });
+function atTransitionEnd(el, callback, options = { property: false, once: true, debug: false }) {
+    if (!options.property) {
+        // all css properties
+        el.addEventListener(
+            'transitionend',
+            () => {
+                callback();
+            },
+            { once: options.once }
+        );
+    } else {
+        // only for specified css property
+        el.addEventListener(
+            'transitionend',
+            (ev) => {
+                if (ev.propertyName == options.property) {
+                    callback();
+                }
+            },
+            { once: options.once }
+        );
     }
 
     if (options.debug) {
-        el.addEventListener("transitionend", (ev) => {
-            console.debug("[atTransitionEnd] "+ ev.propertyName + ((options.property) ? (" (selected)") : ""), el);
+        el.addEventListener('transitionend', (ev) => {
+            console.debug('[atTransitionEnd] ' + ev.propertyName + (options.property ? ' (selected)' : ''), el);
         });
     }
 
     let isNotAlreadyListening = true;
-    atTransitionEnd_Array.forEach((e) => { isNotAlreadyListening &= (e == el) ? false : true; });
+    atTransitionEnd_Array.forEach((e) => {
+        isNotAlreadyListening &= e == el ? false : true;
+    });
     if (isNotAlreadyListening) {
         atTransitionEnd_Array.push(el);
-        el.childNodes.forEach((el) => { el.addEventListener("transitionend", (ev) => { ev.stopPropagation(); })});
+        el.childNodes.forEach((el) => {
+            el.addEventListener('transitionend', (ev) => {
+                ev.stopPropagation();
+            });
+        });
     }
-} let atTransitionEnd_Array = [];
+}
+let atTransitionEnd_Array = [];
 
 const registerCustomElemTags = {
     registerTag: (tagName) => {
-        if (window.customElements && tagName.includes("-") && !window.customElements.get(tagName)) {
+        if (window.customElements && tagName.includes('-') && !window.customElements.get(tagName)) {
             try {
                 window.customElements.define(tagName, class extends HTMLElement {});
                 return;
@@ -140,21 +179,20 @@ const registerCustomElemTags = {
         tags.forEach(registerCustomElemTags.registerTag);
     },
 };
-registerCustomElemTags.init(["wrapper"]);
-
+registerCustomElemTags.init(['wrapper']);
 
 //- OPTIONS
 let THALIA_GLOBALS = {
-    isTouch : _GET.isTouchDevice(),
-    isFirefox : _GET.isBrowser.firefox(),
-    vpSizeBreakpoints : {
-        current : {
-            w : "",
+    isTouch: _GET.isTouchDevice(),
+    isFirefox: _GET.isBrowser.firefox(),
+    vpSizeBreakpoints: {
+        current: {
+            w: '',
         },
-        breakpoints : {
-            w : {
-                square : 1100,
-                vertical : 700,
+        breakpoints: {
+            w: {
+                square: 1100,
+                vertical: 700,
             },
         },
     },
@@ -163,24 +201,22 @@ let THALIA_GLOBALS = {
 
         if (THALIA_GLOBALS.vpSize[0] < THALIA_GLOBALS.vpSizeBreakpoints.breakpoints.w.square) {
             if (THALIA_GLOBALS.vpSize[0] < THALIA_GLOBALS.vpSizeBreakpoints.breakpoints.w.vertical) {
-                THALIA_GLOBALS.vpSizeBreakpoints.current.w = "vpWidthVertical";
+                THALIA_GLOBALS.vpSizeBreakpoints.current.w = 'vpWidthVertical';
             } else {
-                THALIA_GLOBALS.vpSizeBreakpoints.current.w = "vpWidthSquare";
+                THALIA_GLOBALS.vpSizeBreakpoints.current.w = 'vpWidthSquare';
             }
         } else {
-            THALIA_GLOBALS.vpSizeBreakpoints.current.w = "vpWidthDefault";
+            THALIA_GLOBALS.vpSizeBreakpoints.current.w = 'vpWidthDefault';
         }
-    }
+    },
 };
 THALIA_GLOBALS.init();
-window.addEventListener("resize", THALIA_GLOBALS.init);
-
-
+window.addEventListener('resize', THALIA_GLOBALS.init);
 
 // SMOOTH SCROLL
 let ScrollMain;
 const SCROLL = {
-    options : {
+    options: {
         scroll: {
             lenisOptions: {
                 smoothWheel: true,
@@ -200,86 +236,89 @@ const SCROLL = {
         scrollTo: {
             offset: 0,
             duration: 0.9,
-            immediate : false,
+            immediate: false,
             lock: false,
-            easing: (x) => ( BezierEasing(0.45, 0, 0.05, 1)(x) ),
+            easing: (x) => BezierEasing(0.45, 0, 0.05, 1)(x),
         },
     },
-    resize : (instance, delay = 200) => {
+    resize: (instance, delay = 200) => {
         setTimeout(() => {
             instance.resize();
         }, delay);
     },
-    getScroll : (instance) => {
+    getScroll: (instance) => {
         return instance.lenisInstance.animatedScroll;
     },
-    getScrollTarget : (instance) => {
+    getScrollTarget: (instance) => {
         return instance.lenisInstance.targetScroll;
     },
-    initEvents : () => {
-        window.addEventListener('scrollHit', (e) => { // data-scroll-position="start,start"
+    initEvents: () => {
+        window.addEventListener('scrollHit', (e) => {
+            // data-scroll-position="start,start"
             if (e.detail.progress >= 1) {
-                e.detail.target.classList.add("is-scroll-hit");
+                e.detail.target.classList.add('is-scroll-hit');
                 return;
             } else {
-                e.detail.target.classList.remove("is-scroll-hit");
+                e.detail.target.classList.remove('is-scroll-hit');
             }
         });
     },
-}
-
+};
 
 // STICKY MENU
 let STICKY_MENU = {
-    elements : {
-        menusContainers : document.querySelectorAll(".sticky-menu wrapper[menu-show-id]"),
+    elements: {
+        menusContainers: document.querySelectorAll('.sticky-menu wrapper[menu-show-id]'),
 
-        projectNameSpan : document.querySelector(".sticky-menu wrapper[menu-show-id] .project-name"),
-        projectH1 : undefined,
+        projectNameSpan: document.querySelector('.sticky-menu wrapper[menu-show-id] .project-name'),
+        projectH1: undefined,
     },
-    init : () => {
-        docHTML.setAttribute("thalia-sticky-menu-state", "false");
-        STICKY_MENU.elements.menusContainers.forEach((el) => { el.setAttribute("menu-show-state", "false"); });
+    init: () => {
+        docHTML.setAttribute('thalia-sticky-menu-state', 'false');
+        STICKY_MENU.elements.menusContainers.forEach((el) => {
+            el.setAttribute('menu-show-state', 'false');
+        });
 
         STICKY_MENU.toggleMenuFromURL(swup.location.pathname);
-        swup.hooks.on('content:replace', (visit) => { STICKY_MENU.toggleMenuFromURL(visit.to.url); });
+        swup.hooks.on('content:replace', (visit) => {
+            STICKY_MENU.toggleMenuFromURL(visit.to.url);
+        });
 
         window.addEventListener('scrollStickyMenu', (e) => {
             if (SCROLL.getScroll(ScrollMain) < 5) {
-                docHTML.setAttribute("thalia-sticky-menu-state", "true");
+                docHTML.setAttribute('thalia-sticky-menu-state', 'true');
                 return;
             }
-            docHTML.setAttribute("thalia-sticky-menu-state", e.detail.way === "enter");
+            docHTML.setAttribute('thalia-sticky-menu-state', e.detail.way === 'enter');
         });
     },
-    triggerAnimate : (el, state = false) => {
-        el.style.width = el.firstElementChild.getBoundingClientRect().width + "px";
+    triggerAnimate: (el, state = false) => {
+        el.style.width = el.firstElementChild.getBoundingClientRect().width + 'px';
 
         setTimeout(() => {
-            el.setAttribute("menu-show-state", "transition-"+ state);
+            el.setAttribute('menu-show-state', 'transition-' + state);
 
             atTransitionEnd(
                 el,
                 () => {
-                    el.setAttribute("menu-show-state", state);
+                    el.setAttribute('menu-show-state', state);
                     el.style.width = null;
                 },
-                { once : true }
+                { once: true }
             );
         }, 100);
     },
     toggleMenu: (menuKey) => {
-        if (menuKey === "project") {
-            STICKY_MENU.elements.projectH1 = document.querySelector(".section-main-gallery h1.project-title");
+        if (menuKey === 'project') {
+            STICKY_MENU.elements.projectH1 = document.querySelector('.section-main-gallery h1.project-title');
 
             if (!STICKY_MENU.elements.projectH1) {
-                STICKY_MENU.elements.projectNameSpan.parentElement.classList.add("hide");
-                STICKY_MENU.elements.projectNameSpan.innerText = "";
-            }
-            else {
-                STICKY_MENU.elements.projectNameSpan.parentElement.classList.remove("hide");
+                STICKY_MENU.elements.projectNameSpan.parentElement.classList.add('hide');
+                STICKY_MENU.elements.projectNameSpan.innerText = '';
+            } else {
+                STICKY_MENU.elements.projectNameSpan.parentElement.classList.remove('hide');
                 STICKY_MENU.elements.projectNameSpan.style.opacity = 0;
-                STICKY_MENU.elements.projectNameSpan.style.transition = "none";
+                STICKY_MENU.elements.projectNameSpan.style.transition = 'none';
                 STICKY_MENU.elements.projectNameSpan.innerText = STICKY_MENU.elements.projectH1.innerText;
                 setTimeout(() => {
                     STICKY_MENU.elements.projectNameSpan.style.transition = null;
@@ -288,110 +327,129 @@ let STICKY_MENU = {
             }
         }
 
-        const selectMenus = document.querySelectorAll('*[menu-show-id="'+ menuKey +'"]');
-        if(selectMenus.length <= 0) { console.error("[STICKY_MENU.toggleMenu] not found : "+ menuKey); return; };
+        const selectMenus = document.querySelectorAll('*[menu-show-id="' + menuKey + '"]');
+        if (selectMenus.length <= 0) {
+            console.error('[STICKY_MENU.toggleMenu] not found : ' + menuKey);
+            return;
+        }
 
         STICKY_MENU.elements.menusContainers.forEach((el) => {
-            if (el.getAttribute("menu-show-id") !== menuKey) {
+            if (el.getAttribute('menu-show-id') !== menuKey) {
                 STICKY_MENU.triggerAnimate(el, false);
             }
         });
 
         selectMenus.forEach((el) => {
-            if (el.getAttribute("menu-show-state").includes("true")) { return; }
+            if (el.getAttribute('menu-show-state').includes('true')) {
+                return;
+            }
             STICKY_MENU.triggerAnimate(el, true);
         });
     },
-    toggleMenuFromURL : (toURL) => {
-        if (toURL !== "/") {
-            STICKY_MENU.toggleMenu("project");
-        }
-        else {
-            STICKY_MENU.toggleMenu("filters");
+    toggleMenuFromURL: (toURL) => {
+        if (toURL !== '/') {
+            STICKY_MENU.toggleMenu('project');
+        } else {
+            STICKY_MENU.toggleMenu('filters');
         }
     },
-}
-
-
+};
 
 // THALIA CHARA ANIMATIONS
 let THALIA_CHARA = {
-    options : {
-        dragIntensity : {
-            vpWidthDefault : [0.5, 0.6],
-            vpWidthSquare : [0.5, 0.6],
-            vpWidthVertical : [0.5, 0.4],
+    options: {
+        dragIntensity: {
+            vpWidthDefault: [0.5, 0.6],
+            vpWidthSquare: [0.5, 0.6],
+            vpWidthVertical: [0.5, 0.4],
         },
-        angleDamping : 0.025,
-        look : {
-            maxDistance : 10,
-            damping : [20, 15]
+        angleDamping: 0.025,
+        look: {
+            maxDistance: 10,
+            damping: [20, 15],
         },
-        blink : {
-            startTimeout : 2200,
-            interval : 3500,
-            randomIntervalAdd : 8000,
-            speed : 190,
-        }
+        blink: {
+            startTimeout: 2200,
+            interval: 3500,
+            randomIntervalAdd: 8000,
+            speed: 190,
+        },
     },
-    data : {
-        dragPos : [0, 0],
-        look : {},
-        blinkIntervalInstance : null,
+    data: {
+        dragPos: [0, 0],
+        look: {},
+        blinkIntervalInstance: null,
     },
-    elements : {
-        dragContainer : document.querySelector("main"),
-        contentContainer : document.querySelector(".section-main-head"),
-        main : document.querySelector(".interactive-chara-thalia svg.thalia-chara"),
-        mainEyes : document.querySelector(".interactive-chara-thalia svg.thalia-chara g[data-name='eyes']"),
-        hands : document.querySelectorAll(".chara-thalia--hands svg.thalia-chara"),
-        socialBtns : document.querySelectorAll(".section-main-head .socials .social-btn")
+    elements: {
+        dragContainer: document.querySelector('main'),
+        contentContainer: document.querySelector('.section-main-head'),
+        main: document.querySelector('.interactive-chara-thalia svg.thalia-chara'),
+        mainEyes: document.querySelector(".interactive-chara-thalia svg.thalia-chara g[data-name='eyes']"),
+        hands: document.querySelectorAll('.chara-thalia--hands svg.thalia-chara'),
+        socialBtns: document.querySelectorAll('.section-main-head .socials .social-btn'),
     },
-    interactions : {
+    interactions: {
         init: () => {
-            if(THALIA_CHARA.elements.main && !THALIA_CHARA.data.activated) {
+            if (THALIA_CHARA.elements.main && !THALIA_CHARA.data.activated) {
                 THALIA_CHARA.data.activated = true;
-                THALIA_CHARA.data.state = "resting";
-                docHTML.setAttribute("thalia-chara-state", "resting");
+                THALIA_CHARA.data.state = 'resting';
+                docHTML.setAttribute('thalia-chara-state', 'resting');
                 THALIA_CHARA.interactions.toggleHands(true);
                 window.addEventListener('scrollThaliaCharaHandsToggle', (e) => {
                     if (SCROLL.getScroll(ScrollMain) < 5) {
                         THALIA_CHARA.interactions.toggleHands(true);
                         return;
                     }
-                    THALIA_CHARA.interactions.toggleHands(e.detail.way === "enter");
+                    THALIA_CHARA.interactions.toggleHands(e.detail.way === 'enter');
                 });
                 THALIA_CHARA.interactions.initBlinkHit();
 
                 THALIA_CHARA.interactions.updateEyesPosition();
-                window.addEventListener("resize", THALIA_CHARA.interactions.updateEyesPosition);
-                THALIA_CHARA.elements.contentContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.updateEyesPosition);
-
+                window.addEventListener('resize', THALIA_CHARA.interactions.updateEyesPosition);
+                THALIA_CHARA.elements.contentContainer.addEventListener(
+                    'pointerenter',
+                    THALIA_CHARA.interactions.updateEyesPosition
+                );
 
                 if (!THALIA_GLOBALS.isTouch) {
                     THALIA_CHARA.interactions.look();
-                    THALIA_CHARA.elements.dragContainer.addEventListener("pointerenter", THALIA_CHARA.interactions.look);
-                    THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.unlook);
+                    THALIA_CHARA.elements.dragContainer.addEventListener(
+                        'pointerenter',
+                        THALIA_CHARA.interactions.look
+                    );
+                    THALIA_CHARA.elements.dragContainer.addEventListener(
+                        'pointerleave',
+                        THALIA_CHARA.interactions.unlook
+                    );
                 }
-                THALIA_CHARA.elements.dragContainer.addEventListener("pointerleave", THALIA_CHARA.interactions.pointerStop);
-                THALIA_CHARA.elements.dragContainer.addEventListener("pointerup", THALIA_CHARA.interactions.pointerStop);
+                THALIA_CHARA.elements.dragContainer.addEventListener(
+                    'pointerleave',
+                    THALIA_CHARA.interactions.pointerStop
+                );
+                THALIA_CHARA.elements.dragContainer.addEventListener(
+                    'pointerup',
+                    THALIA_CHARA.interactions.pointerStop
+                );
 
-                THALIA_CHARA.elements.main.addEventListener("pointerdown", THALIA_CHARA.interactions.pointerActive);
+                THALIA_CHARA.elements.main.addEventListener('pointerdown', THALIA_CHARA.interactions.pointerActive);
 
                 // social btns
-                docHTML.setAttribute("thalia-social-hover", "false");
-                if(THALIA_CHARA.elements.socialBtns.length > 0 && !THALIA_GLOBALS.isTouch) {
+                docHTML.setAttribute('thalia-social-hover', 'false');
+                if (THALIA_CHARA.elements.socialBtns.length > 0 && !THALIA_GLOBALS.isTouch) {
                     THALIA_CHARA.interactions.socialBtnHover = (e) => {
-                        docHTML.setAttribute("thalia-social-hover", "true-"+ e.currentTarget.getAttribute("data-social-index"));
-                    }
+                        docHTML.setAttribute(
+                            'thalia-social-hover',
+                            'true-' + e.currentTarget.getAttribute('data-social-index')
+                        );
+                    };
                     THALIA_CHARA.interactions.socialBtnOut = (e) => {
-                        docHTML.setAttribute("thalia-social-hover", "false");
-                    }
+                        docHTML.setAttribute('thalia-social-hover', 'false');
+                    };
 
                     THALIA_CHARA.elements.socialBtns.forEach((sBtn, index) => {
-                        sBtn.setAttribute("data-social-index", index + 1);
-                        sBtn.addEventListener("pointerenter", THALIA_CHARA.interactions.socialBtnHover);
-                        sBtn.addEventListener("pointerleave", THALIA_CHARA.interactions.socialBtnOut);
+                        sBtn.setAttribute('data-social-index', index + 1);
+                        sBtn.addEventListener('pointerenter', THALIA_CHARA.interactions.socialBtnHover);
+                        sBtn.addEventListener('pointerleave', THALIA_CHARA.interactions.socialBtnOut);
                     });
                 }
             }
@@ -404,55 +462,60 @@ let THALIA_CHARA = {
                     return;
                 }
 
-                if (e.detail.way === "enter") {
+                if (e.detail.way === 'enter') {
                     THALIA_CHARA.interactions.enable();
                 } else {
                     THALIA_CHARA.interactions.disable();
                 }
             });
         },
-        enable : () => {
-            THALIA_CHARA.elements.dragContainer.addEventListener("pointermove", THALIA_CHARA.interactions.following);
+        enable: () => {
+            THALIA_CHARA.elements.dragContainer.addEventListener('pointermove', THALIA_CHARA.interactions.following);
 
             THALIA_CHARA.interactions.blinkLoopStart();
         },
-        disable : () => {
-            THALIA_CHARA.elements.dragContainer.removeEventListener("pointermove", THALIA_CHARA.interactions.following);
+        disable: () => {
+            THALIA_CHARA.elements.dragContainer.removeEventListener('pointermove', THALIA_CHARA.interactions.following);
 
             THALIA_CHARA.interactions.blinkLoopStop();
         },
 
-        updateEyesPosition : (e) => {
+        updateEyesPosition: (e) => {
             SCROLL.resize(ScrollMain);
             THALIA_CHARA.data.look.center = _GET.elementCenterPos(THALIA_CHARA.elements.mainEyes);
         },
-        look : (e) => {
-            THALIA_CHARA.elements.main.classList.add("looking");
+        look: (e) => {
+            THALIA_CHARA.elements.main.classList.add('looking');
         },
-        unlook : (e) => {
-            THALIA_CHARA.elements.main.classList.remove("looking");
+        unlook: (e) => {
+            THALIA_CHARA.elements.main.classList.remove('looking');
         },
-        pointerStop : (e) => {
+        pointerStop: (e) => {
             const posX_abs = Math.abs(THALIA_CHARA.data.dragPos[0]);
-            docHTML.setAttribute("thalia-chara-drag-strength", ((posX_abs > THALIA_GLOBALS.vpSize[0] / 8) ? "strong" : ((posX_abs > 15) ? "weak" : "none")));
-            docHTML.style.setProperty("--thalia-chara-drag-direction", ((THALIA_CHARA.data.dragPos[0] > 0) ? 1 : -1));
+            docHTML.setAttribute(
+                'thalia-chara-drag-strength',
+                posX_abs > THALIA_GLOBALS.vpSize[0] / 8 ? 'strong'
+                : posX_abs > 15 ? 'weak'
+                : 'none'
+            );
+            docHTML.style.setProperty('--thalia-chara-drag-direction', THALIA_CHARA.data.dragPos[0] > 0 ? 1 : -1);
 
-            THALIA_CHARA.data.state = "resting";
-            docHTML.setAttribute("thalia-chara-state", "resting");
-            THALIA_CHARA.elements.main.classList.remove("grabbing");
+            THALIA_CHARA.data.state = 'resting';
+            docHTML.setAttribute('thalia-chara-state', 'resting');
+            THALIA_CHARA.elements.main.classList.remove('grabbing');
         },
-        pointerActive : (e) => {
+        pointerActive: (e) => {
             THALIA_CHARA.data.pointerPosStart = [e.clientX, e.clientY];
 
-            THALIA_CHARA.data.state = "grabbing";
+            THALIA_CHARA.data.state = 'grabbing';
             THALIA_CHARA.interactions.following(e);
-            docHTML.setAttribute("thalia-chara-state", "grabbing");
-            THALIA_CHARA.elements.main.classList.add("grabbing");
+            docHTML.setAttribute('thalia-chara-state', 'grabbing');
+            THALIA_CHARA.elements.main.classList.add('grabbing');
         },
-        following : (e) => {
+        following: (e) => {
             THALIA_CHARA.data.pointerPos = [e.clientX, e.clientY];
 
-            if(THALIA_CHARA.data.state == "grabbing") {
+            if (THALIA_CHARA.data.state == 'grabbing') {
                 THALIA_CHARA.data.dragPos = [
                     lerp(
                         0,
@@ -463,12 +526,15 @@ let THALIA_CHARA = {
                         0,
                         THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.pointerPosStart[1],
                         THALIA_CHARA.options.dragIntensity[THALIA_GLOBALS.vpSizeBreakpoints.current.w][1]
-                    )
+                    ),
                 ];
 
-                docHTML.style.setProperty("--thalia-chara-drag-x", THALIA_CHARA.data.dragPos[0] +"px");
-                docHTML.style.setProperty("--thalia-chara-drag-y", THALIA_CHARA.data.dragPos[1] +"px");
-                docHTML.style.setProperty("--thalia-chara-drag-rotate", THALIA_CHARA.data.dragPos[0] * THALIA_CHARA.options.angleDamping +"deg");
+                docHTML.style.setProperty('--thalia-chara-drag-x', THALIA_CHARA.data.dragPos[0] + 'px');
+                docHTML.style.setProperty('--thalia-chara-drag-y', THALIA_CHARA.data.dragPos[1] + 'px');
+                docHTML.style.setProperty(
+                    '--thalia-chara-drag-rotate',
+                    THALIA_CHARA.data.dragPos[0] * THALIA_CHARA.options.angleDamping + 'deg'
+                );
 
                 /*// precise angle
                 let angle = Math.atan2(
@@ -485,59 +551,78 @@ let THALIA_CHARA = {
                     , THALIA_CHARA.options.dragIntensity[2])
                     +"rad"
                 );*/
-            } else if(!THALIA_GLOBALS.isTouch) {
+            } else if (!THALIA_GLOBALS.isTouch) {
                 THALIA_CHARA.data.look.posFromCenter = [
-                    (THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.look.center[0]) / THALIA_CHARA.options.look.damping[0],
-                    (THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.look.center[1]) / THALIA_CHARA.options.look.damping[1]
+                    (THALIA_CHARA.data.pointerPos[0] - THALIA_CHARA.data.look.center[0])
+                        / THALIA_CHARA.options.look.damping[0],
+                    (THALIA_CHARA.data.pointerPos[1] - THALIA_CHARA.data.look.center[1])
+                        / THALIA_CHARA.options.look.damping[1],
                 ];
-                THALIA_CHARA.data.look.distanceFactor = THALIA_CHARA.options.look.maxDistance / Math.sqrt(
-                    (THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.posFromCenter[0])
-                    + (THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.posFromCenter[1])
-                )
+                THALIA_CHARA.data.look.distanceFactor =
+                    THALIA_CHARA.options.look.maxDistance
+                    / Math.sqrt(
+                        THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.posFromCenter[0]
+                            + THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.posFromCenter[1]
+                    );
 
                 if (THALIA_CHARA.data.look.distanceFactor > 1) {
                     THALIA_CHARA.data.look.posFromCenter = [
                         THALIA_CHARA.data.look.posFromCenter[0],
-                        THALIA_CHARA.data.look.posFromCenter[1]
+                        THALIA_CHARA.data.look.posFromCenter[1],
                     ];
                 } else {
                     THALIA_CHARA.data.look.posFromCenter = [
                         THALIA_CHARA.data.look.posFromCenter[0] * THALIA_CHARA.data.look.distanceFactor,
-                        THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.distanceFactor
+                        THALIA_CHARA.data.look.posFromCenter[1] * THALIA_CHARA.data.look.distanceFactor,
                     ];
                 }
 
-                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-x", _GET.float(THALIA_CHARA.data.look.posFromCenter[0]) +"px");
-                THALIA_CHARA.elements.main.style.setProperty("--pointer-follow-look-y", _GET.float(THALIA_CHARA.data.look.posFromCenter[1]) +"px");
+                THALIA_CHARA.elements.main.style.setProperty(
+                    '--pointer-follow-look-x',
+                    _GET.float(THALIA_CHARA.data.look.posFromCenter[0]) + 'px'
+                );
+                THALIA_CHARA.elements.main.style.setProperty(
+                    '--pointer-follow-look-y',
+                    _GET.float(THALIA_CHARA.data.look.posFromCenter[1]) + 'px'
+                );
             }
         },
         toggleHands: (active) => {
-            docHTML.setAttribute("thalia-chara-hands-toggle", active);
+            docHTML.setAttribute('thalia-chara-hands-toggle', active);
         },
         initBlinkHit: () => {
             THALIA_CHARA.interactions.blinkHit(false);
 
             THALIA_CHARA.elements.hands.forEach((hand) => {
-                hand.addEventListener("pointerdown", () => { THALIA_CHARA.interactions.blinkHit(true); });
-                hand.addEventListener("pointerup", () => { THALIA_CHARA.interactions.blinkHit(false); });
-                hand.addEventListener("pointerleave", () => { THALIA_CHARA.interactions.blinkHit(false); });
-            })
+                hand.addEventListener('pointerdown', () => {
+                    THALIA_CHARA.interactions.blinkHit(true);
+                });
+                hand.addEventListener('pointerup', () => {
+                    THALIA_CHARA.interactions.blinkHit(false);
+                });
+                hand.addEventListener('pointerleave', () => {
+                    THALIA_CHARA.interactions.blinkHit(false);
+                });
+            });
         },
         blinkHit: (active) => {
-            docHTML.setAttribute("thalia-chara-state", (active) ? "grabbing" : "resting");
-            THALIA_CHARA.elements.main.classList.toggle("grabbing", active);
-            THALIA_CHARA.data.dragPos = [0,0];
-            docHTML.style.setProperty("--thalia-chara-drag-x", "0px");
-            docHTML.style.setProperty("--thalia-chara-drag-y", "0px");
-            docHTML.style.setProperty("--thalia-chara-drag-rotate", "0deg");
+            docHTML.setAttribute('thalia-chara-state', active ? 'grabbing' : 'resting');
+            THALIA_CHARA.elements.main.classList.toggle('grabbing', active);
+            THALIA_CHARA.data.dragPos = [0, 0];
+            docHTML.style.setProperty('--thalia-chara-drag-x', '0px');
+            docHTML.style.setProperty('--thalia-chara-drag-y', '0px');
+            docHTML.style.setProperty('--thalia-chara-drag-rotate', '0deg');
         },
         blink: (now = false) => {
-            setTimeout(() => {
-                docHTML.setAttribute("thalia-chara-blink", "true");
-                setTimeout(() => {
-                    docHTML.setAttribute("thalia-chara-blink", "false");
-                }, THALIA_CHARA.options.blink.speed);
-            }, (now) ? 0 : _GET.randomIntFromInterval(0, THALIA_CHARA.options.blink.randomIntervalAdd));
+            setTimeout(
+                () => {
+                    docHTML.setAttribute('thalia-chara-blink', 'true');
+                    setTimeout(() => {
+                        docHTML.setAttribute('thalia-chara-blink', 'false');
+                    }, THALIA_CHARA.options.blink.speed);
+                },
+                now ? 0 : _GET.randomIntFromInterval(0, THALIA_CHARA.options.blink.randomIntervalAdd)
+            );
         },
         blinkLoopStart: () => {
             if (!THALIA_CHARA.data.blinkIntervalInstance) {
@@ -557,30 +642,28 @@ let THALIA_CHARA = {
             }
         },
     },
-}
-
-
+};
 
 // GALLERY GRID
 let GridMuuriGallery;
 const GridMuuri_options = {
-    target : '.grid-muuri',
-    gallery : {
-        items: ".grid-muuri--item",
+    target: '.grid-muuri',
+    gallery: {
+        items: '.grid-muuri--item',
         sortData: null,
 
         showDuration: 600,
         showEasing: 'cubic-bezier(0.4, 0, 0, 1)',
         visibleStyles: {
             opacity: '1',
-            transform: 'scale(1)'
+            transform: 'scale(1)',
         },
 
         hideDuration: 400,
         hideEasing: 'cubic-bezier(0.7, 0, 0.4, 1)',
         hiddenStyles: {
             opacity: '0',
-            transform: 'scale(0.6)'
+            transform: 'scale(0.6)',
         },
 
         layout: {
@@ -588,7 +671,7 @@ const GridMuuri_options = {
             horizontal: false,
             alignRight: false,
             alignBottom: false,
-            rounding: false
+            rounding: false,
         },
         layoutOnInit: true,
 
@@ -597,29 +680,30 @@ const GridMuuri_options = {
         layoutEasing: 'cubic-bezier(0.45, 0, 0, 1)',
 
         dragEnabled: false,
-    }
-}
-
+    },
+};
 
 let GALLERY_GRID = {
-    itemsShiftValue : 140,
-    data : {
-        currentFilter : null,
+    itemsShiftValue: 140,
+    data: {
+        currentFilter: null,
         // maxSize : 0,
     },
-    elements : {
-        section : document.querySelector(".section-main-gallery"),
-        gallerySectionTopAnchor : document.querySelector(".section-main-gallery .anchor-top"),
-        gallerySectionScrollToAnchor : document.querySelector(".section-main-gallery .scroll-to-anchor"),
-        galleryItemsFiltersContainers : undefined,
-        filtersBarBtns : document.querySelectorAll(".sticky-menu wrapper[menu-show-id='filters'] .btn-filter"),
-        filtersClearBtn : document.querySelectorAll("*[thalia-gallery-filter-btn-clear]"),
-        filtersBtns : undefined,
+    elements: {
+        section: document.querySelector('.section-main-gallery'),
+        gallerySectionTopAnchor: document.querySelector('.section-main-gallery .anchor-top'),
+        gallerySectionScrollToAnchor: document.querySelector('.section-main-gallery .scroll-to-anchor'),
+        galleryItemsFiltersContainers: undefined,
+        filtersBarBtns: document.querySelectorAll(".sticky-menu wrapper[menu-show-id='filters'] .btn-filter"),
+        filtersClearBtn: document.querySelectorAll('*[thalia-gallery-filter-btn-clear]'),
+        filtersBtns: undefined,
         shiftItemsMuuri: undefined,
         shiftItemsContent: [],
     },
-    init : (initReset = true) => {
-        GALLERY_GRID.elements.galleryItemsFiltersContainers = document.querySelectorAll(".gallery-grid .item-gallery .filters");
+    init: (initReset = true) => {
+        GALLERY_GRID.elements.galleryItemsFiltersContainers = document.querySelectorAll(
+            '.gallery-grid .item-gallery .filters'
+        );
 
         GridMuuriGallery = new Muuri(GridMuuri_options.target, GridMuuri_options.gallery);
 
@@ -647,15 +731,15 @@ let GALLERY_GRID = {
         });*/
         // setTimeout(() => { GALLERY_GRID.initScrollInView(); }, 100);
     },
-    initAttributes : () => {
-        if (!docHTML.hasAttribute("thalia-gallery-filter")) {
-            docHTML.setAttribute("thalia-gallery-filter", "false");
+    initAttributes: () => {
+        if (!docHTML.hasAttribute('thalia-gallery-filter')) {
+            docHTML.setAttribute('thalia-gallery-filter', 'false');
         }
     },
-    destroy : () => {
+    destroy: () => {
         GridMuuriGallery.destroy();
 
-        GALLERY_GRID.elements.filtersBtns = document.querySelectorAll("*[thalia-gallery-filter-btn-id]");
+        GALLERY_GRID.elements.filtersBtns = document.querySelectorAll('*[thalia-gallery-filter-btn-id]');
 
         GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
             if (fBtn) {
@@ -666,21 +750,21 @@ let GALLERY_GRID = {
         });
         GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
             if (fcBtn) {
-                fcBtn.removeEventListener("click", GALLERY_GRID.onUnfilter);
+                fcBtn.removeEventListener('click', GALLERY_GRID.onUnfilter);
             }
         });
     },
-    galleryFilter : (item, matchFilter) => {
+    galleryFilter: (item, matchFilter) => {
         if (item.getElement().getAttribute('thalia-gallery-item-filters').match(matchFilter)) {
             return true;
         }
         return false;
     },
-    onClickFilter : (el, passive = false) => {
-        docHTML.setAttribute("thalia-gallery-filter-previous", docHTML.getAttribute("thalia-gallery-filter"));
+    onClickFilter: (el, passive = false) => {
+        docHTML.setAttribute('thalia-gallery-filter-previous', docHTML.getAttribute('thalia-gallery-filter'));
 
         if (!passive) {
-            if (el.getAttribute("thalia-gallery-filter-btn-id") == GALLERY_GRID.data.currentFilter) {
+            if (el.getAttribute('thalia-gallery-filter-btn-id') == GALLERY_GRID.data.currentFilter) {
                 GALLERY_GRID.onUnfilter();
                 SCROLL.resize(ScrollMain);
             } else {
@@ -688,177 +772,206 @@ let GALLERY_GRID = {
                 SCROLL.resize(ScrollMain);
             }
             GALLERY_GRID.scrollToTop();
-        }
-        else {
+        } else {
             GALLERY_GRID.onFilter(el, passive);
             SCROLL.resize(ScrollMain);
         }
     },
-    onFilter : (el, passive = false) => {
+    onFilter: (el, passive = false) => {
         if (!passive) {
-            GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
+            GALLERY_GRID.data.currentFilter = el.getAttribute('thalia-gallery-filter-btn-id');
             GALLERY_GRID.setShiftItemsSize();
-            docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
+            docHTML.setAttribute('thalia-gallery-filter', GALLERY_GRID.data.currentFilter);
 
             GALLERY_GRID.filterItems();
-        }
-        else {
-            GALLERY_GRID.data.currentFilter = el.getAttribute("thalia-gallery-filter-btn-id");
-            docHTML.setAttribute("thalia-gallery-filter", GALLERY_GRID.data.currentFilter);
+        } else {
+            GALLERY_GRID.data.currentFilter = el.getAttribute('thalia-gallery-filter-btn-id');
+            docHTML.setAttribute('thalia-gallery-filter', GALLERY_GRID.data.currentFilter);
         }
     },
-    onUnfilter : (initReset = true) => {
+    onUnfilter: (initReset = true) => {
         if (initReset) {
             GALLERY_GRID.data.currentFilter = null;
             GALLERY_GRID.setShiftItemsSize();
-            docHTML.setAttribute("thalia-gallery-filter", "false");
-        }
-        else {
+            docHTML.setAttribute('thalia-gallery-filter', 'false');
+        } else {
             GALLERY_GRID.setShiftItemsSize();
         }
 
         GALLERY_GRID.filterItems();
     },
-    filterItems : () => {
+    filterItems: () => {
         const doFilter = !!GALLERY_GRID.data.currentFilter;
 
         GridMuuriGallery.refreshItems();
         GridMuuriGallery.filter((item) => {
-            item.getElement().setAttribute("thalia-gallery-item-was-hidden", !item.isVisible());
-            return (doFilter) ? GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter) : true;
+            item.getElement().setAttribute('thalia-gallery-item-was-hidden', !item.isVisible());
+            return doFilter ? GALLERY_GRID.galleryFilter(item, GALLERY_GRID.data.currentFilter) : true;
         });
 
         if (doFilter) {
             GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
                 if (fBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
-                    fBtn.classList.add("active");
+                    fBtn.classList.add('active');
                 } else {
-                    fBtn.classList.remove("active");
+                    fBtn.classList.remove('active');
                 }
             });
-        }
-        else {
-            GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => { fBtn.classList.remove("active") });
-        }
-    },
-    createItemsFiltersBtns : () => {
-        GridMuuriGallery.getItems().forEach((item) => {
-            let filterElements = "";
-            item.getElement().getAttribute("thalia-gallery-item-filters").split(";").forEach((filterName) => {
-                filterElements += '<span thalia-gallery-filter-btn-id="'+ filterName +'">'+ filterName +'</span>';
+        } else {
+            GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
+                fBtn.classList.remove('active');
             });
-            item.getElement().querySelector(".filters").innerHTML = filterElements;
-        })
+        }
     },
-    createFilterBtns : (container, filterActionCallback = null) => {
-        const filtersContainers = container.querySelectorAll("*[thalia-gallery-filters--insert]");
+    createItemsFiltersBtns: () => {
+        GridMuuriGallery.getItems().forEach((item) => {
+            let filterElements = '';
+            item.getElement()
+                .getAttribute('thalia-gallery-item-filters')
+                .split(';')
+                .forEach((filterName) => {
+                    filterElements +=
+                        '<span thalia-gallery-filter-btn-id="' + filterName + '">' + filterName + '</span>';
+                });
+            item.getElement().querySelector('.filters').innerHTML = filterElements;
+        });
+    },
+    createFilterBtns: (container, filterActionCallback = null) => {
+        const filtersContainers = container.querySelectorAll('*[thalia-gallery-filters--insert]');
 
         if (filtersContainers.length > 0) {
             filtersContainers.forEach((el) => {
-                let filterElements = "";
-                el.getAttribute("thalia-gallery-filters--insert").split(";").forEach((filterName) => {
-                    filterElements += '<span thalia-gallery-filter-btn-id="'+ filterName +'">'+ filterName +'</span>';
-                });
+                let filterElements = '';
+                el.getAttribute('thalia-gallery-filters--insert')
+                    .split(';')
+                    .forEach((filterName) => {
+                        filterElements +=
+                            '<span thalia-gallery-filter-btn-id="' + filterName + '">' + filterName + '</span>';
+                    });
                 el.innerHTML = filterElements;
             });
-            container.querySelectorAll("*[thalia-gallery-filters--insert] *[thalia-gallery-filter-btn-id]").forEach((elFilter) => {
-                elFilter.addEventListener("click", () => {
-                    GALLERY_GRID.onClickFilter(elFilter, true);
+            container
+                .querySelectorAll('*[thalia-gallery-filters--insert] *[thalia-gallery-filter-btn-id]')
+                .forEach((elFilter) => {
+                    elFilter.addEventListener('click', () => {
+                        GALLERY_GRID.onClickFilter(elFilter, true);
 
-                    container.querySelectorAll(".sticky-menu *[thalia-gallery-filter-btn-id]").forEach((fBtn) => {
-                        if (fBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)) {
-                            fBtn.classList.add("active");
-                        } else {
-                            fBtn.classList.remove("active");
+                        container.querySelectorAll('.sticky-menu *[thalia-gallery-filter-btn-id]').forEach((fBtn) => {
+                            if (
+                                fBtn.getAttribute('thalia-gallery-filter-btn-id').match(GALLERY_GRID.data.currentFilter)
+                            ) {
+                                fBtn.classList.add('active');
+                            } else {
+                                fBtn.classList.remove('active');
+                            }
+                        });
+
+                        if (filterActionCallback != null) {
+                            filterActionCallback();
                         }
                     });
-
-                    if (filterActionCallback != null) { filterActionCallback(); };
                 });
-            });
             filtersContainers.forEach((el) => {
-                el.removeAttribute("thalia-gallery-filters--insert");
+                el.removeAttribute('thalia-gallery-filters--insert');
             });
         }
     },
-    initItemsFiltersBtns : (initReset = true) => {
-        GALLERY_GRID.elements.filtersBtns = document.querySelectorAll("*[thalia-gallery-filter-btn-id]");
+    initItemsFiltersBtns: (initReset = true) => {
+        GALLERY_GRID.elements.filtersBtns = document.querySelectorAll('*[thalia-gallery-filter-btn-id]');
         if (GALLERY_GRID.elements.filtersBtns.length > 0) {
             GALLERY_GRID.elements.filtersBtns.forEach((fBtn) => {
-                fBtn.addEventListener("click", () => { GALLERY_GRID.onClickFilter(fBtn); });
+                fBtn.addEventListener('click', () => {
+                    GALLERY_GRID.onClickFilter(fBtn);
+                });
             });
             GALLERY_GRID.elements.filtersClearBtn.forEach((fcBtn) => {
-                fcBtn.addEventListener("click", GALLERY_GRID.onUnfilter);
+                fcBtn.addEventListener('click', GALLERY_GRID.onUnfilter);
             });
         }
 
         GALLERY_GRID.onUnfilter(initReset);
     },
-    getShiftItemsSize : (callback) => {
+    getShiftItemsSize: (callback) => {
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
-            item.style.display = "block";
+            item.style.display = 'block';
             //item.setAttribute("thalia-gallery-item-height", window.getComputedStyle(item.firstElementChild.firstElementChild).height.replace("px", ""));
-            item.setAttribute("thalia-gallery-item-height", item.firstElementChild.firstElementChild.getBoundingClientRect().height);
+            item.setAttribute(
+                'thalia-gallery-item-height',
+                item.firstElementChild.firstElementChild.getBoundingClientRect().height
+            );
 
             setTimeout(() => {
-                if (!item.classList.contains("muuri-item-hidden")) {
+                if (!item.classList.contains('muuri-item-hidden')) {
                     item.style.display = null;
-                } else { item.style.display = "none"; }
+                } else {
+                    item.style.display = 'none';
+                }
             }, 5);
         });
 
-        if(callback) { callback() };
+        if (callback) {
+            callback();
+        }
     },
-    setShiftItemsSize : () => {
+    setShiftItemsSize: () => {
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
-            item.style.height = ((GALLERY_GRID.data.currentFilter === null) ? GALLERY_GRID.itemsShiftValue : 0) + parseFloat(item.getAttribute("thalia-gallery-item-height")) +"px";
-        })
+            item.style.height =
+                (GALLERY_GRID.data.currentFilter === null ? GALLERY_GRID.itemsShiftValue : 0)
+                + parseFloat(item.getAttribute('thalia-gallery-item-height'))
+                + 'px';
+        });
     },
-    initShiftItems : () => {
-        docHTML.style.setProperty("--thalia-gallery-item-shift", GALLERY_GRID.itemsShiftValue +"px");
+    initShiftItems: () => {
+        docHTML.style.setProperty('--thalia-gallery-item-shift', GALLERY_GRID.itemsShiftValue + 'px');
 
-        GALLERY_GRID.elements.shiftItemsMuuri = document.querySelectorAll(".gallery-grid .grid-muuri--item.item-shift");
+        GALLERY_GRID.elements.shiftItemsMuuri = document.querySelectorAll('.gallery-grid .grid-muuri--item.item-shift');
         GALLERY_GRID.elements.shiftItemsMuuri.forEach((item) => {
             // the _Content and _Muuri item have the same index
-            GALLERY_GRID.elements.shiftItemsContent.push(item.querySelectorAll(".item-gallery"));
-        })
+            GALLERY_GRID.elements.shiftItemsContent.push(item.querySelectorAll('.item-gallery'));
+        });
 
         GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize);
-        window.addEventListener("resize", () => { GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize) });
+        window.addEventListener('resize', () => {
+            GALLERY_GRID.getShiftItemsSize(GALLERY_GRID.setShiftItemsSize);
+        });
     },
-    initScrollInView : () => { // disabled
+    initScrollInView: () => {
+        // disabled
         GridMuuriGallery.getItems().forEach((item) => {
-            const itemG = item.getElement().querySelector(".item-gallery");
-            itemG.setAttribute("data-scroll", "");
-            itemG.setAttribute("data-scroll-offset", "200,0");
+            const itemG = item.getElement().querySelector('.item-gallery');
+            itemG.setAttribute('data-scroll', '');
+            itemG.setAttribute('data-scroll-offset', '200,0');
         });
         ScrollMain.addScrollElements(GridMuuriGallery.getElement());
     },
-    scrollToTop : () => {
+    scrollToTop: () => {
         if (SCROLL.getScroll(ScrollMain) > 50) {
             ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
                 ...SCROLL.options.scrollTo,
                 offset: 0,
-                onComplete: () => { SCROLL.resize(ScrollMain); }
+                onComplete: () => {
+                    SCROLL.resize(ScrollMain);
+                },
             });
         }
     },
-}
-
-
+};
 
 // PROJECTS LAYOUT COMPONENTS
 
 //- CAROUSEL INFINITE
-window.addEventListener("scrollCarouselInfinite_call", (e) => {
+window.addEventListener('scrollCarouselInfinite_call', (e) => {
     if (SCROLL.getScroll(ScrollMain) < 5) {
-        carouselInfiniteGlobal.toggle(true, e.detail.target.getAttribute("data-carousel-infinite-index"));
+        carouselInfiniteGlobal.toggle(true, e.detail.target.getAttribute('data-carousel-infinite-index'));
         return;
     }
-    carouselInfiniteGlobal.toggle(e.detail.way === "enter", e.detail.target.getAttribute("data-carousel-infinite-index"));
+    carouselInfiniteGlobal.toggle(
+        e.detail.way === 'enter',
+        e.detail.target.getAttribute('data-carousel-infinite-index')
+    );
 });
-window.addEventListener("scrollCarouselInfinite_onScroll", (e) => {
-    const index = e.detail.target.getAttribute("data-carousel-infinite-index");
+window.addEventListener('scrollCarouselInfinite_onScroll', (e) => {
+    const index = e.detail.target.getAttribute('data-carousel-infinite-index');
     carouselInfiniteGlobal.apply(
         e.detail.target,
         index,
@@ -870,44 +983,47 @@ let carouselInfiniteGlobal;
 class CarouselInfinite {
     constructor(options = {}) {
         this.options = {
-            initPosition : options.initPosition || -600,
-            idleSpeed : options.idleSpeed || -60, // px per second
-            scrollStrength : options.scrollStrength || -0.65,
-            dragStrength : options.dragStrength || 2.35,
-            dragEasingDuration : options.dragEasingDuration || 2000,
-            dragEasingTiming : options.dragEasingTiming || "outExpo",
+            initPosition: options.initPosition || -600,
+            idleSpeed: options.idleSpeed || -60, // px per second
+            scrollStrength: options.scrollStrength || -0.65,
+            dragStrength: options.dragStrength || 2.35,
+            dragEasingDuration: options.dragEasingDuration || 2000,
+            dragEasingTiming: options.dragEasingTiming || 'outExpo',
         };
 
         this.data = {
-            idleLoop : undefined,
-            elements : undefined,
-            instances : {},
-            eventListeners : {},
+            idleLoop: undefined,
+            elements: undefined,
+            instances: {},
+            eventListeners: {},
         };
     }
 
     init() {
-        this.data.elements = docHTML.querySelectorAll("*[data-carousel-infinite]");
+        this.data.elements = docHTML.querySelectorAll('*[data-carousel-infinite]');
 
-        if (this.data.elements.length <= 0) { return; }
+        if (this.data.elements.length <= 0) {
+            return;
+        }
 
         let countInstance = 0;
 
         this.data.elements.forEach((targetEl) => {
-            targetEl.setAttribute("data-carousel-infinite-index", countInstance);
+            targetEl.setAttribute('data-carousel-infinite-index', countInstance);
 
-            targetEl.setAttribute("data-scroll", "");
-            targetEl.setAttribute("data-scroll-repeat", "");
-            targetEl.setAttribute("data-scroll-position", "start,end");
-            targetEl.setAttribute("data-scroll-offset", "-5,-5");
-            targetEl.setAttribute("data-scroll-call", "scrollCarouselInfinite_call");
-            targetEl.setAttribute("data-scroll-event-progress", "scrollCarouselInfinite_onScroll");
-
+            targetEl.setAttribute('data-scroll', '');
+            targetEl.setAttribute('data-scroll-repeat', '');
+            targetEl.setAttribute('data-scroll-position', 'start,end');
+            targetEl.setAttribute('data-scroll-offset', '-5,-5');
+            targetEl.setAttribute('data-scroll-call', 'scrollCarouselInfinite_call');
+            targetEl.setAttribute('data-scroll-event-progress', 'scrollCarouselInfinite_onScroll');
 
             const itemsGroup = targetEl.firstElementChild.firstElementChild;
-            itemsGroup.classList.add("carousel-infinite--group");
-            let itemsGroupChildren = _GET.arrayOfElements([".carousel-infinite--group > *"], targetEl);
-            itemsGroupChildren.forEach((el) => { el.classList.add("carousel-infinite--item"); });
+            itemsGroup.classList.add('carousel-infinite--group');
+            let itemsGroupChildren = _GET.arrayOfElements(['.carousel-infinite--group > *'], targetEl);
+            itemsGroupChildren.forEach((el) => {
+                el.classList.add('carousel-infinite--item');
+            });
 
             // make the last item be the first
             // itemsGroup.insertBefore(itemsGroupChildren[itemsGroupChildren.length - 1], itemsGroupChildren[0]);
@@ -917,41 +1033,61 @@ class CarouselInfinite {
             itemsGroup.parentNode.appendChild(itemsGroupClone);
 
             const carouselItemsNb = Array.prototype.slice.call(itemsGroup.children).length;
-            if (carouselItemsNb < (targetEl.hasAttribute("data-carousel-infinite--3rd-mirror-threshold") ? parseInt(targetEl.getAttribute("data-carousel-infinite--3rd-mirror-threshold")) : 4)) { // make another copy
+            if (
+                carouselItemsNb
+                < (targetEl.hasAttribute('data-carousel-infinite--3rd-mirror-threshold') ?
+                    parseInt(targetEl.getAttribute('data-carousel-infinite--3rd-mirror-threshold'))
+                :   4)
+            ) {
+                // make another copy
                 const itemsGroupClone2 = itemsGroupClone.cloneNode(true);
                 itemsGroup.parentNode.appendChild(itemsGroupClone2);
             }
 
-            const carouselWay = targetEl.hasAttribute("data-carousel-infinite--invert") ? -1 : 1;
+            const carouselWay = targetEl.hasAttribute('data-carousel-infinite--invert') ? -1 : 1;
 
             this.data.instances[countInstance] = {
-                way : carouselWay,
-                idleSpeed : (targetEl.hasAttribute("data-carousel-infinite--idle-speed") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--idle-speed")) : this.options.idleSpeed) * carouselWay,
-                scrollStrength : (targetEl.hasAttribute("data-carousel-infinite--scroll-strength") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--scroll-strength")) : this.options.scrollStrength) * carouselWay,
+                way: carouselWay,
+                idleSpeed:
+                    (targetEl.hasAttribute('data-carousel-infinite--idle-speed') ?
+                        parseFloat(targetEl.getAttribute('data-carousel-infinite--idle-speed'))
+                    :   this.options.idleSpeed) * carouselWay,
+                scrollStrength:
+                    (targetEl.hasAttribute('data-carousel-infinite--scroll-strength') ?
+                        parseFloat(targetEl.getAttribute('data-carousel-infinite--scroll-strength'))
+                    :   this.options.scrollStrength) * carouselWay,
 
-                firstInit : false,
-                active : false,
-                currentPos : 0,
-                loopEndPos : 0,
-                itemsNb : carouselItemsNb,
+                firstInit: false,
+                active: false,
+                currentPos: 0,
+                loopEndPos: 0,
+                itemsNb: carouselItemsNb,
 
-                drag : {
+                drag: {
                     isDragging: false,
-                    mousePrevious : undefined,
-                    mouseCurrent : undefined,
+                    mousePrevious: undefined,
+                    mouseCurrent: undefined,
                     posFrom: 0,
                     posAnimated: 0,
                     posTo: 0,
-                }
+                },
             };
 
             this.idle();
 
             // drag interactions
-            if (!targetEl.onpointerdown) { targetEl.onpointerdown = this.dragToggle_down.bind(this, countInstance); };
-            if (!targetEl.onpointerup) { targetEl.onpointerup = this.dragToggle_up.bind(this, countInstance); };
-            if (!targetEl.onpointerout) { targetEl.onpointerout = this.dragToggle_up.bind(this, countInstance); };
-            if (!targetEl.onpointermove) { targetEl.onpointermove = this.dragMove.bind(this, countInstance); };
+            if (!targetEl.onpointerdown) {
+                targetEl.onpointerdown = this.dragToggle_down.bind(this, countInstance);
+            }
+            if (!targetEl.onpointerup) {
+                targetEl.onpointerup = this.dragToggle_up.bind(this, countInstance);
+            }
+            if (!targetEl.onpointerout) {
+                targetEl.onpointerout = this.dragToggle_up.bind(this, countInstance);
+            }
+            if (!targetEl.onpointermove) {
+                targetEl.onpointermove = this.dragMove.bind(this, countInstance);
+            }
 
             countInstance += 1;
         });
@@ -959,19 +1095,27 @@ class CarouselInfinite {
         // global updates init
         this.updateSizes();
         if (!this.data.eventListeners.resize_updateSizes) {
-            this.data.eventListeners.resize_updateSizes = window.addEventListener("resize", this.updateSizes.bind(this));
+            this.data.eventListeners.resize_updateSizes = window.addEventListener(
+                'resize',
+                this.updateSizes.bind(this)
+            );
         }
 
         let count = 0;
         this.data.elements.forEach((targetEl) => {
-            targetEl.querySelectorAll(".carousel-infinite--item > *").forEach((item) => {
-                item.addEventListener("load", this.updateSizes.bind(this));
+            targetEl.querySelectorAll('.carousel-infinite--item > *').forEach((item) => {
+                item.addEventListener('load', this.updateSizes.bind(this));
             });
 
             // init position
             setTimeout(() => {
-                let startPos = (targetEl.hasAttribute("data-carousel-infinite--init-position") ? parseFloat(targetEl.getAttribute("data-carousel-infinite--init-position")) : this.options.initPosition);
-                if (startPos < 0) { startPos =  this.data.instances[count].loopEndPos - startPos; }
+                let startPos =
+                    targetEl.hasAttribute('data-carousel-infinite--init-position') ?
+                        parseFloat(targetEl.getAttribute('data-carousel-infinite--init-position'))
+                    :   this.options.initPosition;
+                if (startPos < 0) {
+                    startPos = this.data.instances[count].loopEndPos - startPos;
+                }
 
                 this.apply(targetEl, count, this.data.instances[count].currentPos + startPos);
                 count += 1;
@@ -980,16 +1124,20 @@ class CarouselInfinite {
     }
 
     clear() {
-        if (this.data.idleLoop) { this.data.idleLoop = false; }
+        if (this.data.idleLoop) {
+            this.data.idleLoop = false;
+        }
 
-        for (const prop of Object.getOwnPropertyNames(this.data.instances)) { delete this.data.instances[prop]; }
+        for (const prop of Object.getOwnPropertyNames(this.data.instances)) {
+            delete this.data.instances[prop];
+        }
 
         if (this.data.eventListeners.resize_updateSizes) {
-            window.removeEventListener("resize", this.updateSizes);
+            window.removeEventListener('resize', this.updateSizes);
             delete this.data.eventListeners.resize_updateSizes;
         }
 
-        this.data.elements.forEach(targetEl => {
+        this.data.elements.forEach((targetEl) => {
             targetEl.onpointerdown = null;
             targetEl.onpointerup = null;
             targetEl.onpointerout = null;
@@ -1017,14 +1165,16 @@ class CarouselInfinite {
 
         // if raf is off, turn it back on
         if (!this.data.idleLoop) {
-            this.idle()
+            this.idle();
         }
     }
 
     updateSizes() {
         let count = 0;
-        this.data.elements.forEach(targetEl => {
-            this.data.instances[count].loopEndPos = -targetEl.querySelector(".carousel-infinite--group").getBoundingClientRect().width;
+        this.data.elements.forEach((targetEl) => {
+            this.data.instances[count].loopEndPos = -targetEl
+                .querySelector('.carousel-infinite--group')
+                .getBoundingClientRect().width;
             count += 1;
         });
     }
@@ -1032,38 +1182,45 @@ class CarouselInfinite {
     apply(targetEl, index, move) {
         let newPos = this.data.instances[index].currentPos + move;
 
-        if (newPos > 0) { // loop start
+        if (newPos > 0) {
+            // loop start
             //this.updateSizes();
             newPos = this.data.instances[index].loopEndPos;
-        } else if (newPos < this.data.instances[index].loopEndPos) { // loop end
+        } else if (newPos < this.data.instances[index].loopEndPos) {
+            // loop end
             this.updateSizes();
             newPos = 0;
         }
 
         // apply
         this.data.instances[index].currentPos = newPos;
-        targetEl.firstElementChild.style.transform = "translate3D("+ newPos +"px, 0, 0) rotateX(0.04deg)";
+        targetEl.firstElementChild.style.transform = 'translate3D(' + newPos + 'px, 0, 0) rotateX(0.04deg)';
     }
 
     idle() {
-        if (this.data.idleLoop) { return; }
+        if (this.data.idleLoop) {
+            return;
+        }
 
         const animateCarousel = (targetEl, index, deltaTime) => {
             const carouselData = this.data.instances[index];
 
             if (carouselData.drag.isDragging) {
-                this.data.instances[index].drag.posFrom = (carouselData.drag.mouseCurrent - carouselData.drag.mousePrevious) * this.options.dragStrength;
+                this.data.instances[index].drag.posFrom =
+                    (carouselData.drag.mouseCurrent - carouselData.drag.mousePrevious) * this.options.dragStrength;
                 this.data.instances[index].drag.mousePrevious = carouselData.drag.mouseCurrent;
             }
 
             // animate
-            if (this.data.instances[index].drag.posFrom != carouselData.drag.posTo) { // only run if new pos
+            if (this.data.instances[index].drag.posFrom != carouselData.drag.posTo) {
+                // only run if new pos
                 this.data.instances[index].drag.posTo = this.data.instances[index].drag.posFrom;
 
                 const posVar = {
                     move: this.data.instances[index].drag.posAnimated,
-                }
-                animate(posVar, { // anime
+                };
+                animate(posVar, {
+                    // anime
                     ease: this.options.dragEasingTiming,
                     duration: this.options.dragEasingDuration,
 
@@ -1075,8 +1232,12 @@ class CarouselInfinite {
                 });
             }
 
-            this.apply(targetEl, index, this.data.instances[index].drag.posAnimated + carouselData.idleSpeed * deltaTime);
-        }
+            this.apply(
+                targetEl,
+                index,
+                this.data.instances[index].drag.posAnimated + carouselData.idleSpeed * deltaTime
+            );
+        };
 
         const loop = (timeNow) => {
             const deltaTime = (timeNow - timeStart) / 1000;
@@ -1085,7 +1246,9 @@ class CarouselInfinite {
             if (this.data.idleLoop) {
                 let count = 0;
                 this.data.elements.forEach((_targetEl) => {
-                    if (this.data.instances[count].active) { animateCarousel(_targetEl, count, deltaTime); }
+                    if (this.data.instances[count].active) {
+                        animateCarousel(_targetEl, count, deltaTime);
+                    }
                     count += 1;
                 });
 
@@ -1118,73 +1281,88 @@ class CarouselInfinite {
     }
 }
 
-
 //- CAROUSEL PROGRESS
 let carouselProgressGlobal;
 class CarouselProgress {
     constructor() {
         this.data = {
-            elements : undefined,
-            eventListeners : {},
+            elements: undefined,
+            eventListeners: {},
         };
     }
 
     init() {
-        this.data.elements = docHTML.querySelectorAll("*[data-carousel-progress]");
+        this.data.elements = docHTML.querySelectorAll('*[data-carousel-progress]');
 
-        if (this.data.elements.length <= 0) { return; }
+        if (this.data.elements.length <= 0) {
+            return;
+        }
 
         this.data.elements.forEach((targetEl) => {
-            targetEl.setAttribute("data-scroll", "");
-            targetEl.setAttribute("data-scroll-repeat", "");
-            targetEl.setAttribute("data-scroll-position", "start,end");
-            targetEl.setAttribute("data-scroll-offset", "0,0");
-            targetEl.setAttribute("data-scroll-css-progress", "");
+            targetEl.setAttribute('data-scroll', '');
+            targetEl.setAttribute('data-scroll-repeat', '');
+            targetEl.setAttribute('data-scroll-position', 'start,end');
+            targetEl.setAttribute('data-scroll-offset', '0,0');
+            targetEl.setAttribute('data-scroll-css-progress', '');
 
-            if (targetEl.hasAttribute("data-carousel-progress--scroll-length")) {
-                if (targetEl.getAttribute("data-carousel-progress--scroll-length").length > 0) {
-                    targetEl.style.setProperty("--carousel-scroll-length", targetEl.getAttribute("data-carousel-progress--scroll-length"));
+            if (targetEl.hasAttribute('data-carousel-progress--scroll-length')) {
+                if (targetEl.getAttribute('data-carousel-progress--scroll-length').length > 0) {
+                    targetEl.style.setProperty(
+                        '--carousel-scroll-length',
+                        targetEl.getAttribute('data-carousel-progress--scroll-length')
+                    );
                 }
             }
-            if (targetEl.hasAttribute("data-carousel-progress--scroll-length-ratio")) {
-                if (targetEl.getAttribute("data-carousel-progress--scroll-length-ratio").length > 0) {
-                    targetEl.style.setProperty("--carousel-scroll-length-ratio", targetEl.getAttribute("data-carousel-progress--scroll-length-ratio"));
+            if (targetEl.hasAttribute('data-carousel-progress--scroll-length-ratio')) {
+                if (targetEl.getAttribute('data-carousel-progress--scroll-length-ratio').length > 0) {
+                    targetEl.style.setProperty(
+                        '--carousel-scroll-length-ratio',
+                        targetEl.getAttribute('data-carousel-progress--scroll-length-ratio')
+                    );
                 }
             }
 
-            targetEl.querySelectorAll("img").forEach((item) => { item.addEventListener("load", this.updateSizes.bind(this)); });
-            targetEl.querySelectorAll("video").forEach((item) => { item.addEventListener("load", this.updateSizes.bind(this)); });
+            targetEl.querySelectorAll('img').forEach((item) => {
+                item.addEventListener('load', this.updateSizes.bind(this));
+            });
+            targetEl.querySelectorAll('video').forEach((item) => {
+                item.addEventListener('load', this.updateSizes.bind(this));
+            });
         });
 
         // global updates init
         this.updateSizes();
         if (!this.data.eventListeners.resize_updateSizes) {
-            this.data.eventListeners.resize_updateSizes = window.addEventListener("resize", this.updateSizes.bind(this));
+            this.data.eventListeners.resize_updateSizes = window.addEventListener(
+                'resize',
+                this.updateSizes.bind(this)
+            );
         }
     }
 
     clear() {
         if (this.data.eventListeners.resize_updateSizes) {
-            window.removeEventListener("resize", this.updateSizes);
+            window.removeEventListener('resize', this.updateSizes);
             delete this.data.eventListeners.resize_updateSizes;
         }
     }
 
     updateSizes() {
-        this.data.elements.forEach(targetEl => {
-            targetEl.style.setProperty("--carousel-track-width", Math.ceil(targetEl.firstElementChild.getBoundingClientRect().width) +"px");
+        this.data.elements.forEach((targetEl) => {
+            targetEl.style.setProperty(
+                '--carousel-track-width',
+                Math.ceil(targetEl.firstElementChild.getBoundingClientRect().width) + 'px'
+            );
         });
     }
 }
 
-
-
 // PAGES
 const PAGES = {
-    data : {
-        homePrevScrollPos : null,
-        homePrevAnchorPos : null,
-        homePrevFilter : null,
+    data: {
+        homePrevScrollPos: null,
+        homePrevAnchorPos: null,
+        homePrevFilter: null,
     },
 
     initPagesHandling: () => {
@@ -1196,7 +1374,7 @@ const PAGES = {
             if (GridMuuriGallery) {
                 GALLERY_GRID.destroy();
             }
-            if (visit.to.url === "/") {
+            if (visit.to.url === '/') {
                 GALLERY_GRID.init(false);
             }
 
@@ -1206,18 +1384,22 @@ const PAGES = {
         PAGES.whenPageView(null, true);
 
         // -> exit
-        swup.hooks.on('content:replace', (visit) => {
-            PAGES.whenPageExit(visit);
-        }, { before: true });
-
+        swup.hooks.on(
+            'content:replace',
+            (visit) => {
+                PAGES.whenPageExit(visit);
+            },
+            { before: true }
+        );
 
         // SCROLL
         swup.hooks.on('visit:start', (visit) => {
             visit.scroll.reset = false; // disable default swup scroll to top animation
 
-            if (visit.from.url === "/") {
+            if (visit.from.url === '/') {
                 PAGES.data.homePrevScrollPos = SCROLL.getScroll(ScrollMain);
-                PAGES.data.homePrevAnchorPos = GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top;
+                PAGES.data.homePrevAnchorPos =
+                    GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top;
             }
 
             /**
@@ -1232,122 +1414,143 @@ const PAGES = {
              * - always animate scroll to gallerySectionScrollToAnchor
              */
 
-            if (visit.to.url === "/") {
+            if (visit.to.url === '/') {
                 if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top > 1) {
                     // do nothing
-                }
-                else {
+                } else {
                     if (
                         PAGES.data.homePrevScrollPos != null
-                        && PAGES.data.homePrevFilter == docHTML.getAttribute("thalia-gallery-filter") // if the filters state has not changed
+                        && PAGES.data.homePrevFilter == docHTML.getAttribute('thalia-gallery-filter')  // if the filters state has not changed
                         // && (THALIA_GLOBALS.vpSize[1] * 1.35) < GALLERY_GRID.data.maxSize // if 135vh is < grid height
                         && PAGES.data.homePrevScrollPos > THALIA_GLOBALS.vpSize[1] * 0.5
                     ) {
-                        swup.hooks.on('content:replace', () => {
-                            setTimeout(() => {
-                                ScrollMain.scrollTo((PAGES.data.homePrevScrollPos), {
-                                    ...SCROLL.options.scrollTo,
-                                    lock: true,
-                                    offset: 0,
-                                    onComplete: () => { SCROLL.resize(ScrollMain); }
-                                });
-                            }, 150);
-                        }, { once : true, before: true });
-                    }
-                    else {
+                        swup.hooks.on(
+                            'content:replace',
+                            () => {
+                                setTimeout(() => {
+                                    ScrollMain.scrollTo(PAGES.data.homePrevScrollPos, {
+                                        ...SCROLL.options.scrollTo,
+                                        lock: true,
+                                        offset: 0,
+                                        onComplete: () => {
+                                            SCROLL.resize(ScrollMain);
+                                        },
+                                    });
+                                }, 150);
+                            },
+                            { once: true, before: true }
+                        );
+                    } else {
                         ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionScrollToAnchor, {
                             ...SCROLL.options.scrollTo,
                             lock: true,
                             offset: 5,
-                            onComplete: () => { SCROLL.resize(ScrollMain); }
+                            onComplete: () => {
+                                SCROLL.resize(ScrollMain);
+                            },
                         });
                     }
                 }
-            }
-            else {
+            } else {
                 if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < 1) {
-                    swup.hooks.on('content:replace', () => {
-                        const animateScroll = () => {
-                            ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
-                                ...SCROLL.options.scrollTo,
-                                lock: true,
-                                offset: 5,
-                                onComplete: () => { SCROLL.resize(ScrollMain); }
-                            });
-                        }
-                        if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < -100) {
-                            ScrollMain.scrollTo((GALLERY_GRID.elements.gallerySectionTopAnchor), {
-                                immediate: true,
-                                lock: true,
-                                offset: 100,
-                                onComplete: () => animateScroll()
-                            });
-                        }
-                        else {
-                            animateScroll();
-                        }
-                    }, { once : true, before: true });
-                }
-                else {
+                    swup.hooks.on(
+                        'content:replace',
+                        () => {
+                            const animateScroll = () => {
+                                ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionTopAnchor, {
+                                    ...SCROLL.options.scrollTo,
+                                    lock: true,
+                                    offset: 5,
+                                    onComplete: () => {
+                                        SCROLL.resize(ScrollMain);
+                                    },
+                                });
+                            };
+                            if (GALLERY_GRID.elements.gallerySectionTopAnchor.getBoundingClientRect().top < -100) {
+                                ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionTopAnchor, {
+                                    immediate: true,
+                                    lock: true,
+                                    offset: 100,
+                                    onComplete: () => animateScroll(),
+                                });
+                            } else {
+                                animateScroll();
+                            }
+                        },
+                        { once: true, before: true }
+                    );
+                } else {
                     ScrollMain.scrollTo(GALLERY_GRID.elements.gallerySectionTopAnchor, {
                         ...SCROLL.options.scrollTo,
                         lock: true,
                         offset: 5,
-                        onComplete: () => { SCROLL.resize(ScrollMain); }
+                        onComplete: () => {
+                            SCROLL.resize(ScrollMain);
+                        },
                     });
                 }
             }
         });
     },
 
-    whenPageView : (visit, firstInit = false) => {
-        const pageContentEl = document.querySelector(".page-content");
+    whenPageView: (visit, firstInit = false) => {
+        const pageContentEl = document.querySelector('.page-content');
 
-        GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => { swup.navigate("/"); });
+        GALLERY_GRID.createFilterBtns(GALLERY_GRID.elements.section, () => {
+            swup.navigate('/');
+        });
 
         carouselInfiniteGlobal.init();
         carouselProgressGlobal.init();
 
-        PROJECTS.projectSpecificEvents(true, (visit == null) ? swup.location.pathname : visit.to.url);
+        PROJECTS.projectSpecificEvents(true, visit == null ? swup.location.pathname : visit.to.url);
 
         if (!firstInit) {
             ScrollMain.addScrollElements(pageContentEl);
         }
 
         // safari fix : videos not autoplaying
-        const videosAutoplay = pageContentEl.querySelectorAll("video[autoplay]");
-        if(videosAutoplay.length > 0 ) {
+        const videosAutoplay = pageContentEl.querySelectorAll('video[autoplay]');
+        if (videosAutoplay.length > 0) {
             videosAutoplay.forEach((videoEl) => {
                 videoEl.pause();
                 setTimeout(() => {
-                    videoEl.play().then().catch((err) => { console.log("[VIDEOS.autoplay] failed to play video", videoEl, err); });
+                    videoEl
+                        .play()
+                        .then()
+                        .catch((err) => {
+                            console.log('[VIDEOS.autoplay] failed to play video', videoEl, err);
+                        });
                 }, 0);
-            })
+            });
         }
     },
 
-    whenPageExit : (visit, firstInit = false) => {
-        const pageContentEl = document.querySelector(".page-content");
+    whenPageExit: (visit, firstInit = false) => {
+        const pageContentEl = document.querySelector('.page-content');
 
-        if (visit && visit.from.url === "/") {
-            PAGES.data.homePrevFilter = docHTML.getAttribute("thalia-gallery-filter");
+        if (visit && visit.from.url === '/') {
+            PAGES.data.homePrevFilter = docHTML.getAttribute('thalia-gallery-filter');
         }
 
-        if (carouselInfiniteGlobal) { carouselInfiniteGlobal.clear(); }
-        if (carouselProgressGlobal) { carouselProgressGlobal.clear(); }
+        if (carouselInfiniteGlobal) {
+            carouselInfiniteGlobal.clear();
+        }
+        if (carouselProgressGlobal) {
+            carouselProgressGlobal.clear();
+        }
 
-        PROJECTS.projectSpecificEvents(false, (visit == null) ? swup.location.pathname : visit.from.url);
+        PROJECTS.projectSpecificEvents(false, visit == null ? swup.location.pathname : visit.from.url);
 
         if (!firstInit) {
             ScrollMain.removeScrollElements(pageContentEl);
         }
     },
-}
-
+};
 
 const PROJECTS_NAV = {
     selectors: {
-        root: "*[data-project-prev-next]",
+        root: '*[data-project-prev-next]',
         prevBtn: '*[data-project-nav-btn="prev"]',
         nextBtn: '*[data-project-nav-btn="next"]',
     },
@@ -1358,13 +1561,15 @@ const PROJECTS_NAV = {
             filters: Array.isArray(projectData.filters) ? projectData.filters : [],
         })),
     },
-    init: (pathname = "") => {
+    init: (pathname = '') => {
         const root = document.querySelector(PROJECTS_NAV.selectors.root);
-        if (!root) { return; }
+        if (!root) {
+            return;
+        }
 
         const currentSlug = PROJECTS_NAV.getCurrentSlug(pathname);
         if (!currentSlug) {
-            root.setAttribute("hidden", "");
+            root.setAttribute('hidden', '');
             return;
         }
 
@@ -1375,24 +1580,28 @@ const PROJECTS_NAV = {
         PROJECTS_NAV.setButton(root.querySelector(PROJECTS_NAV.selectors.nextBtn), next);
 
         if (!prev && !next) {
-            root.setAttribute("hidden", "");
+            root.setAttribute('hidden', '');
         } else {
-            root.removeAttribute("hidden");
+            root.removeAttribute('hidden');
         }
     },
-    getCurrentSlug: (pathname = "") => {
-        const path = pathname.split("?")[0];
-        const parts = path.split("/").filter(Boolean);
+    getCurrentSlug: (pathname = '') => {
+        const path = pathname.split('?')[0];
+        const parts = path.split('/').filter(Boolean);
 
-        if (parts.length !== 2 || parts[0] !== "p") { return null; }
+        if (parts.length !== 2 || parts[0] !== 'p') {
+            return null;
+        }
         return parts[1];
     },
     getCurrentFilter: () => {
-        const currentFilter = docHTML.getAttribute("thalia-gallery-filter");
-        return (!currentFilter || currentFilter === "false") ? null : currentFilter;
+        const currentFilter = docHTML.getAttribute('thalia-gallery-filter');
+        return !currentFilter || currentFilter === 'false' ? null : currentFilter;
     },
     getProjectsByFilter: (filterName) => {
-        if (!filterName) { return PROJECTS_NAV.data.projectsList; }
+        if (!filterName) {
+            return PROJECTS_NAV.data.projectsList;
+        }
         return PROJECTS_NAV.data.projectsList.filter((project) => project.filters.includes(filterName));
     },
     getPrevNextProjects: (currentSlug, filterName) => {
@@ -1422,84 +1631,92 @@ const PROJECTS_NAV = {
         return { prev: prevProject, next: nextProject };
     },
     setButton: (btn, projectData) => {
-        if (!btn) { return; }
-
-        if (!projectData) {
-            btn.setAttribute("hidden", "");
-            btn.removeAttribute("href");
+        if (!btn) {
             return;
         }
 
-        btn.removeAttribute("hidden");
-        btn.setAttribute("href", `/p/${projectData.slug}/`);
+        if (!projectData) {
+            btn.setAttribute('hidden', '');
+            btn.removeAttribute('href');
+            return;
+        }
 
-        const titleEl = btn.querySelector(".title");
+        btn.removeAttribute('hidden');
+        btn.setAttribute('href', `/p/${projectData.slug}/`);
+
+        const titleEl = btn.querySelector('.title');
         if (titleEl) {
             titleEl.innerText = projectData.title;
         }
     },
 };
 
-
 const PROJECTS = {
-    projectSpecificEvents : (enterOrExit = true, projectURL) => {
+    projectSpecificEvents: (enterOrExit = true, projectURL) => {
         if (enterOrExit) PROJECTS_NAV.init(projectURL);
 
         switch (projectURL) {
-            case "/p/cartes-tarot-garou/":
-                if (enterOrExit) { PROJECTS.special.cardsStackInteractive(); }
-                else { PROJECTS.special.cardsStackInteractive_destroy(); }
+            case '/p/cartes-tarot-garou/':
+                if (enterOrExit) {
+                    PROJECTS.special.cardsStackInteractive();
+                } else {
+                    PROJECTS.special.cardsStackInteractive_destroy();
+                }
                 break;
         }
     },
-    special : {
-        cardsStackInteractive_destroy : () => {
+    special: {
+        cardsStackInteractive_destroy: () => {
             const cardsStackInteractiveElems = utils.$('.cards-stack-interactive');
-            if (cardsStackInteractiveElems.length <= 0) { return; }
+            if (cardsStackInteractiveElems.length <= 0) {
+                return;
+            }
 
             cardsStackInteractiveElems.forEach((mainContainer) => {
                 _GET.removeAllChildNodes(mainContainer);
             });
         },
 
-        cardsStackInteractive : () => {
+        cardsStackInteractive: () => {
             const cardsStackInteractiveElems = utils.$('.cards-stack-interactive');
-            if (cardsStackInteractiveElems.length <= 0) { return; }
+            if (cardsStackInteractiveElems.length <= 0) {
+                return;
+            }
 
             const cardStackAnim = {
                 initOffsetY: 25,
-                initRandomRotate : 1,
-                initScale : 1.5,
-                initStaggerY : -2.5,
-                staggerDepth : 15,
-                staggerDepthOffset : -75,
-                accentDepthFadeOpacity : 0.8,
-                initRotateX : 0,
-                finalRotateX : -6,
+                initRandomRotate: 1,
+                initScale: 1.5,
+                initStaggerY: -2.5,
+                staggerDepth: 15,
+                staggerDepthOffset: -75,
+                accentDepthFadeOpacity: 0.8,
+                initRotateX: 0,
+                finalRotateX: -6,
 
-                radius : 60,
-                cardHoverJump : 7.5,
-                cardClickPush : 4,
+                radius: 60,
+                cardHoverJump: 7.5,
+                cardClickPush: 4,
 
-                cardsEnabledProgressThreshold : 0.75,
+                cardsEnabledProgressThreshold: 0.75,
             };
 
             cardsStackInteractiveElems.forEach((mainContainer) => {
                 let cardsData = {
-                    nb : undefined,
-                    rotateSlice : undefined,
-                    maxZDepth : undefined,
-                    isOpening : false,
-                    isOpened : false,
-                    instances : [],
+                    nb: undefined,
+                    rotateSlice: undefined,
+                    maxZDepth: undefined,
+                    isOpening: false,
+                    isOpened: false,
+                    instances: [],
                 };
 
                 const elemStack = mainContainer.querySelector('.stack'),
-                      elemsCards = mainContainer.querySelectorAll('.stack .card'),
-                      $cardsGlobalFader = elemStack.querySelector('.cards-global-fader');
+                    elemsCards = mainContainer.querySelectorAll('.stack .card'),
+                    $cardsGlobalFader = elemStack.querySelector('.cards-global-fader');
 
                 cardsData.nb = elemsCards.length;
-                cardsData.rotateSlice = (360 / cardsData.nb);
+                cardsData.rotateSlice = 360 / cardsData.nb;
                 cardsData.maxZDepth = cardStackAnim.staggerDepth * cardsData.nb;
 
                 // cards stack rotation : Julian Garnier https://codepen.io/juliangarnier/pen/RNwvWGe
@@ -1524,73 +1741,86 @@ const PROJECTS = {
                         target: '.cards-container',
                         enter: '40% top',
                         leave: 'bottom bottom',
-                        sync: .5,
+                        sync: 0.5,
                         onUpdate: (self) => {
-                            if(self.progress < 0.96 ) {
+                            if (self.progress < 0.96) {
                                 closeOpenedCards();
-                                mainContainer.classList.remove("reached-end");
+                                mainContainer.classList.remove('reached-end');
+                            } else {
+                                mainContainer.classList.add('reached-end');
                             }
-                            else {
-                                mainContainer.classList.add("reached-end");
-                            }
-                        }
+                        },
                         // debug: true,
                     }),
                 })
-                .add(elemStack, {
-                    rotateY: [-180, 0],
-                    y: {
-                        from: `${cardStackAnim.initOffsetY}%`,
-                        to: 0,
-                        ease: 'inOutQuad',
-                    },
-                    ease: 'in(2)',
-                }, 0)
-                .add(elemsCards, {
-                    scale: {
-                        from : cardStackAnim.initScale,
-                        to: 1,
-                        ease: 'inOutQuad',
-                    },
-                    rotate: 0,
-                    rotateZ: {
-                        to: stagger([0, (-360 + cardsData.rotateSlice)], { from: 'last' }),
-                        ease: 'inOut(3)'
-                    },
-                    rotateX: [cardStackAnim.initRotateX, cardStackAnim.finalRotateX, cardStackAnim.finalRotateX],
-                    y: {
-                        to: `-${cardStackAnim.radius}%`,
-                        duration: 400
-                    },
-                    transformOrigin: ['50% 100%', '50% 50%'],
-                    delay: stagger(1, { from: 'first' }),
-                }, 0)
-                .init()
+                    .add(
+                        elemStack,
+                        {
+                            rotateY: [-180, 0],
+                            y: {
+                                from: `${cardStackAnim.initOffsetY}%`,
+                                to: 0,
+                                ease: 'inOutQuad',
+                            },
+                            ease: 'in(2)',
+                        },
+                        0
+                    )
+                    .add(
+                        elemsCards,
+                        {
+                            scale: {
+                                from: cardStackAnim.initScale,
+                                to: 1,
+                                ease: 'inOutQuad',
+                            },
+                            rotate: 0,
+                            rotateZ: {
+                                to: stagger([0, -360 + cardsData.rotateSlice], { from: 'last' }),
+                                ease: 'inOut(3)',
+                            },
+                            rotateX: [
+                                cardStackAnim.initRotateX,
+                                cardStackAnim.finalRotateX,
+                                cardStackAnim.finalRotateX,
+                            ],
+                            y: {
+                                to: `-${cardStackAnim.radius}%`,
+                                duration: 400,
+                            },
+                            transformOrigin: ['50% 100%', '50% 50%'],
+                            delay: stagger(1, { from: 'first' }),
+                        },
+                        0
+                    )
+                    .init();
 
                 // CARDS EVENTS
                 elemsCards.forEach(($card, $index) => {
                     cardsData.instances[$index] = {
-                        cardName : $card.getAttribute("data-card-name"),
+                        cardName: $card.getAttribute('data-card-name'),
                         isActive: false,
-                        doAnimSpin : true,
-                        rotations : 0,
-                        isCardInLeftHalf : !!($index > cardsData.nb / 2 - 1),
-                        isCardTop : $index + 1 == cardsData.nb,
-                    }
+                        doAnimSpin: true,
+                        rotations: 0,
+                        isCardInLeftHalf: !!($index > cardsData.nb / 2 - 1),
+                        isCardTop: $index + 1 == cardsData.nb,
+                    };
 
                     const $cardWDrag = $card.firstElementChild,
-                          $cardWSpin = $card.firstElementChild.firstElementChild,
-                          $cardFader = $card.querySelector(".fader"),
-                          $cardInfos = mainContainer.querySelector('.card-infos[data-card-info="'+ cardsData.instances[$index].cardName +'"]');
+                        $cardWSpin = $card.firstElementChild.firstElementChild,
+                        $cardFader = $card.querySelector('.fader'),
+                        $cardInfos = mainContainer.querySelector(
+                            '.card-infos[data-card-info="' + cardsData.instances[$index].cardName + '"]'
+                        );
 
-                        cardsData.instances[$index].cardDraggableX = createDraggable($cardWDrag, {
+                    cardsData.instances[$index].cardDraggableX = createDraggable($cardWDrag, {
                         x: {
                             mapTo: 'rotateY',
                             modifier: utils.wrap(-360, 360),
                             snap: [0, 180, -180, 359.5, -359.5],
                         },
                         y: false,
-                        dragSpeed: (THALIA_GLOBALS.vpSizeBreakpoints.current.w == "vpWidthVertical") ? 1 : 0.5,
+                        dragSpeed: THALIA_GLOBALS.vpSizeBreakpoints.current.w == 'vpWidthVertical' ? 1 : 0.5,
                         releaseMass: 0.1,
                         releaseStiffness: 5,
                         releaseDamping: 15,
@@ -1599,41 +1829,59 @@ const PROJECTS = {
                         scrollThreshold: false,
                         scrollSpeed: 0,
 
-                        onDrag: (self) => { cardsData.instances[$index].doAnimSpin = false; },
+                        onDrag: (self) => {
+                            cardsData.instances[$index].doAnimSpin = false;
+                        },
                         onUpdate: (self) => {
-                            const rotation = Math.abs((self.coords[0]) % 360), edgeThreshold = 45;
+                            const rotation = Math.abs(self.coords[0] % 360),
+                                edgeThreshold = 45;
                             utils.set($cardFader, {
-                                opacity: ((rotation > (90 - edgeThreshold) && rotation < (90 + edgeThreshold))
-                                        || (rotation > (270 - edgeThreshold) && rotation < (270 + edgeThreshold)))
-                                            ? Math.max(0, Math.min(1, 1 - (Math.min(Math.abs(rotation - 90), Math.abs(rotation - 270)) / edgeThreshold))) * 0.5
-                                            : 0,
+                                opacity:
+                                    (
+                                        (rotation > 90 - edgeThreshold && rotation < 90 + edgeThreshold)
+                                        || (rotation > 270 - edgeThreshold && rotation < 270 + edgeThreshold)
+                                    ) ?
+                                        Math.max(
+                                            0,
+                                            Math.min(
+                                                1,
+                                                1
+                                                    - Math.min(Math.abs(rotation - 90), Math.abs(rotation - 270))
+                                                        / edgeThreshold
+                                            )
+                                        ) * 0.5
+                                    :   0,
                             });
 
-                            if (!self.grabbed) { utils.set($cardFader, { opacity: 0, }) };
+                            if (!self.grabbed) {
+                                utils.set($cardFader, { opacity: 0 });
+                            }
                         },
                         onGrab: (self) => {
-                            $card.classList.add("is-grabbing");
+                            $card.classList.add('is-grabbing');
                         },
                         onRelease: (self) => {
-                            $card.classList.remove("is-grabbing");
+                            $card.classList.remove('is-grabbing');
 
-                            setTimeout(() => { cardsData.instances[$index].doAnimSpin = true; }, 100);
+                            setTimeout(() => {
+                                cardsData.instances[$index].doAnimSpin = true;
+                            }, 100);
                         },
                         onResize: () => {
                             if (!cardsData.instances[$index].isActive) {
                                 cardsData.instances[$index].cardDraggableX.setX(0);
                                 cardsData.instances[$index].cardDraggableX.refresh();
                             }
-                        }
+                        },
                     });
                     cardsData.instances[$index].cardDraggableY = createDraggable($cardWDrag, {
                         x: false,
                         y: {
                             mapTo: 'rotateX',
-                            modifier: v => v * -1,
+                            modifier: (v) => v * -1,
                             snap: [0],
                         },
-                        dragSpeed: .1,
+                        dragSpeed: 0.1,
                         releaseMass: 0.7,
                         releaseStiffness: 60,
 
@@ -1643,84 +1891,106 @@ const PROJECTS = {
 
                     const cardWSpinAnimatable = createAnimatable($cardWSpin, {
                         y: {
-                            unit: "%",
+                            unit: '%',
                             duration: 1000,
-                            ease: "outElastic(1.2, .7)",
+                            ease: 'outElastic(1.2, .7)',
                         },
                         rotateY: {
                             duration: 2300,
-                            ease: "cubicBezier(0.2, 0.5, 0, 1)",
+                            ease: 'cubicBezier(0.2, 0.5, 0, 1)',
                         },
                         z: {
                             duration: 300,
-                            ease: "cubicBezier(0.2, 0.5, 0, 1)",
+                            ease: 'cubicBezier(0.2, 0.5, 0, 1)',
                         },
                         scale: 100,
                         ease: 'out(5)',
                     });
 
-                    $card.addEventListener("pointerenter", () => {
-                        if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold && (!cardsData.isOpening && !cardsData.isOpened)) {
-                            $card.classList.add("is-hovering");
+                    $card.addEventListener('pointerenter', () => {
+                        if (
+                            timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold
+                            && !cardsData.isOpening
+                            && !cardsData.isOpened
+                        ) {
+                            $card.classList.add('is-hovering');
                             cardWSpinAnimatable.y(-10);
                         }
                     });
-                    $card.addEventListener("pointerleave", () => {
-                        $card.classList.remove("is-hovering");
+                    $card.addEventListener('pointerleave', () => {
+                        $card.classList.remove('is-hovering');
                         cardWSpinAnimatable.y(0);
                     });
-                    $card.addEventListener("pointerdown", () => {
-                        if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold && (!cardsData.isOpening && !cardsData.isOpened)) {
+                    $card.addEventListener('pointerdown', () => {
+                        if (
+                            timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold
+                            && !cardsData.isOpening
+                            && !cardsData.isOpened
+                        ) {
                             cardWSpinAnimatable.y(cardWSpinAnimatable.y() + cardStackAnim.cardClickPush);
                         }
                     });
 
-                    $cardWDrag.addEventListener("mousemove", () => {
+                    $cardWDrag.addEventListener('mousemove', () => {
                         if (cardsData.isOpened) {
-                            cardWSpinAnimatable.scale(1.03, 400, "cubicBezier(0.1, 0.3, 0.2, 1)");
+                            cardWSpinAnimatable.scale(1.03, 400, 'cubicBezier(0.1, 0.3, 0.2, 1)');
                         }
                     });
-                    $cardWDrag.addEventListener("mouseleave", () => {
-                        cardWSpinAnimatable.scale(1, 400, "cubicBezier(0.3, 0.1, 0.2, 1)");
+                    $cardWDrag.addEventListener('mouseleave', () => {
+                        cardWSpinAnimatable.scale(1, 400, 'cubicBezier(0.3, 0.1, 0.2, 1)');
                     });
-                    $cardWDrag.addEventListener("pointerdown", () => {
-                        cardWSpinAnimatable.scale(0.98, 80, "ease");
+                    $cardWDrag.addEventListener('pointerdown', () => {
+                        cardWSpinAnimatable.scale(0.98, 80, 'ease');
                     });
 
-                    $card.addEventListener("click", (e) => {
+                    $card.addEventListener('click', (e) => {
                         if (cardsData.isOpening || cardsData.isOpened) {
                             if (cardsData.instances[$index].doAnimSpin) {
                                 const cardRect = $card.getBoundingClientRect();
-                                cardsData.instances[$index].rotations += (cardRect.left + cardRect.width / 2 > e.clientX) ? -1 : 1;
+                                cardsData.instances[$index].rotations +=
+                                    cardRect.left + cardRect.width / 2 > e.clientX ? -1 : 1;
                                 cardWSpinAnimatable
                                     .rotateY(cardsData.instances[$index].rotations * 360)
-                                    .scale(1.1, 250, "inOut(1)");
-                                    setTimeout(() => { cardWSpinAnimatable.scale(1, 1600, 'outElastic(1.2, .6)'); }, 300);
+                                    .scale(1.1, 250, 'inOut(1)');
+                                setTimeout(() => {
+                                    cardWSpinAnimatable.scale(1, 1600, 'outElastic(1.2, .6)');
+                                }, 300);
                             }
-                        }
-                        else {
+                        } else {
                             if (timelineCardsStack.progress > cardStackAnim.cardsEnabledProgressThreshold) {
                                 cardsData.isOpening = true;
                                 cardsData.instances[$index].isActive = true;
                                 cardWSpinAnimatable.y(0);
-                                $card.classList.add("is-click-timeout"); setTimeout(() => { $card.classList.remove("is-click-timeout"); }, 500);
-                                setTimeout(() => { $card.classList.add("is-active"); $cardsGlobalFader.classList.add("is-active"); }, 1000);
-                                $card.classList.remove("is-hovering");
-                                if($cardInfos) { $cardInfos.classList.add("is-active") };
+                                $card.classList.add('is-click-timeout');
+                                setTimeout(() => {
+                                    $card.classList.remove('is-click-timeout');
+                                }, 500);
+                                setTimeout(() => {
+                                    $card.classList.add('is-active');
+                                    $cardsGlobalFader.classList.add('is-active');
+                                }, 1000);
+                                $card.classList.remove('is-hovering');
+                                if ($cardInfos) {
+                                    $cardInfos.classList.add('is-active');
+                                }
 
                                 ScrollMain.scrollTo(
-                                    SCROLL.getScroll(ScrollMain) + mainContainer.getBoundingClientRect().bottom - THALIA_GLOBALS.vpSize[1]
-                                    , {
-                                    ...SCROLL.options.scrollTo,
-                                    lock: true, offset: -2,
-                                    onComplete: () => {
-                                        SCROLL.resize(ScrollMain);
-                                        setTimeout(() => {
-                                            cardsData.isOpening = false;
-                                            cardsData.isOpened = true;
-                                        }, 1500);
+                                    SCROLL.getScroll(ScrollMain)
+                                        + mainContainer.getBoundingClientRect().bottom
+                                        - THALIA_GLOBALS.vpSize[1],
+                                    {
+                                        ...SCROLL.options.scrollTo,
+                                        lock: true,
+                                        offset: -2,
+                                        onComplete: () => {
+                                            SCROLL.resize(ScrollMain);
+                                            setTimeout(() => {
+                                                cardsData.isOpening = false;
+                                                cardsData.isOpened = true;
+                                            }, 1500);
+                                        },
                                     }
-                                });
+                                );
 
                                 cardsData.instances[$index].cardDraggableX.enable().setX(0).refresh();
                                 cardsData.instances[$index].cardDraggableY.enable().setY(0).refresh();
@@ -1728,64 +1998,68 @@ const PROJECTS = {
                                 animate($card, {
                                     z: {
                                         to: cardsData.maxZDepth + 250,
-                                        delay : 300,
+                                        delay: 300,
                                         duration: 700,
                                         ease: 'ease',
                                     },
 
                                     rotateZ: {
                                         to: cardsData.instances[$index].isCardInLeftHalf ? 0 : -360,
-                                        delay : 0,
+                                        delay: 0,
                                         duration: 2000,
-                                        ease: (cardsData.instances[$index].isCardInLeftHalf) ? "cubicBezier(0.6, 0, 0.2, 1)" : "cubicBezier(0.7, 0, 0, 1)",
+                                        ease:
+                                            cardsData.instances[$index].isCardInLeftHalf ?
+                                                'cubicBezier(0.6, 0, 0.2, 1)'
+                                            :   'cubicBezier(0.7, 0, 0, 1)',
                                     },
                                     rotateX: 0,
 
                                     x: {
                                         // to: "-100%",
-                                        to: "0%",
-                                        delay : 200,
+                                        to: '0%',
+                                        delay: 200,
                                     },
                                     y: [
                                         {
-                                            to: (cardsData.instances[$index].isCardTop) ? `-90%` : "-140%",
-                                            duration : (cardsData.instances[$index].isCardTop) ? 200 : 500,
-                                            ease: "cubicBezier(0.2, 0.2, 0.6, 1)",
+                                            to: cardsData.instances[$index].isCardTop ? `-90%` : '-140%',
+                                            duration: cardsData.instances[$index].isCardTop ? 200 : 500,
+                                            ease: 'cubicBezier(0.2, 0.2, 0.6, 1)',
                                         },
                                         {
-                                            to: "0",
-                                            duration : (cardsData.instances[$index].isCardTop) ? 2000 : 1500,
-                                            ease: "cubicBezier(0.5, 0, 0, 1)",
+                                            to: '0',
+                                            duration: cardsData.instances[$index].isCardTop ? 2000 : 1500,
+                                            ease: 'cubicBezier(0.5, 0, 0, 1)',
                                         },
                                     ],
                                     rotateY: {
                                         to: [0, cardsData.instances[$index].isCardInLeftHalf ? 360 : -360],
-                                        delay : 150,
+                                        delay: 150,
                                         duration: 2200,
-                                        ease: "cubicBezier(0.5, 0, 0, 1)",
+                                        ease: 'cubicBezier(0.5, 0, 0, 1)',
                                     },
 
                                     duration: 1000,
-                                    ease: "cubicBezier(0.5, 0.1, 0, 1)",
+                                    ease: 'cubicBezier(0.5, 0.1, 0, 1)',
                                     composition: 'blend',
                                 });
 
                                 elemsCards.forEach(($c, $i) => {
-                                    if ($i == $index) { return; }
-                                    $c.classList.add("is-disabled");
-                                    animate($c.querySelector("wrapper[data-drag]"), {
-                                        scale: ["1", "0.835"],
-                                        y: ["0%", "4%"],
+                                    if ($i == $index) {
+                                        return;
+                                    }
+                                    $c.classList.add('is-disabled');
+                                    animate($c.querySelector('wrapper[data-drag]'), {
+                                        scale: ['1', '0.835'],
+                                        y: ['0%', '4%'],
                                         duration: 2200,
-                                        ease: "cubicBezier(0.5, 0, 0.4, 1)",
+                                        ease: 'cubicBezier(0.5, 0, 0.4, 1)',
                                         composition: 'blend',
                                     });
                                 });
                             }
                         }
                     });
-                })
-
+                });
 
                 function closeOpenedCards() {
                     if (cardsData.isOpened) {
@@ -1793,61 +2067,68 @@ const PROJECTS = {
                             if (cardsData.instances[$index].isActive) {
                                 triggerCardClose($card, $index);
                             }
-                        })
+                        });
                     }
                 }
-                $cardsGlobalFader.addEventListener("click", closeOpenedCards);
+                $cardsGlobalFader.addEventListener('click', closeOpenedCards);
 
                 function triggerCardClose($card, $index) {
-                    $card.classList.add("is-click-timeout"); setTimeout(() => { $card.classList.remove("is-click-timeout"); }, 500);
+                    $card.classList.add('is-click-timeout');
+                    setTimeout(() => {
+                        $card.classList.remove('is-click-timeout');
+                    }, 500);
                     cardsData.instances[$index].isActive = false;
-                    $card.classList.remove("is-active");
-                    $cardsGlobalFader.classList.remove("is-active");
+                    $card.classList.remove('is-active');
+                    $cardsGlobalFader.classList.remove('is-active');
 
-                    const $cardInfos = mainContainer.querySelector('.card-infos[data-card-info="'+ cardsData.instances[$index].cardName +'"]');
-                    if($cardInfos) { $cardInfos.classList.remove("is-active") };
+                    const $cardInfos = mainContainer.querySelector(
+                        '.card-infos[data-card-info="' + cardsData.instances[$index].cardName + '"]'
+                    );
+                    if ($cardInfos) {
+                        $cardInfos.classList.remove('is-active');
+                    }
 
                     animate($card, {
                         z: {
-                            to: (cardStackAnim.staggerDepth * $index + cardStackAnim.staggerDepthOffset),
-                            delay : 300,
+                            to: cardStackAnim.staggerDepth * $index + cardStackAnim.staggerDepthOffset,
+                            delay: 300,
                             duration: 700,
                             ease: 'ease',
                         },
 
                         rotateZ: {
                             to: -360 + cardsData.rotateSlice * ($index + 1),
-                            delay : 0,
+                            delay: 0,
                             duration: 1500,
-                            ease: "cubicBezier(0.6, 0, 0, 1)",
+                            ease: 'cubicBezier(0.6, 0, 0, 1)',
                         },
                         rotateX: cardStackAnim.finalRotateX,
 
                         x: {
-                            to: "0%",
-                            delay : 200,
+                            to: '0%',
+                            delay: 200,
                         },
                         y: [
                             {
-                                to: (cardsData.instances[$index].isCardTop) ? `-90%` : `-140%`,
-                                duration : 900,
-                                ease: "cubicBezier(0.4, 0, 0.6, 1)",
+                                to: cardsData.instances[$index].isCardTop ? `-90%` : `-140%`,
+                                duration: 900,
+                                ease: 'cubicBezier(0.4, 0, 0.6, 1)',
                             },
                             {
                                 to: `-${cardStackAnim.radius}%`,
-                                duration : 1000,
-                                ease: "cubicBezier(0.3, 0, 0, 1)",
+                                duration: 1000,
+                                ease: 'cubicBezier(0.3, 0, 0, 1)',
                             },
                         ],
                         rotateY: {
                             to: 0,
-                            delay : 250,
+                            delay: 250,
                             duration: 1100,
-                            ease: "cubicBezier(0.3, 0.2, 0, 1)",
+                            ease: 'cubicBezier(0.3, 0.2, 0, 1)',
                         },
 
                         duration: 1000,
-                        ease: "cubicBezier(0.5, 0.1, 0, 1)",
+                        ease: 'cubicBezier(0.5, 0.1, 0, 1)',
                         composition: 'blend',
                     });
                     cardsData.instances[$index].cardDraggableX.disable();
@@ -1856,62 +2137,65 @@ const PROJECTS = {
                         cardsData.instances[$index].cardDraggableX.setX(0).refresh();
                         cardsData.instances[$index].cardDraggableY.setY(0).refresh();
                     }, 600);
-                    utils.set($card.querySelector(".fader"), { opacity: 0, });
+                    utils.set($card.querySelector('.fader'), { opacity: 0 });
 
                     elemsCards.forEach(($c, $i) => {
-                        if ($index == $i) { return; }
-                        animate($c.querySelector("wrapper[data-drag]"), {
-                            scale: "1",
-                            y: "0%",
+                        if ($index == $i) {
+                            return;
+                        }
+                        animate($c.querySelector('wrapper[data-drag]'), {
+                            scale: '1',
+                            y: '0%',
                             delay: 200,
                             duration: 2200,
-                            ease: "cubicBezier(0.5, 0, 0.3, 1)",
+                            ease: 'cubicBezier(0.5, 0, 0.3, 1)',
                             composition: 'blend',
                         });
                     });
                     setTimeout(() => {
                         cardsData.isOpened = false;
                         elemsCards.forEach(($c, $i) => {
-                            $c.classList.remove("is-disabled");
+                            $c.classList.remove('is-disabled');
                         });
                     }, 800);
                 }
-            })
+            });
         },
     },
-}
-
+};
 
 const THALIA_SMALL_PROFILE_ANIMATOR = {
-    animDrawData : {
-        "hair" : {
-            timePosition : 0,
-            duration : 700,
-            ease : "cubicBezier(0.7, 0.2, 0.4, 0.7)",
+    animDrawData: {
+        hair: {
+            timePosition: 0,
+            duration: 700,
+            ease: 'cubicBezier(0.7, 0.2, 0.4, 0.7)',
         },
-        "face" : {
-            timePosition : '<',
-            duration : 800,
-            ease : "cubicBezier(0.2, 0.2, 0.2, 1)",
+        face: {
+            timePosition: '<',
+            duration: 800,
+            ease: 'cubicBezier(0.2, 0.2, 0.2, 1)',
             onComplete: (self, animElems_blink) => {
                 animElems_blink.forEach((el) => {
-                    el.classList.add("anim-blink")
-                    setTimeout(() => { el.classList.remove("anim-blink")
-                        setTimeout(() => { el.classList.add("anim-blink")
+                    el.classList.add('anim-blink');
+                    setTimeout(() => {
+                        el.classList.remove('anim-blink');
+                        setTimeout(() => {
+                            el.classList.add('anim-blink');
                         }, 150);
                     }, 300);
                 });
-            }
+            },
         },
-        "throat" : {
-            timePosition : '<<+=400',
-            duration : 800,
-            ease : "cubicBezier(0.3, 0.2, 0.2, 0.9)",
+        throat: {
+            timePosition: '<<+=400',
+            duration: 800,
+            ease: 'cubicBezier(0.3, 0.2, 0.2, 0.9)',
         },
-        "circle" : {
-            timePosition : 500,
-            duration : 2300,
-            ease : "cubicBezier(0.6, 0, 0.2, 0.95)",
+        circle: {
+            timePosition: 500,
+            duration: 2300,
+            ease: 'cubicBezier(0.6, 0, 0.2, 0.95)',
         },
     },
 
@@ -1922,40 +2206,46 @@ const THALIA_SMALL_PROFILE_ANIMATOR = {
         }
 
         const animElemsBlink = profileEl.querySelectorAll('*[data-anim-blink]');
-        animElemsBlink.forEach((el) => { el.classList.add("anim"); });
+        animElemsBlink.forEach((el) => {
+            el.classList.add('anim');
+        });
 
         const animDrawData = THALIA_SMALL_PROFILE_ANIMATOR.animDrawData;
 
         const timeline = createTimeline({
-            defaults : {
-                delay : 0,
+            defaults: {
+                delay: 0,
             },
             onComplete: () => {
                 if (callbackDone) callbackDone();
-            }
+            },
         });
 
         profileEl.querySelectorAll('*[data-anim-draw]').forEach((elPath) => {
-            const animName = elPath.getAttribute("data-anim-draw");
+            const animName = elPath.getAttribute('data-anim-draw');
             const animData = animDrawData[animName];
 
             timeline.call(() => {
                 animElemsBlink.forEach((el) => {
-                    el.classList.remove("anim-blink");
-                    el.style.transition = "none";
+                    el.classList.remove('anim-blink');
+                    el.style.transition = 'none';
                     requestAnimationFrame(() => {
                         el.style.transition = null;
                     });
                 });
-            }, 0)
-            timeline.add(svg.createDrawable(elPath), {
-                draw : ['0 0', '0 1'],
-                duration : animData.duration,
-                ease : animData.ease,
-                onComplete: (self) => {
-                    if (animData.onComplete) animData.onComplete(self, animElemsBlink);
-                }
-            }, animData.timePosition);
+            }, 0);
+            timeline.add(
+                svg.createDrawable(elPath),
+                {
+                    draw: ['0 0', '0 1'],
+                    duration: animData.duration,
+                    ease: animData.ease,
+                    onComplete: (self) => {
+                        if (animData.onComplete) animData.onComplete(self, animElemsBlink);
+                    },
+                },
+                animData.timePosition
+            );
         });
 
         return timeline;
@@ -1963,20 +2253,22 @@ const THALIA_SMALL_PROFILE_ANIMATOR = {
 };
 
 const FOOTER_SMALL_PROFILE = {
-    selectors : {
-        homeLink : "footer.section-footer .thalia-small-profile-link",
-        profile : "footer.section-footer .thalia-small-profile",
+    selectors: {
+        homeLink: 'footer.section-footer .thalia-small-profile-link',
+        profile: 'footer.section-footer .thalia-small-profile',
     },
-    data : {
-        eventsBound : false,
-        timeline : null,
+    data: {
+        eventsBound: false,
+        timeline: null,
     },
-    init : () => {
+    init: () => {
         if (!FOOTER_SMALL_PROFILE.data.eventsBound) {
             FOOTER_SMALL_PROFILE.data.eventsBound = true;
 
-            window.addEventListener("scrollFooterSmallProfile", (e) => {
-                if (!e.detail || e.detail.way !== "enter") { return; }
+            window.addEventListener('scrollFooterSmallProfile', (e) => {
+                if (!e.detail || e.detail.way !== 'enter') {
+                    return;
+                }
                 FOOTER_SMALL_PROFILE.animate();
             });
 
@@ -1988,29 +2280,32 @@ const FOOTER_SMALL_PROFILE = {
 
         FOOTER_SMALL_PROFILE.initHomeLink();
     },
-    initHomeLink : () => {
+    initHomeLink: () => {
         const homeLinkEl = document.querySelector(FOOTER_SMALL_PROFILE.selectors.homeLink);
-        if (!homeLinkEl || homeLinkEl.hasAttribute("data-footer-home-link-bound")) return;
-        homeLinkEl.setAttribute("data-footer-home-link-bound", "true");
+        if (!homeLinkEl || homeLinkEl.hasAttribute('data-footer-home-link-bound')) return;
+        homeLinkEl.setAttribute('data-footer-home-link-bound', 'true');
 
-        homeLinkEl.addEventListener("click", (e) => {
-            if (window.location.pathname !== "/") { return; }
+        homeLinkEl.addEventListener('click', (e) => {
+            if (window.location.pathname !== '/') {
+                return;
+            }
 
             e.preventDefault();
             ScrollMain.scrollTo(0, {
                 ...SCROLL.options.scrollTo,
                 lock: false,
-                onComplete: () => { SCROLL.resize(ScrollMain); }
+                onComplete: () => {
+                    SCROLL.resize(ScrollMain);
+                },
             });
         });
     },
-    animate : () => {
+    animate: () => {
         if (FOOTER_SMALL_PROFILE.data.timeline) {
             FOOTER_SMALL_PROFILE.data.timeline.restart();
         }
     },
 };
-
 
 //- SWUP
 const swup = new Swup({
@@ -2031,47 +2326,53 @@ const swup = new Swup({
     // hooks: {},
     plugins: [
         new SwupPreloadPlugin({
-            throttle : 5,
-            preloadHoveredLinks : true,
-            preloadVisibleLinks : false,
-            preloadInitialPage : true,
+            throttle: 5,
+            preloadHoveredLinks: true,
+            preloadVisibleLinks: false,
+            preloadInitialPage: true,
         }),
     ],
 });
 
-
-
 const LOADING = {
-    elements : {
-        container : document.querySelector(".thalia-loading-screen"),
-        thaliaSmallProfile : document.querySelector(".thalia-loading-screen .thalia-small-profile"),
+    elements: {
+        container: document.querySelector('.thalia-loading-screen'),
+        thaliaSmallProfile: document.querySelector('.thalia-loading-screen .thalia-small-profile'),
     },
-    data : {
-        skipLoadingAnimation : false,
-        skipLoadingAnimationDevMode : true,
-        devMode : import.meta.env.DEV,
+    data: {
+        skipLoadingAnimation: false,
+        skipLoadingAnimationDevMode: true,
+        devMode: import.meta.env.DEV,
 
         events: {
             domReady: false,
-            introAnimStarted : false,
-            introAnimFinished : false,
-            hiding : false,
-            callbackInitDone : false,
+            introAnimStarted: false,
+            introAnimFinished: false,
+            hiding: false,
+            callbackInitDone: false,
         },
     },
 
     init: (callbackInit) => {
-        if (!LOADING.elements.container) { callbackInit(); console.error("[LOADING] no container found"); return; }
-        LOADING.setState("init");
-        LOADING.data.skipLoadingAnimation = (LOADING.data.devMode && LOADING.data.skipLoadingAnimationDevMode);
-        requestAnimationFrame(() => { DEFERRED_IMAGES.loadIn(); });
+        if (!LOADING.elements.container) {
+            callbackInit();
+            console.error('[LOADING] no container found');
+            return;
+        }
+        LOADING.setState('init');
+        LOADING.data.skipLoadingAnimation = LOADING.data.devMode && LOADING.data.skipLoadingAnimationDevMode;
+        requestAnimationFrame(() => {
+            DEFERRED_IMAGES.loadIn();
+        });
 
         // start app on DOM readiness only (do not wait for all images/videos)
         const onDomReady = () => {
-            if (LOADING.data.events.domReady) { return; }
+            if (LOADING.data.events.domReady) {
+                return;
+            }
             LOADING.data.events.domReady = true;
 
-            LOADING.setState("page-loaded");
+            LOADING.setState('page-loaded');
 
             if (callbackInit && !LOADING.data.events.callbackInitDone) {
                 LOADING.data.events.callbackInitDone = true;
@@ -2080,18 +2381,20 @@ const LOADING = {
 
             if (LOADING.data.events.introAnimFinished || LOADING.data.skipLoadingAnimation) {
                 LOADING.hide();
-            };
+            }
             setTimeout(() => {
-                if (LOADING.data.events.introAnimFinished) { return };
+                if (LOADING.data.events.introAnimFinished) {
+                    return;
+                }
                 LOADING.data.events.introAnimFinished = true;
 
-                console.warn("[LOADING] automatically dismissed, anim took too long");
+                console.warn('[LOADING] automatically dismissed, anim took too long');
                 LOADING.hide();
             }, 8000);
         };
 
-        if (document.readyState === "loading") {
-            window.addEventListener("DOMContentLoaded", onDomReady, { once: true });
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', onDomReady, { once: true });
         } else {
             onDomReady();
         }
@@ -2100,80 +2403,111 @@ const LOADING = {
         setTimeout(() => {
             LOADING.introAnim(() => {
                 if (!LOADING.data.events.domReady) {
-                    window.addEventListener("DOMContentLoaded", () => {
-                        LOADING.hide();
-                    }, { once: true });
-                }
-                else {
+                    window.addEventListener(
+                        'DOMContentLoaded',
+                        () => {
+                            LOADING.hide();
+                        },
+                        { once: true }
+                    );
+                } else {
                     LOADING.hide();
-                };
+                }
             });
         }, 300);
 
         setTimeout(() => {
-            if (LOADING.data.events.domReady && LOADING.data.events.introAnimFinished) { return };
+            if (LOADING.data.events.domReady && LOADING.data.events.introAnimFinished) {
+                return;
+            }
             LOADING.data.events.domReady = true;
             LOADING.data.events.introAnimFinished = true;
 
-            console.warn("[LOADING] automatically dismissed, loading took too long");
+            console.warn('[LOADING] automatically dismissed, loading took too long');
             LOADING.hide();
         }, 12000);
     },
 
     setState: (state) => {
-        docHTML.setAttribute("thalia-loading-state", state);
+        docHTML.setAttribute('thalia-loading-state', state);
     },
 
     hide: () => {
-        if (LOADING.data.events.hiding) { return; }
+        if (LOADING.data.events.hiding) {
+            return;
+        }
         LOADING.data.events.hiding = true;
 
-        LOADING.setState("hiding");
+        LOADING.setState('hiding');
         ScrollMain.scrollTo(0, {
-            offset: 0, immediate : true, lock: true,
-            onComplete: () => { SCROLL.resize(ScrollMain); }
+            offset: 0,
+            immediate: true,
+            lock: true,
+            onComplete: () => {
+                SCROLL.resize(ScrollMain);
+            },
         });
 
-        setTimeout(() => {
-            LOADING.setState("hidden");
-            ScrollMain.start();
-            ScrollMain.scrollTo(SCROLL.getScroll(ScrollMain), {
-                offset: 0, immediate : true, lock: true,
-                onComplete: (ScrollMain) => { SCROLL.resize(ScrollMain); }
-            });
-            setTimeout(() => { SCROLL.resize(ScrollMain) }, 100);
+        setTimeout(
+            () => {
+                LOADING.setState('hidden');
+                ScrollMain.start();
+                ScrollMain.scrollTo(SCROLL.getScroll(ScrollMain), {
+                    offset: 0,
+                    immediate: true,
+                    lock: true,
+                    onComplete: (ScrollMain) => {
+                        SCROLL.resize(ScrollMain);
+                    },
+                });
+                setTimeout(() => {
+                    SCROLL.resize(ScrollMain);
+                }, 100);
 
-            setTimeout(() => {
-                THALIA_CHARA.interactions.blink(true);
-            }, 1350);
-            setTimeout(() => {
-                LOADING.setState("hidden-fully");
-                SCROLL.resize(ScrollMain);
-            }, LOADING.data.skipLoadingAnimation ? 10 : 2500);
-        }, LOADING.data.skipLoadingAnimation ? 0 : 600);
+                setTimeout(() => {
+                    THALIA_CHARA.interactions.blink(true);
+                }, 1350);
+                setTimeout(
+                    () => {
+                        LOADING.setState('hidden-fully');
+                        SCROLL.resize(ScrollMain);
+                    },
+                    LOADING.data.skipLoadingAnimation ? 10 : 2500
+                );
+            },
+            LOADING.data.skipLoadingAnimation ? 0 : 600
+        );
     },
 
     introAnim: (callbackHide) => {
-        if (LOADING.data.events.introAnimStarted) { return; }
+        if (LOADING.data.events.introAnimStarted) {
+            return;
+        }
         LOADING.data.events.introAnimStarted = true;
-        LOADING.elements.container.classList.add("loading-animating");
+        LOADING.elements.container.classList.add('loading-animating');
 
         THALIA_SMALL_PROFILE_ANIMATOR.run(LOADING.elements.thaliaSmallProfile, () => {
             LOADING.data.events.introAnimFinished = true;
-            if (callbackHide) { callbackHide(); }
+            if (callbackHide) {
+                callbackHide();
+            }
         });
-    }
-}
+    },
+};
 
 const DEFERRED_IMAGES = {
-    loadIn: (attr = "data-src", container = document) => {
+    loadIn: (attr = 'data-src', container = document) => {
         container.querySelectorAll(`img[${attr}]`).forEach((img) => {
-            if (img.getAttribute("src")) { return; }
+            if (img.getAttribute('src')) {
+                return;
+            }
 
             const mediaSrc = img.getAttribute(attr);
-            if (!mediaSrc) { return; }
+            if (!mediaSrc) {
+                return;
+            }
 
-            img.setAttribute("src", mediaSrc);
+            img.setAttribute('src', mediaSrc);
             img.removeAttribute(attr);
         });
     },
@@ -2185,15 +2519,15 @@ const PRELOADER = {
         {
             selector: '.item-gallery a[href="/p/cartes-tarot-garou/"]',
             urls: [
-                "/assets/projets/cartes-tarot-garou/carte-dos.png",
-                "/assets/projets/cartes-tarot-garou/carte-3-imperatrice.png",
-                "/assets/projets/cartes-tarot-garou/carte-6-amoureux.png",
-                "/assets/projets/cartes-tarot-garou/carte-8-justice.png",
-                "/assets/projets/cartes-tarot-garou/carte-15-diable.png",
-                "/assets/projets/cartes-tarot-garou/carte-17-etoile.png",
-                "/assets/projets/cartes-tarot-garou/carte-18-lune.png",
-                "/assets/projets/cartes-tarot-garou/carte-19-soleil.png",
-            ]
+                '/assets/projets/cartes-tarot-garou/carte-dos.png',
+                '/assets/projets/cartes-tarot-garou/carte-3-imperatrice.png',
+                '/assets/projets/cartes-tarot-garou/carte-6-amoureux.png',
+                '/assets/projets/cartes-tarot-garou/carte-8-justice.png',
+                '/assets/projets/cartes-tarot-garou/carte-15-diable.png',
+                '/assets/projets/cartes-tarot-garou/carte-17-etoile.png',
+                '/assets/projets/cartes-tarot-garou/carte-18-lune.png',
+                '/assets/projets/cartes-tarot-garou/carte-19-soleil.png',
+            ],
         },
     ],
     data: {
@@ -2210,13 +2544,13 @@ const PRELOADER = {
         if (!Array.isArray(urls) || urls.length <= 0) return;
 
         urls.forEach((url) => {
-            if (!url || typeof url !== "string") return;
+            if (!url || typeof url !== 'string') return;
 
             const normalizedUrl = PRELOADER.normalizeUrl(url);
             if (PRELOADER.data.preloadedUrls.has(normalizedUrl)) return;
 
             const img = new Image();
-            img.decoding = "async";
+            img.decoding = 'async';
             img.src = normalizedUrl;
 
             PRELOADER.data.preloadedUrls.add(normalizedUrl);
@@ -2232,11 +2566,15 @@ const PRELOADER = {
             const boundAttr = `data-preloader-bound-${groupIndex}`;
             container.querySelectorAll(group.selector).forEach((el) => {
                 if (el.hasAttribute(boundAttr)) return;
-                el.setAttribute(boundAttr, "true");
+                el.setAttribute(boundAttr, 'true');
 
-                el.addEventListener("mouseenter", () => {
-                    PRELOADER.preloadUrls(group.urls);
-                }, { passive: true, once: true });
+                el.addEventListener(
+                    'mouseenter',
+                    () => {
+                        PRELOADER.preloadUrls(group.urls);
+                    },
+                    { passive: true, once: true }
+                );
             });
         });
     },
@@ -2246,11 +2584,14 @@ const PRELOADER = {
     },
 };
 
-
 //- RUN
 LOADING.init(() => {
-    if (THALIA_GLOBALS.isTouch) { docHTML.classList.add("deviceIsTouch"); }
-    if (THALIA_GLOBALS.isFirefox) { docHTML.classList.add("browserIsFirefox"); }
+    if (THALIA_GLOBALS.isTouch) {
+        docHTML.classList.add('deviceIsTouch');
+    }
+    if (THALIA_GLOBALS.isFirefox) {
+        docHTML.classList.add('browserIsFirefox');
+    }
 
     _GET.scrollbarWidth(true);
     swup.hooks.on('content:replace', () => {
@@ -2274,7 +2615,9 @@ LOADING.init(() => {
     THALIA_CHARA.interactions.init();
 
     PAGES.initPagesHandling();
-    if (document.querySelector(".gallery-grid")) { GALLERY_GRID.init(); }
+    if (document.querySelector('.gallery-grid')) {
+        GALLERY_GRID.init();
+    }
 
     SCROLL.resize(ScrollMain);
 });
